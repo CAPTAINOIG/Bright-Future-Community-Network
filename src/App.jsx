@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
 import { Shield } from 'lucide-react';
 import { Loader, EmptyState, ToastProvider } from './components/ui';
 import Layout from './components/layout/Layout';
