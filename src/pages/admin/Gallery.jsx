@@ -1,3 +1,3 @@
-import GalleryManagement from '../admin/components/GalleryManagement';
+import GalleryManagement from './components/GalleryManagement';
 
 export default GalleryManagement;

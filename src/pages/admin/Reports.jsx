@@ -1,3 +1,3 @@
-import Reports from '../admin/components/Reports';
+import Reports from './components/Reports';
 
 export default Reports;

@@ -1,3 +1,3 @@
-import EventManagement from '../admin/components/EventManagement';
+import EventManagement from './components/EventManagement';
 
 export default EventManagement;

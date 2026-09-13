@@ -1,3 +1,3 @@
-import EnhancedMemberManagement from '../admin/components/EnhancedMemberManagement';
+import EnhancedMemberManagement from './components/EnhancedMemberManagement';
 
 export default EnhancedMemberManagement;

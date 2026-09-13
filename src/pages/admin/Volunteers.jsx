@@ -1,3 +1,3 @@
-import VolunteerManagement from '../admin/components/VolunteerManagement';
+import VolunteerManagement from './components/VolunteerManagement';
 
 export default VolunteerManagement;

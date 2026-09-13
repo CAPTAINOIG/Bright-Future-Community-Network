@@ -1,3 +1,3 @@
-import DashboardOverview from '../Admin/components/DashboardOverview';
+import DashboardOverview from './components/DashboardOverview';
 
 export default DashboardOverview;

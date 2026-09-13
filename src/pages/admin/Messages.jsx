@@ -1,3 +1,3 @@
-import ContactMessages from '../admin/components/ContactMessages';
+import ContactMessages from './components/ContactMessages';
 
 export default ContactMessages;
