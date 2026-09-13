@@ -1,34 +1,46 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
-const DEMO_EMAIL = 'admin@bfcn.org';
-const DEMO_PASSWORD = 'admin123';
-
-export default create(
+const useAuthStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
-      token: null,
       isAuthenticated: false,
-      login: async (email, password) => {
-        await new Promise((r) => setTimeout(r, 600));
-        if (email.trim().toLowerCase() !== DEMO_EMAIL || password !== DEMO_PASSWORD) {
-          throw new Error('Invalid email or password.');
+      
+      login: (credentials) => {
+        // Mock login - in real app, this would call an API
+        if (credentials.email === 'admin@bfcn.org' && credentials.password === 'admin123') {
+          const user = {
+            id: 1,
+            name: 'BFCN Admin',
+            email: credentials.email,
+            role: 'admin'
+          };
+          
+          set({ user, isAuthenticated: true });
+          return { success: true, user };
         }
-        set({
-          user: { email: DEMO_EMAIL, name: 'BFCN Admin', role: 'Administrator' },
-          token: 'demo-token-' + Date.now(),
-          isAuthenticated: true,
-        });
+        
+        return { success: false, error: 'Invalid credentials' };
       },
+      
       logout: () => {
-        set({ user: null, token: null, isAuthenticated: false });
-        try { localStorage.removeItem('bfcn.auth'); } catch (e) { void e; }
+        set({ user: null, isAuthenticated: false });
       },
+      
+      checkAuth: () => {
+        const state = get();
+        return state.isAuthenticated && state.user;
+      }
     }),
     {
-      name: 'bfcn.auth',
-      storage: createJSONStorage(() => localStorage),
-    },
-  ),
+      name: 'bfcn-auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated
+      })
+    }
+  )
 );
+
+export default useAuthStore;
