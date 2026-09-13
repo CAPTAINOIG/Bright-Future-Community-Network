@@ -12,7 +12,7 @@ const programmes = [
   { id: 6, icon: TrendingUp, title: 'Community Empowerment', category: 'Community', color: '#6a1b9a', description: 'Sustainable community development through infrastructure, advocacy, and community organizing.', objectives: ['Improve infrastructure', 'Promote environmental sustainability', 'Strengthen community organizing', 'Advocate for development policies'], beneficiaries: 'Entire communities across Oyo State.', activities: ['Road/drainage projects', 'Cleanup campaigns', 'Town hall meetings', 'Policy advocacy', 'Community mapping'] },
 ];
 
-function ProgrammeDetail({ programme }) {
+const ProgrammeDetail = ({ programme }) => {
   const Icon = programme.icon;
   return (
     <div className="space-y-7">
@@ -30,7 +30,7 @@ function ProgrammeDetail({ programme }) {
   );
 }
 
-export default function Programmes() {
+const Programmes = () => {
   const [selected, setSelected] = useState(null);
 
   return (
@@ -49,3 +49,6 @@ export default function Programmes() {
     </div>
   );
 }
+
+
+export default Programmes;

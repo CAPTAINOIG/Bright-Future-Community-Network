@@ -21,8 +21,8 @@ const albums = [
     title: 'Community Library Project',
     category: 'Projects',
     images: [
-      { id: 7, caption: 'Before renovation', image: 'https://images.unsplash.com/photo-1532012197267-da84d127e764?w=800&auto=format&fit=crop&q=80' },
-      { id: 8, caption: 'Renovation in progress', image: 'https://images.unsplash.com/photo-1581858726788-75bc0f5a185b?w=800&auto=format&fit=crop&q=80' },
+      { id: 7, caption: 'Before renovation', image: 'https://images.unsplash.com/photo-1640185944838-717abbee085f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bmdvJTIwcHJvamVjdCUyMGJlZm9yZSUyMHJlbm92YXRpb258ZW58MHx8MHx8fDA%3D' },
+      { id: 8, caption: 'Renovation in progress', image: 'https://plus.unsplash.com/premium_photo-1733259836890-a688a61866f6?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
       { id: 9, caption: 'Book donation ceremony', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&auto=format&fit=crop&q=80' },
       { id: 10, caption: 'Children reading', image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&auto=format&fit=crop&q=80' },
     ],
@@ -32,8 +32,8 @@ const albums = [
     title: 'School Renovation',
     category: 'Projects',
     images: [
-      { id: 11, caption: 'Before renovation', image: 'https://images.unsplash.com/photo-1577896851523-e0bc6c10afd2?w=800&auto=format&fit=crop&q=80' },
-      { id: 12, caption: 'New roof installation', image: 'https://images.unsplash.com/photo-1504307651254-35680f356df9?w=800&auto=format&fit=crop&q=80' },
+      { id: 11, caption: 'Before renovation', image: 'https://images.unsplash.com/photo-1632143696848-ed6f1d57d66e?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
+      { id: 12, caption: 'New roof installation', image: 'https://plus.unsplash.com/premium_photo-1682617326551-4749611516f6?q=80&w=1333&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
       { id: 13, caption: 'Furnished classroom', image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&auto=format&fit=crop&q=80' },
       { id: 14, caption: 'Students in renovated school', image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&auto=format&fit=crop&q=80' },
     ],
