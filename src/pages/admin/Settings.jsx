@@ -1,3 +1,3 @@
-import WebsiteSettings from '../Admin/components/WebsiteSettings';
+import WebsiteSettings from '../admin/components/WebsiteSettings';
 
 export default WebsiteSettings;

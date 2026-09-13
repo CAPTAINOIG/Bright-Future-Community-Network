@@ -1,3 +1,3 @@
-import ProjectManagement from '../Admin/components/ProjectManagement';
+import ProjectManagement from '../admin/components/ProjectManagement';
 
 export default ProjectManagement;

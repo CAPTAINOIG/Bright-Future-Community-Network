@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Upload, Eye, Edit, Trash2, Plus, Globe, Mail, Phone, MapPin, Settings } from 'lucide-react';
+import { Save, Upload, Eye, Globe, Mail, Phone, MapPin, Settings } from 'lucide-react';
 import { Button, ColorPicker, Image as AntImage, Radio, Switch } from 'antd';
 
 export default function WebsiteSettings() {

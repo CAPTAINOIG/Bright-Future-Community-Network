@@ -1,3 +1,3 @@
-import CommunityIdeasManagement from '../Admin/components/CommunityIdeasManagement';
+import CommunityIdeasManagement from '../admin/components/CommunityIdeasManagement';
 
 export default CommunityIdeasManagement;

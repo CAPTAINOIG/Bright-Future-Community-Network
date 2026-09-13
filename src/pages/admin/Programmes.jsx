@@ -1,3 +1,3 @@
-import ProgrammeManagement from '../Admin/components/ProgrammeManagement';
+import ProgrammeManagement from '../admin/components/ProgrammeManagement';
 
 export default ProgrammeManagement;
