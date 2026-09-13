@@ -6,38 +6,36 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
-    target: 'esnext',
+    target: 'es2020',
     rollupOptions: {
+      external: (id) => {
+        // Don't externalize anything for now
+        return false;
+      },
       output: {
         manualChunks: (id) => {
+          // Simplified chunking to avoid complex dependencies
           if (id.includes('node_modules')) {
-            if (id.includes('react') && !id.includes('react-router')) {
-              return 'vendor';
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react';
             }
             if (id.includes('antd')) {
               return 'antd';
             }
-            if (id.includes('react-router')) {
-              return 'router';
-            }
-            if (id.includes('lucide-react') || id.includes('@heroicons')) {
-              return 'icons';
-            }
             if (id.includes('framer-motion')) {
               return 'motion';
-            }
-            if (id.includes('react-hook-form')) {
-              return 'forms';
             }
             return 'vendor';
           }
         }
       }
     },
-    chunkSizeWarningLimit: 1000,
-    sourcemap: false
+    sourcemap: false,
+    minify: false, // Disable minification temporarily
+    chunkSizeWarningLimit: 2000
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'antd', 'react-router-dom', 'lucide-react', '@heroicons/react']
+    force: true,
+    include: ['react', 'react-dom', 'react-router-dom']
   }
 })

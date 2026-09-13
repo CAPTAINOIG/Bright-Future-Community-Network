@@ -92,4 +92,4 @@ console.log('1. Commit and push your changes');
 console.log('2. Deploy to Netlify with these settings:');
 console.log('   - Build command: npm run build');
 console.log('   - Publish directory: dist');
-console.log('   - Node version: 18');
+console.log('   - Node version: 20');

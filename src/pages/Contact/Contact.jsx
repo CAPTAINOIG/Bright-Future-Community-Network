@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { Phone, Mail, MapPin, Clock, Send, MessageCircle } from 'lucide-react';
-import { Button, ScrollReveal, FormField, toast } from '../../components/ui';
+import { Button, ScrollReveal } from '../../components/ui';
 
 const Contact = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
