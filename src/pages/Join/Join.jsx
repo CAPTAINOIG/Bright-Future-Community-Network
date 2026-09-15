@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { UserPlus, CheckCircle, ArrowRight } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { Button, ScrollReveal } from '../../components/ui';
 import { toast } from 'sonner';
-import { inputClass } from '../../utils/exportCsv';
 
 const interestOptions = [
   'Education',
@@ -36,6 +35,10 @@ const Join = () => {
     },
   });
 
+   const inputClass = (field) =>
+      `w-full py-3 px-4 border ${errors[field] ? 'border-red-500' : 'border-gray-200'
+      } rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400`;
+  
   const interests = watch('interests');
 
   const onSubmit = (data) => {
