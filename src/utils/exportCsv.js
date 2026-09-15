@@ -41,3 +41,7 @@ export const exportCsv = (filename, data) => {
     return false;
   }
 };
+
+export const inputClass = (field) =>
+    `w-full py-3 px-4 border ${errors[field] ? 'border-red-500' : 'border-gray-200'
+    } rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400`;

@@ -67,26 +67,61 @@ const albums = [
 
 const videoStories = [
   {
-    title: 'Volunteers supporting a donation centre',
-    description: 'A temporary stock clip of volunteers sorting and organising donated goods.',
-    href: 'https://www.pexels.com/video/volunteers-helping-each-other-6893560/',
-    image: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=900&auto=format&fit=crop&q=80',
+    title: 'Community Development in Action',
+    description:
+      'Community-focused initiatives creating opportunities and improving lives.',
+    image: 'https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg',
+    link: 'https://www.youtube.com/watch?v=VIDEO_ID',
   },
   {
-    title: 'Community clean-up in action',
-    description: 'A temporary stock clip showing volunteers caring for a shared outdoor space.',
-    href: 'https://www.pexels.com/video/volunteers-cleaning-a-riverbank-in-summer-31948665/',
-    image: 'https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?w=900&auto=format&fit=crop&q=80',
+    title: 'Volunteers Making a Difference',
+    description:
+      'Volunteers working together to support people and strengthen their communities.',
+    image: 'https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg',
+    link: 'https://www.youtube.com/watch?v=VIDEO_ID',
   },
   {
-    title: 'Community donation drive',
-    description: 'A temporary stock clip of a team preparing goods for community distribution.',
-    href: 'https://www.pexels.com/video/people-packing-goods-6893741/',
-    image: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=900&auto=format&fit=crop&q=80',
+    title: 'Supporting Communities',
+    description:
+      'A look at community-based programmes focused on support, empowerment and development.',
+    image: 'https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg',
+    link: 'https://www.youtube.com/watch?v=VIDEO_ID',
+  },
+  {
+    title: 'Building a Better Community',
+    description:
+      'Community members and volunteers working together towards a brighter future.',
+    videoId: 'ScMzIvxBSi4',
+    image: 'https://img.youtube.com/vi/ScMzIvxBSi4/maxresdefault.jpg',
+    link: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+  },
+    {
+    title: 'Volunteers Supporting the Community',
+    description:
+      'A story of people coming together to support and make a positive difference in their community.',
+    image:
+      'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=900&auto=format&fit=crop&q=80',
+    link: 'https://www.youtube.com/watch?v=uuZE_IRwLNI',
+  },
+  {
+    title: 'Community Clean-Up in Action',
+    description:
+      'Volunteers working together to care for and improve their shared environment.',
+    image:
+      'https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?w=900&auto=format&fit=crop&q=80',
+    link: 'https://www.youtube.com/watch?v=4G9NwKJvMFA',
+  },
+  {
+    title: 'Food Distribution and Community Support',
+    description:
+      'Community members and volunteers coming together to provide support to people in need.',
+    image:
+      'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=900&auto=format&fit=crop&q=80',
+    link: 'https://www.youtube.com/watch?v=9sYc9m2Q7pA',
   },
 ];
 
-export default function Gallery() {
+const Gallery = () => {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [lightbox, setLightbox] = useState(null);
   const [filter, setFilter] = useState('All');
@@ -173,7 +208,7 @@ export default function Gallery() {
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {videoStories.map((video) => (
-                <a key={video.title} href={video.href} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-2xl border border-gray-200 bg-white no-underline shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <a key={video.title} href={video.link} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-2xl border border-gray-200 bg-white no-underline shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
                   <div className="relative aspect-video overflow-hidden bg-primary-900">
                     <img src={video.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                     <div className="absolute inset-0 bg-primary-900/25" />
@@ -217,3 +252,5 @@ export default function Gallery() {
     </div>
   );
 }
+
+export default Gallery;

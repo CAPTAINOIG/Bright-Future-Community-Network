@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Lightbulb, CheckCircle } from 'lucide-react';
 import { Button, ScrollReveal, Badge, SectionHeader } from '../../components/ui';
+import { toast } from 'sonner';
+import { inputClass } from '../../utils/exportCsv';
 
 const sampleIdeas = [
   {
@@ -49,18 +51,14 @@ const CommunityIdeas = () => {
 
   const onSubmit = (data) => {
     console.log('Submitted idea:', data);
-
     setSubmitted(true);
+    toast.success('Idea Submitted. Our team will review and keep you updated.')
   };
 
   const handleSubmitAnother = () => {
     setSubmitted(false);
     reset();
   };
-
-  const inputClass = (field) =>
-    `w-full py-3 px-4 border ${errors[field] ? 'border-red-500' : 'border-gray-200'
-    } rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400`;
 
   return (
     <div>
@@ -146,29 +144,7 @@ const CommunityIdeas = () => {
                 </div>
               ))}
             </div>
-          ) : submitted ? (
-            <div className="text-center max-w-[500px] mx-auto py-10">
-              <CheckCircle
-                size={48}
-                className="text-green-700 mx-auto mb-4"
-              />
-
-              <h2 className="font-serif text-2xl mb-4">
-                Idea Submitted!
-              </h2>
-
-              <p className="text-gray-600 mb-8">
-                Our team will review and keep you updated.
-              </p>
-
-              <Button
-                variant="primary"
-                onClick={handleSubmitAnother}
-              >
-                Submit Another
-              </Button>
-            </div>
-          ) : (
+           ) : (
             <div className="max-w-[720px] mx-auto">
               <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
                 <div className="text-center mb-8">

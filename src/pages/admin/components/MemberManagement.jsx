@@ -1,18 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { 
-  MagnifyingGlassIcon, 
-  PlusIcon, 
-  FunnelIcon, 
-  ArrowDownTrayIcon, 
   EyeIcon, 
   PencilIcon, 
   TrashIcon,
-  EllipsisVerticalIcon 
 } from '@heroicons/react/24/outline';
-import { Modal, FormField, Dropdown, ConfirmDialog, toast } from '../../../components/ui';
+import { toast } from '../../../components/ui';
 import DataTable from '../../../components/admin/DataTable';
-import { motion } from 'framer-motion';
 import { Download, Edit, Eye, Filter, MoreVertical, Plus, Search, Trash2 } from 'lucide-react';
 
 const members = [

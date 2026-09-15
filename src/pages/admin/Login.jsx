@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { FormField, LoadingSpinner, toast } from '../../components/ui';
+import { LoadingSpinner, toast } from '../../components/ui';
 import { motion } from 'framer-motion';
 
 export default function Login() {
@@ -13,31 +13,50 @@ export default function Login() {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm({
     defaultValues: {
       email: '',
-      password: ''
-    }
+      password: '',
+      rememberMe: false,
+    },
   });
 
   const onSubmit = async (data) => {
+    console.log('Login Data:', data);
+
     setIsLoading(true);
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       if (data.email && data.password) {
-        localStorage.setItem('admin_token', 'mock_token_' + Date.now());
+        localStorage.setItem(
+          'admin_token',
+          'mock_token_' + Date.now()
+        );
+
+        if (data.rememberMe) {
+          localStorage.setItem('admin_email', data.email);
+        } else {
+          localStorage.removeItem('admin_email');
+        }
+
         toast.success('Login successful! Welcome to BFCN Admin.');
         navigate('/admin');
-      } else {
-        toast.error('Please check your credentials and try again.');
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  const inputClass = (field) =>
+    `w-full py-3 px-4 border ${
+      errors[field] ? 'border-red-500' : 'border-gray-200'
+    } rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center p-4">
@@ -55,14 +74,20 @@ export default function Login() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="flex items-center justify-center mb-6"
           >
-            <img 
-              src="/images/bfcn-logo.png" 
-              alt="BFCN" 
+            <img
+              src="/images/bfcn-logo.png"
+              alt="BFCN"
               className="w-16 h-16 rounded-full shadow-lg"
             />
           </motion.div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Portal</h1>
-          <p className="text-gray-600">Sign in to manage BFCN</p>
+
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Admin Portal
+          </h1>
+
+          <p className="text-gray-600">
+            Sign in to manage BFCN
+          </p>
         </div>
 
         {/* Login Form */}
@@ -72,26 +97,44 @@ export default function Login() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="bg-white rounded-2xl shadow-xl p-8"
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              label="Email Address"
-              type="email"
-              required
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: 'Invalid email address'
-                }
-              })}
-              error={errors.email}
-              placeholder="Enter your email"
-            />
-
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Password <span className="text-red-500">*</span>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            className="space-y-6"
+          >
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address *
               </label>
+
+              <input
+                type="email"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: 'Enter a valid email address',
+                  },
+                })}
+                placeholder="Enter your email"
+                autoComplete="email"
+                className={inputClass('email')}
+              />
+
+              {errors.email && (
+                <span className="text-sm text-red-600 mt-1 block">
+                  {errors.email.message}
+                </span>
+              )}
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password *
+              </label>
+
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -99,12 +142,16 @@ export default function Login() {
                     required: 'Password is required',
                     minLength: {
                       value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
+                      message: 'Password must be at least 6 characters',
+                    },
                   })}
-                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                   placeholder="Enter your password"
+                  autoComplete="current-password"
+                  className={`${inputClass(
+                    'password'
+                  )} pr-10`}
                 />
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -117,19 +164,28 @@ export default function Login() {
                   )}
                 </button>
               </div>
+
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <span className="text-sm text-red-600 mt-1 block">
+                  {errors.password.message}
+                </span>
               )}
             </div>
 
+            {/* Remember Me / Forgot Password */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center">
+              <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
+                  {...register('rememberMe')}
                   className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                 />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
+
+                <span className="ml-2 text-sm text-gray-600">
+                  Remember me
+                </span>
               </label>
+
               <button
                 type="button"
                 className="text-sm text-primary-600 hover:text-primary-500 font-medium"
@@ -138,6 +194,7 @@ export default function Login() {
               </button>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -145,7 +202,10 @@ export default function Login() {
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
-                  <LoadingSpinner size="small" className="text-white" />
+                  <LoadingSpinner
+                    size="small"
+                    className="text-white"
+                  />
                   Signing in...
                 </div>
               ) : (
@@ -156,10 +216,21 @@ export default function Login() {
 
           {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-800 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-xs text-blue-600">Email: admin@bfcn.org</p>
-            <p className="text-xs text-blue-600">Password: admin123</p>
-            <p className="text-xs text-blue-500 mt-1">Any valid email/password combination will work for demo purposes.</p>
+            <p className="text-xs text-blue-800 font-medium mb-2">
+              Demo Credentials:
+            </p>
+
+            <p className="text-xs text-blue-600">
+              Email: admin@bfcn.org
+            </p>
+
+            <p className="text-xs text-blue-600">
+              Password: admin123
+            </p>
+
+            <p className="text-xs text-blue-500 mt-1">
+              Any valid email/password combination will work for demo purposes.
+            </p>
           </div>
         </motion.div>
 
@@ -171,7 +242,8 @@ export default function Login() {
           className="text-center mt-8"
         >
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} Bright Future Community Network. All rights reserved.
+            © {new Date().getFullYear()} Bright Future Community Network.
+            All rights reserved.
           </p>
         </motion.div>
       </motion.div>

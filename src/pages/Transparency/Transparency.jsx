@@ -21,12 +21,10 @@ const projectOutcomes = [
   { project: 'Women Empowerment', outcomes: ['50 women enrolled', '3 skill areas covered', '20 businesses started'] },
 ];
 
-export default function Transparency() {
+const Transparency = () => {
   return (
     <div>
       <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]"><div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" /><div className="container-main relative z-10"><ScrollReveal className="text-center max-w-[700px] mx-auto"><span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">Accountability</span><h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">Transparency</h1><p className="text-base text-white/85 max-w-[560px] mx-auto">See our impact, reports, and how resources are used.</p></ScrollReveal></div><div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="white" /></svg></div></section>
-
-      {/* Stats */}
       <section className="py-12 md:py-16"><div className="container-main">
         <ScrollReveal animation="stagger-children" className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {impactStats.map((s) => (
@@ -38,8 +36,6 @@ export default function Transparency() {
           ))}
         </ScrollReveal>
       </div></section>
-
-      {/* Reports */}
       <section className="py-16 md:py-20 bg-gray-50"><div className="container-main">
         <ScrollReveal><SectionHeader label="Reports" title="Programme & Impact Reports" subtitle="Download our reports to learn about our work and impact." /></ScrollReveal>
         <ScrollReveal className="flex flex-col gap-3 max-w-[800px] mx-auto">
@@ -52,8 +48,6 @@ export default function Transparency() {
           ))}
         </ScrollReveal>
       </div></section>
-
-      {/* Outcomes */}
       <section className="py-16 md:py-20"><div className="container-main">
         <ScrollReveal><SectionHeader label="Results" title="Project Outcomes" subtitle="Measurable results from our completed projects." /></ScrollReveal>
         <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -68,3 +62,5 @@ export default function Transparency() {
     </div>
   );
 }
+
+export default Transparency;
