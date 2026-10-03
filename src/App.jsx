@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import { Shield } from 'lucide-react';
-import { Loader, EmptyState, ToastProvider } from './components/ui';
 import Layout from './components/layout/Layout';
 import AdminLayout from './components/admin/AdminLayout';
 import ProtectedRoute from './components/admin/ProtectedRoute';
@@ -23,6 +22,7 @@ import Volunteer from './pages/Volunteer/Volunteer';
 import Support from './pages/Support/Support';
 import CommunityIdeas from './pages/CommunityIdeas/CommunityIdeas';
 import Transparency from './pages/Transparency/Transparency';
+import { EmptyState, Loader } from './components/ui';
 
 const DashboardOverview = lazy(() => import('./pages/admin/DashboardOverview'));
 const Members = lazy(() => import('./pages/admin/Members'));
@@ -71,6 +71,12 @@ export default function App() {
             colorTextSecondary: '#708078',
             colorBorder: '#dfe3d9',
             colorBgContainer: '#ffffff',
+            colorBgElevated: '#ffffff',
+            colorItemBg: '#ffffff',
+            colorItemBgHover: '#f7faf6',
+            colorItemBgSelected: '#edf5ed',
+            colorItemText: '#17231d',
+            colorItemTextSelected: '#1b5e20',
             borderRadius: 12,
             fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
           },
@@ -88,6 +94,14 @@ export default function App() {
             Select: {
               optionSelectedBg: '#edf5ed',
               controlHeightLG: 44,
+              selectorBg: '#ffffff',
+              multipleItemBg: '#edf5ed',
+              multipleItemBorderColor: '#cfe3d4',
+              optionActiveBg: '#f7faf6',
+              optionColor: '#17231d',
+              optionSelectedColor: '#1b5e20',
+              colorTextPlaceholder: '#8a9790',
+              colorTextQuaternary: '#708078',
             },
             Pagination: {
               itemActiveBg: '#edf5ed',
@@ -106,7 +120,6 @@ export default function App() {
         }}
       >
         <BrowserRouter>
-          <ToastProvider />
           <Routes>
           {/* Public website */}
           <Route element={<Layout />}>

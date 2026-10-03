@@ -194,10 +194,18 @@ const Volunteer = () => {
                     </label>
 
                     <input
-                      {...register('location')}
+                      {...register('location', {
+                        required: 'Required',
+                      })}
                       placeholder="City/Town"
                       className={inputClass('location')}
                     />
+
+                    {errors.location && (
+                      <span className="text-sm text-red-600 mt-1 block">
+                        {errors.location.message}
+                      </span>
+                    )}
                   </div>
                 </div>
 

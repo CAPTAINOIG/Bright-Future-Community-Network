@@ -28,7 +28,7 @@ const menuItems = [
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const { user, logout } = useAuthStore();
+  const { user, logout, isLoading } = useAuthStore();
 
   const currentPath = location.pathname;
   const activeSection = menuItems.find(item => item.path === currentPath)?.id || 'overview';

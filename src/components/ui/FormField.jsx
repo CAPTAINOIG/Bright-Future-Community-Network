@@ -13,9 +13,37 @@ const FormField = forwardRef(({
 }, ref) => {
   const baseClasses = clsx('w-full', className);
   const { children, onChange, onBlur, name, value, defaultValue, ...controlProps } = props;
+
+  const buildOptions = (nodes) => {
+    const out = [];
+    const walk = (list) => {
+      if (!Array.isArray(list)) list = [list];
+      list.forEach((node) => {
+        if (!node || node === null) return;
+        if (Array.isArray(node)) return walk(node);
+        if (typeof node === 'string' || typeof node === 'number') return;
+        if (node.type && typeof node.type === 'symbol') return walk(node.props?.children);
+        if (node.props && 'value' in node.props) {
+          out.push({
+            value: node.props.value,
+            label: node.props.children ?? String(node.props.value),
+            disabled: !!node.props.disabled,
+          });
+        } else if (node.props?.children) {
+          walk(node.props.children);
+        }
+      });
+    };
+    walk(nodes);
+    return out;
+  };
+
+  const options = buildOptions(children);
   const inputProps = { ...controlProps, name, value, defaultValue, onBlur, status: error ? 'error' : undefined };
-  const options = Array.isArray(children) ? children.filter(Boolean).map((child) => ({ value: child.props.value, label: child.props.children })) : children ? [{ value: children.props.value, label: children.props.children }] : [];
-  const handleValueChange = (nextValue) => onChange?.({ target: { name, value: nextValue }, currentTarget: { name, value: nextValue } });
+  const handleValueChange = (nextValue, option) => {
+    const synthetic = { target: { name, value: nextValue }, currentTarget: { name, value: nextValue }, option };
+    onChange?.(synthetic);
+  };
 
   return (
     <div className="space-y-1">

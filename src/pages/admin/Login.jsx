@@ -1,13 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { LoadingSpinner, toast } from '../../components/ui';
-import { motion } from 'framer-motion';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { LoadingSpinner, toast } from "../../components/ui";
+import { motion } from "framer-motion";
+import { useAdminLogin } from "../../api/admin";
+import { Toaster } from "sonner";
+import useAuthStore from "../../store/useAuthStore";
 
 export default function Login() {
+  const {
+    mutateAsync: loginAdmin,
+    isPending: isLoginAdminLoading,
+    isError: isAdminLoginError,
+  } = useAdminLogin();
+  const { setAuth } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -16,57 +24,43 @@ export default function Login() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      email: '',
-      password: '',
-      rememberMe: false,
+      email: "",
+      password: "",
     },
   });
 
   const onSubmit = async (data) => {
-    console.log('Login Data:', data);
-
-    setIsLoading(true);
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      if (data.email && data.password) {
-        localStorage.setItem(
-          'admin_token',
-          'mock_token_' + Date.now()
-        );
-
-        if (data.rememberMe) {
-          localStorage.setItem('admin_email', data.email);
-        } else {
-          localStorage.removeItem('admin_email');
-        }
-
-        toast.success('Login successful! Welcome to BFCN Admin.');
-        navigate('/admin');
+      const res = await loginAdmin(data);
+      const { user, token } = res.data;
+      if (user && token) {
+        setAuth(user, token);
+        toast.success(res.message);
+        navigate("/admin");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      toast.error(error.response?.data?.message);
     }
   };
 
   const inputClass = (field) =>
     `w-full py-3 px-4 border ${
-      errors[field] ? 'border-red-500' : 'border-gray-200'
+      errors[field] ? "border-red-500" : "border-gray-200"
     } rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400`;
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: 'url("/images/bfcn-bg.png")',
+      }}
+    >
+      <Toaster position="top-right" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-md w-full"
       >
-        {/* Header */}
         <div className="text-center mb-8">
           <motion.div
             initial={{ scale: 0.9 }}
@@ -85,12 +79,9 @@ export default function Login() {
             Admin Portal
           </h1>
 
-          <p className="text-gray-600">
-            Sign in to manage BFCN
-          </p>
+          <p className="text-gray-600">Sign in to manage BFCN</p>
         </div>
 
-        {/* Login Form */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -102,7 +93,6 @@ export default function Login() {
             noValidate
             className="space-y-6"
           >
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address *
@@ -110,16 +100,16 @@ export default function Login() {
 
               <input
                 type="email"
-                {...register('email', {
-                  required: 'Email is required',
+                {...register("email", {
+                  required: "Email is required",
                   pattern: {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: 'Enter a valid email address',
+                    message: "Enter a valid email address",
                   },
                 })}
                 placeholder="Enter your email"
                 autoComplete="email"
-                className={inputClass('email')}
+                className={inputClass("email")}
               />
 
               {errors.email && (
@@ -129,7 +119,6 @@ export default function Login() {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password *
@@ -137,19 +126,17 @@ export default function Login() {
 
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
-                  {...register('password', {
-                    required: 'Password is required',
+                  type={showPassword ? "text" : "password"}
+                  {...register("password", {
+                    required: "Password is required",
                     minLength: {
                       value: 6,
-                      message: 'Password must be at least 6 characters',
+                      message: "Password must be at least 6 characters",
                     },
                   })}
                   placeholder="Enter your password"
                   autoComplete="current-password"
-                  className={`${inputClass(
-                    'password'
-                  )} pr-10`}
+                  className={`${inputClass("password")} pr-10`}
                 />
 
                 <button
@@ -171,62 +158,29 @@ export default function Login() {
                 </span>
               )}
             </div>
-
-            {/* Remember Me / Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register('rememberMe')}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                />
-
-                <span className="ml-2 text-sm text-gray-600">
-                  Remember me
-                </span>
-              </label>
-
-              <button
-                type="button"
-                className="text-sm text-primary-600 hover:text-primary-500 font-medium"
-              >
-                Forgot password?
-              </button>
-            </div>
-
-            {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoginAdminLoading}
               className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
+              {isLoginAdminLoading ? (
                 <div className="flex items-center gap-2">
-                  <LoadingSpinner
-                    size="small"
-                    className="text-white"
-                  />
+                  <LoadingSpinner size="small" className="text-white" />
                   Signing in...
                 </div>
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </button>
           </form>
-
-          {/* Demo Credentials */}
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-xs text-blue-800 font-medium mb-2">
               Demo Credentials:
             </p>
 
-            <p className="text-xs text-blue-600">
-              Email: admin@bfcn.org
-            </p>
+            <p className="text-xs text-blue-600">Email: admin@bfcn.org</p>
 
-            <p className="text-xs text-blue-600">
-              Password: admin123
-            </p>
+            <p className="text-xs text-blue-600">Password: admin123</p>
 
             <p className="text-xs text-blue-500 mt-1">
               Any valid email/password combination will work for demo purposes.
@@ -242,8 +196,8 @@ export default function Login() {
           className="text-center mt-8"
         >
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} Bright Future Community Network.
-            All rights reserved.
+            © {new Date().getFullYear()} Bright Future Community Network. All
+            rights reserved.
           </p>
         </motion.div>
       </motion.div>

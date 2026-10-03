@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { UserPlus } from 'lucide-react';
 import { Button, ScrollReveal } from '../../components/ui';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
+import { useCreateMember } from '../../api/member';
 
 const interestOptions = [
   'Education',
   'Youth Development',
-  'Skills Training',
+  'skill Training',
   'Leadership',
   'Community Outreach',
   'Welfare',
@@ -16,6 +17,8 @@ const interestOptions = [
 ];
 
 const Join = () => {
+  const { mutateAsync: createMember, isPending: isCreatingMemberLoading, isError: isMemberLoadingError } = useCreateMember();
+
   const {
     register,
     handleSubmit,
@@ -30,7 +33,7 @@ const Join = () => {
       location: '',
       community: '',
       interests: [],
-      skills: '',
+      skill: '',
       reason: '',
     },
   });
@@ -41,16 +44,21 @@ const Join = () => {
   
   const interests = watch('interests');
 
-  const onSubmit = (data) => {
-    console.log('Membership Application:', data);
-    toast.success(`Thank you, ${watch('fullName')}. We will review and contact you soon.`);
-    setValue('fullName', "")
-    setValue('phone', "")
-    setValue('email', "")
-    setValue('location', "")
-    setValue('community', "")
-    setValue('skills', "")
-    setValue('reason', "")
+  const onSubmit = async (data) => {
+    try {
+      const res = await createMember(data);
+      toast.success(res.message);
+      setValue('fullName', "")
+      setValue('phone', "")
+      setValue('email', "")
+      setValue('location', "")
+      setValue('community', "")
+      setValue('skill', "")
+      setValue('interests', "")
+      setValue('reason', "")
+      } catch (error) {
+      toast.error(error.response?.data?.message || error.message || 'An error occurred. Please try again.');
+      }
   };
 
   const toggleInterest = (interest) => {
@@ -67,6 +75,7 @@ const Join = () => {
 
   return (
     <div>
+     <Toaster position="top-right" />
       <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
 
@@ -267,14 +276,21 @@ const Join = () => {
 
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Skills
+                    skill
                   </label>
 
                   <input
-                    {...register('skills')}
+                    {...register('skill', {
+                      required: 'Required',
+                    })}
                     placeholder="E.g., Teaching, Programming"
-                    className={inputClass('skills')}
+                    className={inputClass('skill')}
                   />
+                  {errors.skill && (
+                    <span className="text-sm text-red-600 mt-1 block">
+                      {errors.skill.message}
+                    </span>
+                  )}
                 </div>
 
                 <div>
@@ -283,17 +299,25 @@ const Join = () => {
                   </label>
 
                   <textarea
-                    {...register('reason')}
+                    {...register('reason', {
+                      required: 'Required',
+                    })}
                     placeholder="Tell us..."
                     rows={4}
                     className={`${inputClass('reason')} resize-y min-h-[100px]`}
                   />
+                  {errors.reason && (
+                    <span className="text-sm text-red-600 mt-1 block">
+                      {errors.reason.message}
+                    </span>
+                  )}
                 </div>
 
                 <Button
                   type="submit"
                   variant="primary"
                   size="lg"
+                  loading={isCreatingMemberLoading}
                   fullWidth
                   icon={UserPlus}
                 >

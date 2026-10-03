@@ -1,21 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { LoadingSpinner } from '../ui';
+import useAuthStore from '../../store/useAuthStore';
 
 export default function ProtectedRoute({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate auth check
-    const checkAuth = () => {
-      const token = localStorage.getItem('admin_token');
-      setIsAuthenticated(!!token);
-      setIsLoading(false);
-    };
-
-    checkAuth();
-  }, []);
+  const { isAuthenticated, isLoading } = useAuthStore()
 
   if (isLoading) {
     return (
@@ -28,6 +17,6 @@ export default function ProtectedRoute({ children }) {
   if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
-
   return children;
 }
+
