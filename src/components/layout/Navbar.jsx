@@ -89,9 +89,9 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`fixed top-[72px] left-0 right-0 bottom-0 bg-white overflow-y-auto z-50 transition-transform duration-300 lg:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="flex flex-col min-h-full p-4">
-          <ul className="list-none p-0 m-0 flex-1">
+      <div className={`lg:hidden fixed inset-x-0 top-[72px] z-[60] h-[calc(100dvh-72px)] bg-white shadow-2xl overflow-y-auto transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex flex-col h-full p-4 gap-1">
+          <ul className="list-none p-0 m-0 flex flex-col gap-1">
             {navLinks.map((link) =>
               link.children ? (
                 <li key={link.label}>
@@ -100,10 +100,16 @@ const Navbar = () => {
                     <ChevronDown size={16} className={`transition-transform duration-150 ${activeDropdown === link.label ? 'rotate-180' : ''}`} />
                   </button>
                   {activeDropdown === link.label && (
-                    <ul className="list-none p-0 pl-4 m-0">
+                    <ul className="list-none p-0 pl-3 mt-1 m-0 flex flex-col gap-1">
                       {link.children.map((child) => (
                         <li key={child.to}>
-                          <NavLink to={child.to} className={({isActive}) => `block px-4 py-3 text-sm rounded-lg border-l-2 ml-4 transition-all no-underline ${isActive ? 'text-primary-600 border-primary-600 bg-primary-50' : 'text-gray-600 border-gray-200 hover:text-primary-600 hover:border-primary-600 hover:bg-primary-50'}`}>{child.label}</NavLink>
+                          <NavLink
+                            to={child.to}
+                            onClick={() => setIsOpen(false)}
+                            className={({isActive}) => `block px-4 py-3 text-sm rounded-lg border-l-2 ml-3 transition-all no-underline ${isActive ? 'text-primary-600 border-primary-600 bg-primary-50' : 'text-gray-600 border-gray-200 hover:text-primary-600 hover:border-primary-600 hover:bg-primary-50'}`}
+                          >
+                            {child.label}
+                          </NavLink>
                         </li>
                       ))}
                     </ul>
@@ -111,14 +117,28 @@ const Navbar = () => {
                 </li>
               ) : (
                 <li key={link.to}>
-                  <NavLink to={link.to} end={link.to === '/'} className={({isActive}) => `flex items-center px-4 py-4 text-base font-medium rounded-lg transition-all no-underline ${isActive ? 'text-primary-600 bg-primary-50' : 'text-gray-900 hover:text-primary-600 hover:bg-primary-50'}`}>{link.label}</NavLink>
+                  <NavLink
+                    to={link.to}
+                    end={link.to === '/'}
+                    onClick={() => setIsOpen(false)}
+                    className={({isActive}) => `flex items-center px-4 py-4 text-base font-medium rounded-lg transition-all no-underline ${isActive ? 'text-primary-600 bg-primary-50' : 'text-gray-900 hover:text-primary-600 hover:bg-primary-50'}`}
+                  >
+                    {link.label}
+                  </NavLink>
                 </li>
               )
             )}
           </ul>
-          <div className="pt-6 border-t border-gray-200 mt-4 flex flex-col gap-3">
-            <Button to="/join" variant="primary" fullWidth size="lg">Join BFCN</Button>
-            <a href="tel:+2348000000000" className="flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-600 no-underline hover:text-primary-600"><Phone size={16} />Contact Us</a>
+          <div className="mt-auto pt-6 border-t border-gray-200 flex flex-col gap-3">
+            <Button to="/join" variant="primary" fullWidth size="lg" onClick={() => setIsOpen(false)}>Join BFCN</Button>
+            <a
+              href="tel:+2348000000000"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-600 no-underline hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
+            >
+              <Phone size={16} />
+              Contact Us
+            </a>
           </div>
         </div>
       </div>

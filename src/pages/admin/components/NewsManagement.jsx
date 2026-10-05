@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Calendar, Eye, Edit, Trash2, Share2, Image, Tag } from 'lucide-react';
+import { Drawer, Modal, Button, Input, Select, Form } from 'antd';
 import AdminFilterBar from '../../../components/admin/AdminFilterBar';
 
 const articles = [
@@ -63,6 +64,7 @@ export default function NewsManagement() {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
 
   const filteredArticles = articles.filter(article => {
@@ -108,6 +110,11 @@ export default function NewsManagement() {
   const editArticle = (article) => {
     setSelectedArticle(article);
     setShowEditModal(true);
+  };
+
+  const deleteArticle = (article) => {
+    setSelectedArticle(article);
+    setShowDeleteModal(true);
   };
 
   return (
@@ -215,7 +222,10 @@ export default function NewsManagement() {
                       <button className="p-2 text-gray-400 hover:text-primary-600 transition-colors">
                         <Share2 size={16} />
                       </button>
-                      <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                      <button 
+                        onClick={() => deleteArticle(article)}
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -227,203 +237,220 @@ export default function NewsManagement() {
         </div>
       </div>
 
-      {/* Add Article Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Create New Article</h3>
-            </div>
-            <div className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                <input 
-                  type="text" 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-lg"
-                  placeholder="Article title..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt</label>
-                <textarea 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" 
-                  rows="2"
-                  placeholder="Brief description of the article..."
-                ></textarea>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500">
-                    <option value="Health">Health</option>
-                    <option value="Education">Education</option>
-                    <option value="Events">Events</option>
-                    <option value="Environment">Environment</option>
-                    <option value="Community">Community</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500">
-                    <option value="Draft">Draft</option>
-                    <option value="Published">Published</option>
-                    <option value="Scheduled">Scheduled</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Featured</label>
-                  <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500">
-                    <option value="false">No</option>
-                    <option value="true">Yes</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                <input 
-                  type="text" 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
-                  placeholder="Separate tags with commas..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-500 transition-colors cursor-pointer">
-                  <Image size={48} className="mx-auto text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-600">Click to upload image or drag and drop</p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                <textarea 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" 
-                  rows="12"
-                  placeholder="Write your article content here..."
-                ></textarea>
-              </div>
-            </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                Save as Draft
-              </button>
-              <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                Publish
-              </button>
-            </div>
+      {/* Add Article Drawer */}
+      <Drawer
+        title="Create New Article"
+        placement="right"
+        onClose={() => setShowAddModal(false)}
+        open={showAddModal}
+        width={600}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setShowAddModal(false)}>
+              Cancel
+            </Button>
+            <Button type="default">
+              Save as Draft
+            </Button>
+            <Button type="primary">
+              Publish
+            </Button>
           </div>
-        </div>
-      )}
+        }
+      >
+        <Form layout="vertical">
+          <Form.Item label="Title" required>
+            <Input 
+              size="large"
+              placeholder="Article title..."
+            />
+          </Form.Item>
 
-      {/* Edit Article Modal */}
-      {showEditModal && selectedArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Edit Article</h3>
-            </div>
-            <div className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                <input 
-                  type="text" 
-                  defaultValue={selectedArticle.title}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-lg"
-                />
-              </div>
+          <Form.Item label="Excerpt">
+            <Input.TextArea 
+              rows={3}
+              placeholder="Brief description of the article..."
+            />
+          </Form.Item>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt</label>
-                <textarea 
-                  defaultValue={selectedArticle.excerpt}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" 
-                  rows="2"
-                ></textarea>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <select 
-                    defaultValue={selectedArticle.category}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
-                  >
-                    <option value="Health">Health</option>
-                    <option value="Education">Education</option>
-                    <option value="Events">Events</option>
-                    <option value="Environment">Environment</option>
-                    <option value="Community">Community</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select 
-                    defaultValue={selectedArticle.status}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
-                  >
-                    <option value="Draft">Draft</option>
-                    <option value="Published">Published</option>
-                    <option value="Scheduled">Scheduled</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Featured</label>
-                  <select 
-                    defaultValue={selectedArticle.featured.toString()}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
-                  >
-                    <option value="false">No</option>
-                    <option value="true">Yes</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                <input 
-                  type="text" 
-                  defaultValue={selectedArticle.tags?.join(', ')}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
-                  placeholder="Separate tags with commas..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                <textarea 
-                  defaultValue={selectedArticle.content}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" 
-                  rows="12"
-                ></textarea>
-              </div>
-            </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button 
-                onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                Save as Draft
-              </button>
-              <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                Update & Publish
-              </button>
-            </div>
+          <div className="grid grid-cols-1 gap-4">
+            <Form.Item label="Category" required>
+              <Select size="large" placeholder="Select category">
+                <Select.Option value="Health">Health</Select.Option>
+                <Select.Option value="Education">Education</Select.Option>
+                <Select.Option value="Events">Events</Select.Option>
+                <Select.Option value="Environment">Environment</Select.Option>
+                <Select.Option value="Community">Community</Select.Option>
+              </Select>
+            </Form.Item>
+            
+            <Form.Item label="Status" required>
+              <Select size="large" placeholder="Select status">
+                <Select.Option value="Draft">Draft</Select.Option>
+                <Select.Option value="Published">Published</Select.Option>
+                <Select.Option value="Scheduled">Scheduled</Select.Option>
+              </Select>
+            </Form.Item>
+            
+            <Form.Item label="Featured">
+              <Select size="large" placeholder="Featured article?">
+                <Select.Option value={false}>No</Select.Option>
+                <Select.Option value={true}>Yes</Select.Option>
+              </Select>
+            </Form.Item>
           </div>
-        </div>
-      )}
+
+          <Form.Item label="Tags">
+            <Input 
+              placeholder="Separate tags with commas..."
+            />
+          </Form.Item>
+
+          <Form.Item label="Featured Image">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-500 transition-colors cursor-pointer">
+              <Image size={48} className="mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-600">Click to upload image or drag and drop</p>
+            </div>
+          </Form.Item>
+
+          <Form.Item label="Content" required>
+            <Input.TextArea 
+              rows={12}
+              placeholder="Write your article content here..."
+            />
+          </Form.Item>
+        </Form>
+      </Drawer>
+
+      {/* Edit Article Drawer */}
+      <Drawer
+        title="Edit Article"
+        placement="right"
+        onClose={() => setShowEditModal(false)}
+        open={showEditModal && selectedArticle}
+        width={600}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button type="default">
+              Save as Draft
+            </Button>
+            <Button type="primary">
+              Update & Publish
+            </Button>
+          </div>
+        }
+      >
+        {selectedArticle && (
+          <Form layout="vertical">
+            <Form.Item label="Title" required>
+              <Input 
+                size="large"
+                defaultValue={selectedArticle.title}
+                placeholder="Article title..."
+              />
+            </Form.Item>
+
+            <Form.Item label="Excerpt">
+              <Input.TextArea 
+                rows={3}
+                defaultValue={selectedArticle.excerpt}
+                placeholder="Brief description of the article..."
+              />
+            </Form.Item>
+
+            <div className="grid grid-cols-1 gap-4">
+              <Form.Item label="Category" required>
+                <Select 
+                  size="large" 
+                  defaultValue={selectedArticle.category}
+                  placeholder="Select category"
+                >
+                  <Select.Option value="Health">Health</Select.Option>
+                  <Select.Option value="Education">Education</Select.Option>
+                  <Select.Option value="Events">Events</Select.Option>
+                  <Select.Option value="Environment">Environment</Select.Option>
+                  <Select.Option value="Community">Community</Select.Option>
+                </Select>
+              </Form.Item>
+              
+              <Form.Item label="Status" required>
+                <Select 
+                  size="large" 
+                  defaultValue={selectedArticle.status}
+                  placeholder="Select status"
+                >
+                  <Select.Option value="Draft">Draft</Select.Option>
+                  <Select.Option value="Published">Published</Select.Option>
+                  <Select.Option value="Scheduled">Scheduled</Select.Option>
+                </Select>
+              </Form.Item>
+              
+              <Form.Item label="Featured">
+                <Select 
+                  size="large" 
+                  defaultValue={selectedArticle.featured}
+                  placeholder="Featured article?"
+                >
+                  <Select.Option value={false}>No</Select.Option>
+                  <Select.Option value={true}>Yes</Select.Option>
+                </Select>
+              </Form.Item>
+            </div>
+
+            <Form.Item label="Tags">
+              <Input 
+                defaultValue={selectedArticle.tags?.join(', ')}
+                placeholder="Separate tags with commas..."
+              />
+            </Form.Item>
+
+            <Form.Item label="Featured Image">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-500 transition-colors cursor-pointer">
+                <Image size={48} className="mx-auto text-gray-400 mb-2" />
+                <p className="text-sm text-gray-600">Click to upload image or drag and drop</p>
+              </div>
+            </Form.Item>
+
+            <Form.Item label="Content" required>
+              <Input.TextArea 
+                rows={12}
+                defaultValue={selectedArticle.content}
+                placeholder="Write your article content here..."
+              />
+            </Form.Item>
+          </Form>
+        )}
+      </Drawer>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Delete Article"
+        open={showDeleteModal}
+        onOk={() => {
+          // Handle delete logic here
+          setShowDeleteModal(false);
+          setSelectedArticle(null);
+        }}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setSelectedArticle(null);
+        }}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this article?</p>
+        {selectedArticle && (
+          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+            <p className="font-medium text-gray-900">{selectedArticle.title}</p>
+            <p className="text-sm text-gray-600">{selectedArticle.excerpt}</p>
+          </div>
+        )}
+        <p className="mt-3 text-sm text-gray-500">This action cannot be undone.</p>
+      </Modal>
     </div>
   );
 }

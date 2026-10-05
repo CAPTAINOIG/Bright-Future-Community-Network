@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { SectionHeader, ScrollReveal, Button } from '../../components/ui';
 import segun from '../Leadership/image/segun.jpeg'
+import Drawer from '../../components/ui/Drawer';
+import { VolunteerForm } from '../../components/forms';
 
 const executives = [
   { id: 1, img: segun, name: 'Abdullahi Samsudeen O.', Alias: 'CaptainOIG', position: 'President', bio: 'A seasoned community leader with over 20 years of experience in grassroots mobilization. Instrumental in driving BFCN\'s mission since its founding.' },
@@ -16,6 +18,7 @@ const executives = [
 
 const LeaderCard = ({ leader }) => {
   const [expanded, setExpanded] = useState(false);
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-center">
       {/* <div className="w-full aspect-square bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center"> */}
@@ -42,6 +45,8 @@ const LeaderCard = ({ leader }) => {
 }
 
 const Leadership = () => {
+   const [showJoinDrawer, setShowJoinDrawer] = useState(false);
+
   return (
     <div>
       <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
@@ -68,10 +73,27 @@ const Leadership = () => {
           <ScrollReveal>
             <h2 className="font-serif text-3xl text-white mb-4">Join Our Team</h2>
             <p className="text-white/85 max-w-[500px] mx-auto mb-8">Passionate about community development? We&apos;re always looking for dedicated individuals.</p>
-            <Button to="/volunteer" variant="white" size="lg">Volunteer With Us</Button>
+            <Button onClick={() => setShowJoinDrawer(true)} variant="white" size="lg">Volunteer With Us</Button>
           </ScrollReveal>
         </div>
       </section>
+        <Drawer
+        isOpen={showJoinDrawer}
+        onClose={() => setShowJoinDrawer(false)}
+        position="right"
+         title={
+          <div className="pr-6">
+            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+              Volunteer Application Form
+            </h2>
+            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+              Your details are safe with us
+            </p>
+            </div>
+          }
+      >
+        <VolunteerForm onClose={() => setShowJoinDrawer(false)} />
+      </Drawer>
     </div>
   );
 }

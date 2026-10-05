@@ -2,8 +2,12 @@ import { Users, BookOpen, Briefcase, Calendar, ArrowRight, MapPin, Clock, Chevro
 import { Link } from 'react-router-dom';
 import { Button, SectionHeader, Card, ScrollReveal, Badge } from '../../components/ui';
 import { events, impactQuotes, news, programmes, projects, stats } from './dummy';
+import { JoinForm } from '../../components/forms';
+import { useState } from 'react';
+import Drawer from '../../components/ui/Drawer';
 
 const Home = () => {
+  const [showJoinDrawer, setShowJoinDrawer] = useState(false)
   return (
     <div>
       <section className="relative min-h-[92vh] flex items-center bg-gradient-to-br from-primary-800 via-primary-600 to-primary-700 overflow-hidden -mt-[72px] pt-[72px]">
@@ -22,7 +26,7 @@ const Home = () => {
               Empowering communities through sustainable development, youth empowerment, education, and grassroots leadership in Ogbomoso and across Oyo State, Nigeria.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button to="/join" variant="white" size="lg" iconRight={ArrowRight}>Join BFCN</Button>
+              <Button onClick={() => setShowJoinDrawer(true)} variant="white" size="lg" iconRight={ArrowRight}>Join BFCN</Button>
               <Button to="/programmes" variant="white-outline" size="lg">Our Programmes</Button>
               <Button to="/volunteer" variant="ghost" size="lg" className="!text-white/90 hover:!bg-white/10">Get Involved</Button>
             </div>
@@ -180,6 +184,23 @@ const Home = () => {
           </ScrollReveal>
         </div>
       </section>
+      <Drawer
+        isOpen={showJoinDrawer}
+        title={
+          <div className="pr-6">
+            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+              Join Bright Future Community Network
+            </h2>
+            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+              Your details are safe with us
+            </p>
+            </div>
+          }
+        onClose={() => setShowJoinDrawer(false)}
+        position="right"
+      >
+        <JoinForm onClose={() => setShowJoinDrawer(false)} />
+      </Drawer>
     </div>
   );
 }

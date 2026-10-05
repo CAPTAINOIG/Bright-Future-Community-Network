@@ -15,6 +15,9 @@ export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { ToastProvider, toast } from './Toast';
 
+// Drawer adapter
+export { default as CustomDrawer } from './Drawer';
+
 // Ant Design primitives used across the application.
 export {
 	Alert,

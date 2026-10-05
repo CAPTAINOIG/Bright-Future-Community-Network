@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Download, Upload, Eye, Edit, Trash2, Video } from 'lucide-react';
-import { Button, Checkbox, Image, Input, Modal, Select, Upload as AntUpload } from 'antd';
+import { Button, Checkbox, Image, Input, Modal, Select, Upload as AntUpload, Drawer, Form } from 'antd';
 import AdminFilterBar from '../../../components/admin/AdminFilterBar';
 
 const media = [
@@ -92,7 +92,10 @@ export default function GalleryManagement() {
   const [typeFilter, setTypeFilter] = useState('All');
   const viewMode = 'grid';
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedMedia, setSelectedMedia] = useState(null);
 
   const filteredMedia = media.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -136,6 +139,16 @@ export default function GalleryManagement() {
     } else {
       setSelectedItems(filteredMedia.map(item => item.id));
     }
+  };
+
+  const editMedia = (item) => {
+    setSelectedMedia(item);
+    setShowEditModal(true);
+  };
+
+  const deleteMedia = (item) => {
+    setSelectedMedia(item);
+    setShowDeleteModal(true);
   };
 
   return (
@@ -247,8 +260,17 @@ export default function GalleryManagement() {
 
                 <div className="flex gap-2">
                   <Button className="flex-1" icon={<Eye size={14} />}>View</Button>
-                  <Button icon={<Edit size={14} />} aria-label="Edit media" />
-                  <Button danger icon={<Trash2 size={14} />} aria-label="Delete media" />
+                  <Button 
+                    icon={<Edit size={14} />} 
+                    onClick={() => editMedia(item)}
+                    aria-label="Edit media" 
+                  />
+                  <Button 
+                    danger 
+                    icon={<Trash2 size={14} />} 
+                    onClick={() => deleteMedia(item)}
+                    aria-label="Delete media" 
+                  />
                 </div>
               </div>
             </div>
@@ -295,8 +317,19 @@ export default function GalleryManagement() {
                       
                       <div className="flex items-center gap-2 ml-4">
                         <Button type="text" icon={<Eye size={16} />} aria-label="View media" />
-                        <Button type="text" icon={<Edit size={16} />} aria-label="Edit media" />
-                        <Button type="text" danger icon={<Trash2 size={16} />} aria-label="Delete media" />
+                        <Button 
+                          type="text" 
+                          icon={<Edit size={16} />} 
+                          onClick={() => editMedia(item)}
+                          aria-label="Edit media" 
+                        />
+                        <Button 
+                          type="text" 
+                          danger 
+                          icon={<Trash2 size={16} />} 
+                          onClick={() => deleteMedia(item)}
+                          aria-label="Delete media" 
+                        />
                       </div>
                     </div>
                   </div>
@@ -307,34 +340,212 @@ export default function GalleryManagement() {
         </div>
       )}
 
-      {/* Upload Modal */}
-      <Modal open={showUploadModal} onCancel={() => setShowUploadModal(false)} title="Upload Media" footer={[
-        <Button key="cancel" onClick={() => setShowUploadModal(false)}>Cancel</Button>,
-        <Button key="upload" type="primary" icon={<Upload size={16} />}>Upload files</Button>,
-      ]} width={720}>
-            <div className="space-y-6">
-              <AntUpload.Dragger beforeUpload={() => false} multiple accept="image/*,video/*" showUploadList>
-                <Upload size={42} className="mx-auto mb-4 text-[#829087]" />
-                <p className="text-base text-[#34443a]">Drop files here or click to upload</p>
-                <p className="text-xs text-[#708078]">Supports JPG, PNG, MP4, MOV (max 100MB)</p>
-              </AntUpload.Dragger>
+      {/* Upload Media Drawer */}
+      <Drawer
+        title="Upload Media"
+        placement="right"
+        onClose={() => setShowUploadModal(false)}
+        open={showUploadModal}
+        width={600}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setShowUploadModal(false)}>
+              Cancel
+            </Button>
+            <Button type="primary" icon={<Upload size={16} />}>
+              Upload Files
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-6">
+          <AntUpload.Dragger 
+            beforeUpload={() => false} 
+            multiple 
+            accept="image/*,video/*" 
+            showUploadList
+            className="mb-6"
+          >
+            <Upload size={42} className="mx-auto mb-4 text-green-600" />
+            <p className="text-base text-gray-900">Drop files here or click to upload</p>
+            <p className="text-xs text-gray-500">Supports JPG, PNG, MP4, MOV (max 100MB)</p>
+          </AntUpload.Dragger>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <Select className="w-full" defaultValue="Events" options={['Events', 'Education', 'Projects', 'Environment', 'Training'].map((value) => ({ value, label: value }))} />
+          <Form layout="vertical">
+            <div className="grid grid-cols-1 gap-4">
+              <Form.Item label="Category" required>
+                <Select 
+                  size="large" 
+                  defaultValue="Events"
+                  placeholder="Select category"
+                >
+                  <Select.Option value="Events">Events</Select.Option>
+                  <Select.Option value="Education">Education</Select.Option>
+                  <Select.Option value="Projects">Projects</Select.Option>
+                  <Select.Option value="Environment">Environment</Select.Option>
+                  <Select.Option value="Training">Training</Select.Option>
+                </Select>
+              </Form.Item>
+              
+              <Form.Item label="Tags">
+                <Input 
+                  size="large"
+                  placeholder="Separate with commas..."
+                />
+              </Form.Item>
+            </div>
+
+            <Form.Item label="Description">
+              <Input.TextArea 
+                rows={3} 
+                placeholder="Brief description of the media..."
+              />
+            </Form.Item>
+          </Form>
+        </div>
+      </Drawer>
+
+      {/* Edit Media Drawer */}
+      <Drawer
+        title="Edit Media"
+        placement="right"
+        onClose={() => setShowEditModal(false)}
+        open={showEditModal && selectedMedia}
+        width={600}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button type="primary">
+              Save Changes
+            </Button>
+          </div>
+        }
+      >
+        {selectedMedia && (
+          <div className="space-y-6">
+            {/* Media Preview */}
+            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+              <Image 
+                src={selectedMedia.thumbnail} 
+                alt={selectedMedia.title}
+                preview
+                className="!w-full !h-full object-cover"
+              />
+              {selectedMedia.type === 'video' && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                    <Video size={32} className="text-white ml-1" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                  <Input placeholder="Separate with commas..." />
-                </div>
+              )}
+            </div>
+
+            <Form layout="vertical">
+              <Form.Item label="Title" required>
+                <Input 
+                  size="large"
+                  defaultValue={selectedMedia.title}
+                  placeholder="Media title"
+                />
+              </Form.Item>
+
+              <Form.Item label="Description">
+                <Input.TextArea 
+                  rows={3}
+                  defaultValue={selectedMedia.description}
+                  placeholder="Brief description of the media..."
+                />
+              </Form.Item>
+
+              <div className="grid grid-cols-1 gap-4">
+                <Form.Item label="Category" required>
+                  <Select 
+                    size="large" 
+                    defaultValue={selectedMedia.category}
+                    placeholder="Select category"
+                  >
+                    <Select.Option value="Events">Events</Select.Option>
+                    <Select.Option value="Education">Education</Select.Option>
+                    <Select.Option value="Projects">Projects</Select.Option>
+                    <Select.Option value="Environment">Environment</Select.Option>
+                    <Select.Option value="Training">Training</Select.Option>
+                  </Select>
+                </Form.Item>
+                
+                <Form.Item label="Tags">
+                  <Input 
+                    size="large"
+                    defaultValue={selectedMedia.tags?.join(', ')}
+                    placeholder="Separate with commas..."
+                  />
+                </Form.Item>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <Input.TextArea rows={3} placeholder="Brief description of the media..." />
+              {/* Media Info */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-900 mb-2">Media Information</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-600">Type: <span className="text-gray-900">{selectedMedia.type}</span></p>
+                    <p className="text-gray-600">Size: <span className="text-gray-900">{selectedMedia.size}</span></p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600">Dimensions: <span className="text-gray-900">{selectedMedia.dimensions}</span></p>
+                    {selectedMedia.duration && (
+                      <p className="text-gray-600">Duration: <span className="text-gray-900">{selectedMedia.duration}</span></p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Form>
+          </div>
+        )}
+      </Drawer>
+
+      {/* Delete Media Modal */}
+      <Modal
+        title="Delete Media"
+        open={showDeleteModal}
+        onOk={() => {
+          // Handle delete logic here
+          setShowDeleteModal(false);
+          setSelectedMedia(null);
+        }}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setSelectedMedia(null);
+        }}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this media file?</p>
+        {selectedMedia && (
+          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-12 bg-gray-200 rounded overflow-hidden shrink-0">
+                <Image 
+                  src={selectedMedia.thumbnail} 
+                  alt={selectedMedia.title}
+                  preview={false} 
+                  className="!w-full !h-full object-cover"
+                />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">{selectedMedia.title}</p>
+                <p className="text-sm text-gray-600">{selectedMedia.description}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-gray-500">{selectedMedia.type}</span>
+                  <span className="text-xs text-gray-500">•</span>
+                  <span className="text-xs text-gray-500">{selectedMedia.size}</span>
+                </div>
               </div>
             </div>
+          </div>
+        )}
+        <p className="mt-3 text-sm text-gray-500">This action cannot be undone.</p>
       </Modal>
     </div>
   );

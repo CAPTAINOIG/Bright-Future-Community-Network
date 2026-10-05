@@ -1,5 +1,8 @@
 import { Target, Eye, Heart, Shield, Users, Lightbulb, Handshake, TrendingUp, BookOpen, Award, ArrowRight } from 'lucide-react';
 import { Button, SectionHeader, ScrollReveal } from '../../components/ui';
+import { useState } from 'react';
+import Drawer from '../../components/ui/Drawer';
+import { JoinForm } from '../../components/forms';
 
 const values = [
   { icon: Shield, title: 'Integrity', description: 'We uphold the highest standards of honesty, accountability, and ethical conduct.' },
@@ -21,6 +24,8 @@ const timeline = [
 ];
 
 const About = () => {
+  const [showJoinDrawer, setShowJoinDrawer] = useState(false)
+
   return (
     <div>
       <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
@@ -118,12 +123,29 @@ const About = () => {
             <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">Ready to Make a Difference?</h2>
             <p className="text-base text-white/85 max-w-[500px] mx-auto mb-8">Join our growing community of changemakers working to build a brighter future.</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button to="/join" variant="white" size="lg" iconRight={ArrowRight}>Join BFCN</Button>
+              <Button onClick={() => setShowJoinDrawer(true)} variant="white" size="lg" iconRight={ArrowRight}>Join BFCN</Button>
               <Button to="/leadership" variant="white-outline" size="lg">Meet Our Team</Button>
             </div>
           </ScrollReveal>
         </div>
       </section>
+       <Drawer
+        isOpen={showJoinDrawer}
+        onClose={() => setShowJoinDrawer(false)}
+        position="right"
+        title={
+          <div className="pr-6">
+            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+              Join Bright Future Community Network
+            </h2>
+            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+              Your details are safe with us
+            </p>
+            </div>
+          }
+      >
+        <JoinForm onClose={() => setShowJoinDrawer(false)} />
+      </Drawer>
     </div>
   );
 }

@@ -1,105 +1,79 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Users, Award, Target, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button, ScrollReveal } from '../../components/ui';
-import { toast, Toaster } from 'sonner';
-import { useCreateMember } from '../../api/member';
+import Drawer from '../../components/ui/Drawer';
+import { JoinForm } from '../../components/forms';
+import { Toaster } from 'sonner';
 
-const interestOptions = [
-  'Education',
-  'Youth Development',
-  'skill Training',
-  'Leadership',
-  'Community Outreach',
-  'Welfare',
-  'Media & Communications',
-  'Technology',
+const membershipBenefits = [
+  'Access to exclusive training programs and workshops',
+  'Networking opportunities with community leaders',
+  'Volunteer opportunities in various projects',
+  'Access to BFCN resources and facilities',
+  'Mentorship from experienced community workers',
+  'Recognition and certificates for contributions',
+  'Priority access to events and programs',
+  'Opportunity to lead community initiatives'
+];
+
+const membershipTypes = [
+  {
+    title: 'Active Member',
+    description: 'Full participation in all BFCN activities and programs',
+    icon: '🌟',
+    features: ['Voting rights', 'Committee participation', 'Leadership opportunities', 'Full benefits access']
+  },
+  {
+    title: 'Associate Member',
+    description: 'Participate in programs with limited administrative rights',
+    icon: '🤝',
+    features: ['Program participation', 'Event access', 'Networking opportunities', 'Resource access']
+  },
+  {
+    title: 'Youth Member',
+    description: 'Special membership for young people under 25',
+    icon: '🌱',
+    features: ['Youth programs', 'Mentorship access', 'Skill development', 'Career guidance']
+  }
 ];
 
 const Join = () => {
-  const { mutateAsync: createMember, isPending: isCreatingMemberLoading, isError: isMemberLoadingError } = useCreateMember();
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      fullName: '',
-      phone: '',
-      email: '',
-      location: '',
-      community: '',
-      interests: [],
-      skill: '',
-      reason: '',
-    },
-  });
-
-   const inputClass = (field) =>
-      `w-full py-3 px-4 border ${errors[field] ? 'border-red-500' : 'border-gray-200'
-      } rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400`;
-  
-  const interests = watch('interests');
-
-  const onSubmit = async (data) => {
-    try {
-      const res = await createMember(data);
-      toast.success(res.message);
-      setValue('fullName', "")
-      setValue('phone', "")
-      setValue('email', "")
-      setValue('location', "")
-      setValue('community', "")
-      setValue('skill', "")
-      setValue('interests', "")
-      setValue('reason', "")
-      } catch (error) {
-      toast.error(error.response?.data?.message || error.message || 'An error occurred. Please try again.');
-      }
-  };
-
-  const toggleInterest = (interest) => {
-    const currentInterests = interests || [];
-    const updatedInterests = currentInterests.includes(interest)
-      ? currentInterests.filter((item) => item !== interest)
-      : [...currentInterests, interest];
-
-    setValue('interests', updatedInterests, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  };
+  const [showJoinDrawer, setShowJoinDrawer] = useState(false);
 
   return (
     <div>
      <Toaster position="top-right" />
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
+      <section className="relative py-24 bg-gradient-to-br from-green-800 to-green-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
 
         <div className="container-main relative z-10">
           <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">
+            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-yellow-400 mb-4">
               Become a Member
             </span>
 
             <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
-              Join BFCN
+              Join the BFCN Family
             </h1>
 
-            <p className="text-base text-white/85 max-w-[560px] mx-auto">
-              Be part of a growing community of changemakers.
+            <p className="text-base text-white/85 max-w-[560px] mx-auto mb-8">
+              Be part of a growing community of changemakers committed to building stronger, more prosperous communities.
             </p>
+
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => setShowJoinDrawer(true)}
+              icon={UserPlus}
+              className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold"
+            >
+              Apply for Membership
+            </Button>
           </ScrollReveal>
         </div>
 
         <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg
-            viewBox="0 0 1440 120"
-            preserveAspectRatio="none"
-          >
+          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
             <path
               d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"
               fill="white"
@@ -109,227 +83,182 @@ const Join = () => {
       </section>
 
       <section className="py-16 md:py-20">
-        <div className="container-main max-w-[720px]">
-          <ScrollReveal>
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-              <div className="text-center mb-8">
-                <UserPlus
-                  size={24}
-                  className="text-primary-600 mx-auto mb-3"
-                />
+        <div className="container-main">
+          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
+              Why Join BFCN?
+            </h2>
+            <p className="text-gray-600">
+              Become part of a community that's making real change happen.
+            </p>
+          </ScrollReveal>
 
-                <h2 className="font-serif text-2xl mb-2">
-                  Membership Application
-                </h2>
-
-                <p className="text-sm text-gray-600">
-                  Fill out the form below to apply.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <ScrollReveal animation="reveal-left">
+              <div className="text-center p-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users size={32} className="text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Community Impact</h3>
+                <p className="text-gray-600">
+                  Work together with like-minded individuals to create lasting positive change in our communities.
                 </p>
               </div>
+            </ScrollReveal>
 
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                noValidate
-                className="space-y-5"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Full Name *
-                    </label>
-
-                    <input
-                      {...register('fullName', {
-                        required: 'Required',
-                      })}
-                      placeholder="Your full name"
-                      className={inputClass('fullName')}
-                    />
-
-                    {errors.fullName && (
-                      <span className="text-sm text-red-600 mt-1 block">
-                        {errors.fullName.message}
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Phone *
-                    </label>
-
-                    <input
-                      {...register('phone', {
-                        required: 'Required',
-                      })}
-                      placeholder="+234..."
-                      className={inputClass('phone')}
-                    />
-
-                    {errors.phone && (
-                      <span className="text-sm text-red-600 mt-1 block">
-                        {errors.phone.message}
-                      </span>
-                    )}
-                  </div>
+            <ScrollReveal animation="reveal-up">
+              <div className="text-center p-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Award size={32} className="text-green-600" />
                 </div>
+                <h3 className="text-xl font-semibold mb-3">Personal Growth</h3>
+                <p className="text-gray-600">
+                  Develop leadership skills, expand your network, and gain valuable experience in community development.
+                </p>
+              </div>
+            </ScrollReveal>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Email *
-                    </label>
-
-                    <input
-                      type="email"
-                      {...register('email', {
-                        required: 'Required',
-                        pattern: {
-                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                          message: 'Enter a valid email address',
-                        },
-                      })}
-                      placeholder="your@email.com"
-                      className={inputClass('email')}
-                    />
-
-                    {errors.email && (
-                      <span className="text-sm text-red-600 mt-1 block">
-                        {errors.email.message}
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Location *
-                    </label>
-
-                    <input
-                      {...register('location', {
-                        required: 'Required',
-                      })}
-                      placeholder="City/Town"
-                      className={inputClass('location')}
-                    />
-
-                    {errors.location && (
-                      <span className="text-sm text-red-600 mt-1 block">
-                        {errors.location.message}
-                      </span>
-                    )}
-                  </div>
+            <ScrollReveal animation="reveal-right">
+              <div className="text-center p-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Target size={32} className="text-green-600" />
                 </div>
+                <h3 className="text-xl font-semibold mb-3">Meaningful Purpose</h3>
+                <p className="text-gray-600">
+                  Contribute to projects that matter and see the direct impact of your involvement in improving lives.
+                </p>
+              </div>
+            </ScrollReveal>
+          </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Community
-                  </label>
-
-                  <input
-                    {...register('community')}
-                    placeholder="Your community"
-                    className={inputClass('community')}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Areas of Interest *
-                  </label>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {interestOptions.map((opt) => (
-                      <label
-                        key={opt}
-                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer text-sm transition-all ${interests?.includes(opt)
-                            ? 'border-primary-600 bg-primary-50 text-primary-600 font-medium'
-                            : 'border-gray-200 hover:border-primary-600 hover:bg-primary-50'
-                          }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={interests?.includes(opt)}
-                          onChange={() => toggleInterest(opt)}
-                          className="w-4 h-4 accent-primary-600"
-                        />
-
-                        <span>{opt}</span>
-                      </label>
-                    ))}
-                  </div>
-
-                  <input
-                    type="hidden"
-                    {...register('interests', {
-                      validate: (value) =>
-                        value?.length > 0 || 'Select at least one',
-                    })}
-                  />
-
-                  {errors.interests && (
-                    <span className="text-sm text-red-600 mt-1 block">
-                      {errors.interests.message}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    skill
-                  </label>
-
-                  <input
-                    {...register('skill', {
-                      required: 'Required',
-                    })}
-                    placeholder="E.g., Teaching, Programming"
-                    className={inputClass('skill')}
-                  />
-                  {errors.skill && (
-                    <span className="text-sm text-red-600 mt-1 block">
-                      {errors.skill.message}
-                    </span>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Why join BFCN?
-                  </label>
-
-                  <textarea
-                    {...register('reason', {
-                      required: 'Required',
-                    })}
-                    placeholder="Tell us..."
-                    rows={4}
-                    className={`${inputClass('reason')} resize-y min-h-[100px]`}
-                  />
-                  {errors.reason && (
-                    <span className="text-sm text-red-600 mt-1 block">
-                      {errors.reason.message}
-                    </span>
-                  )}
-                </div>
-
+          <ScrollReveal className="bg-green-50 rounded-2xl p-8 md:p-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 className="text-2xl font-bold mb-4">Membership Benefits</h3>
+                <ul className="space-y-3">
+                  {membershipBenefits.slice(0, 6).map((benefit, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <CheckCircle size={20} className="text-green-600 shrink-0 mt-0.5" />
+                      <span className="text-gray-700">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
                 <Button
-                  type="submit"
                   variant="primary"
                   size="lg"
-                  loading={isCreatingMemberLoading}
-                  fullWidth
-                  icon={UserPlus}
+                  onClick={() => setShowJoinDrawer(true)}
+                  icon={ArrowRight}
+                  className="mt-6"
                 >
-                  Submit Application
+                  Start Your Application
                 </Button>
-              </form>
+              </div>
+              <div className="text-center">
+                <div className="bg-white rounded-xl p-8 shadow-sm">
+                  <div className="text-4xl mb-4">👥</div>
+                  <h4 className="text-xl font-semibold mb-2">Join Our Growing Community</h4>
+                  <p className="text-gray-600 mb-4">
+                    Be part of an organization that's making real difference.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">500+</div>
+                      <div className="text-sm text-gray-600">Active Members</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">25+</div>
+                      <div className="text-sm text-gray-600">Ongoing Projects</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </ScrollReveal>
         </div>
       </section>
+
+      <section className="py-16 md:py-20 bg-gray-50">
+        <div className="container-main">
+          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
+              Membership Types
+            </h2>
+            <p className="text-gray-600">
+              Choose the membership level that best fits your availability and interests.
+            </p>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {membershipTypes.map((type, index) => (
+              <ScrollReveal key={index} animation="reveal-up">
+                <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="text-4xl mb-4">{type.icon}</div>
+                  <h3 className="text-xl font-semibold mb-3">{type.title}</h3>
+                  <p className="text-gray-600 mb-6">{type.description}</p>
+                  <ul className="space-y-2 mb-6">
+                    {type.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center gap-2">
+                        <CheckCircle size={16} className="text-green-600" />
+                        <span className="text-sm text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    variant="outline"
+                    fullWidth
+                    onClick={() => setShowJoinDrawer(true)}
+                  >
+                    Apply Now
+                  </Button>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-16 md:py-20 bg-green-600">
+        <div className="container-main">
+          <ScrollReveal className="text-center max-w-[600px] mx-auto">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Make a Difference?
+            </h2>
+            <p className="text-white/85 mb-8">
+              Join hundreds of community members who are already creating positive change.
+            </p>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => setShowJoinDrawer(true)}
+              icon={UserPlus}
+              className="bg-white hover:bg-gray-100 text-green-600 font-semibold"
+            >
+              Submit Your Application
+            </Button>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      <Drawer
+        isOpen={showJoinDrawer}
+        title={
+          <div className="pr-6">
+            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+              Join Bright Future Community Network
+            </h2>
+            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+              Your details are safe with us
+            </p>
+          </div>
+        }
+        onClose={() => setShowJoinDrawer(false)}
+        position="right"
+      >
+        <JoinForm onClose={() => setShowJoinDrawer(false)} />
+      </Drawer>
     </div>
   );
-}
+};
 
 export default Join;

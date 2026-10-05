@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Plus, Calendar, MapPin, Users, Edit, Eye, Share2 } from 'lucide-react';
+import { Plus, Calendar, MapPin, Users, Edit, Eye, Share2, Trash2 } from 'lucide-react';
+import { Drawer, Modal, Button, Input, Select, Form, DatePicker, TimePicker, InputNumber } from 'antd';
 import AdminFilterBar from '../../../components/admin/AdminFilterBar';
 
 const events = [
@@ -65,7 +66,9 @@ export default function EventManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const filteredEvents = events.filter(event => {
@@ -112,6 +115,16 @@ export default function EventManagement() {
   const viewDetails = (event) => {
     setSelectedEvent(event);
     setShowDetailsModal(true);
+  };
+
+  const editEvent = (event) => {
+    setSelectedEvent(event);
+    setShowEditModal(true);
+  };
+
+  const deleteEvent = (event) => {
+    setSelectedEvent(event);
+    setShowDeleteModal(true);
   };
 
   return (
@@ -218,8 +231,17 @@ export default function EventManagement() {
                   <button className="px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                     <Share2 size={14} />
                   </button>
-                  <button className="px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm">
+                  <button 
+                    onClick={() => editEvent(event)}
+                    className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                  >
                     <Edit size={14} />
+                  </button>
+                  <button 
+                    onClick={() => deleteEvent(event)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                  >
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
@@ -228,144 +250,349 @@ export default function EventManagement() {
         })}
       </div>
 
-      {/* Event Details Modal */}
-      {showDetailsModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">{selectedEvent.title}</h3>
-                <div className="flex items-center gap-2">
-                  <span className={getStatusBadge(selectedEvent.status)}>{selectedEvent.status}</span>
-                  <span className={getTypeBadge(selectedEvent.type)}>{selectedEvent.type}</span>
+      {/* Event Details Drawer */}
+      <Drawer
+        title="Event Details"
+        placement="right"
+        onClose={() => setShowDetailsModal(false)}
+        open={showDetailsModal && selectedEvent}
+        width={600}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setShowDetailsModal(false)}>
+              Close
+            </Button>
+            <Button 
+              type="primary"
+              onClick={() => {
+                setShowDetailsModal(false);
+                editEvent(selectedEvent);
+              }}
+            >
+              Edit Event
+            </Button>
+          </div>
+        }
+      >
+        {selectedEvent && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className={getStatusBadge(selectedEvent.status)}>{selectedEvent.status}</span>
+              <span className={getTypeBadge(selectedEvent.type)}>{selectedEvent.type}</span>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Description</h4>
+              <p className="text-gray-600">{selectedEvent.description}</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-2">Event Details</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <p>Date: {new Date(selectedEvent.date).toLocaleDateString()}</p>
+                  <p>Time: {selectedEvent.time}</p>
+                  <p>Location: {selectedEvent.location}</p>
+                  <p>Ticket Price: {formatCurrency(selectedEvent.ticketPrice)}</p>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-2">Registration</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <p>Capacity: {selectedEvent.capacity}</p>
+                  <p>Registered: {selectedEvent.registered}</p>
+                  <p>Available: {selectedEvent.capacity - selectedEvent.registered}</p>
+                  <p>Fill Rate: {getCapacityPercentage(selectedEvent.registered, selectedEvent.capacity)}%</p>
                 </div>
               </div>
             </div>
-            <div className="p-6 space-y-6">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Description</h4>
-                <p className="text-gray-600">{selectedEvent.description}</p>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Event Details</h4>
-                  <p className="text-sm text-gray-600">Date: {new Date(selectedEvent.date).toLocaleDateString()}</p>
-                  <p className="text-sm text-gray-600">Time: {selectedEvent.time}</p>
-                  <p className="text-sm text-gray-600">Location: {selectedEvent.location}</p>
-                  <p className="text-sm text-gray-600">Ticket Price: {formatCurrency(selectedEvent.ticketPrice)}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Registration</h4>
-                  <p className="text-sm text-gray-600">Capacity: {selectedEvent.capacity}</p>
-                  <p className="text-sm text-gray-600">Registered: {selectedEvent.registered}</p>
-                  <p className="text-sm text-gray-600">Available: {selectedEvent.capacity - selectedEvent.registered}</p>
-                  <p className="text-sm text-gray-600">Fill Rate: {getCapacityPercentage(selectedEvent.registered, selectedEvent.capacity)}%</p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Organizer</h4>
-                <p className="text-gray-600">{selectedEvent.organizer}</p>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Registration Progress</h4>
-                <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                  <div 
-                    className="h-3 rounded-full bg-primary-500"
-                    style={{ width: `${Math.min(getCapacityPercentage(selectedEvent.registered, selectedEvent.capacity), 100)}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {selectedEvent.registered} of {selectedEvent.capacity} spots filled
-                </p>
-              </div>
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Organizer</h4>
+              <p className="text-gray-600">{selectedEvent.organizer}</p>
             </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button 
-                onClick={() => setShowDetailsModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Close
-              </button>
-              <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                Edit Event
-              </button>
+
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Registration Progress</h4>
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                <div 
+                  className="h-3 rounded-full bg-green-500"
+                  style={{ width: `${Math.min(getCapacityPercentage(selectedEvent.registered, selectedEvent.capacity), 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-600">
+                {selectedEvent.registered} of {selectedEvent.capacity} spots filled
+              </p>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Drawer>
 
-      {/* Add Event Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Create New Event</h3>
+      {/* Add Event Drawer */}
+      <Drawer
+        title="Create New Event"
+        placement="right"
+        onClose={() => setShowAddModal(false)}
+        open={showAddModal}
+        width={600}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setShowAddModal(false)}>
+              Cancel
+            </Button>
+            <Button type="default">
+              Save as Draft
+            </Button>
+            <Button type="primary">
+              Create Event
+            </Button>
+          </div>
+        }
+      >
+        <Form layout="vertical">
+          <Form.Item label="Event Title" required>
+            <Input 
+              size="large"
+              placeholder="Enter event title"
+            />
+          </Form.Item>
+
+          <Form.Item label="Description">
+            <Input.TextArea 
+              rows={3}
+              placeholder="Event description..."
+            />
+          </Form.Item>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Form.Item label="Date" required>
+              <DatePicker 
+                size="large"
+                className="w-full"
+                placeholder="Select date"
+              />
+            </Form.Item>
+            <Form.Item label="Time" required>
+              <TimePicker 
+                size="large"
+                className="w-full"
+                placeholder="Select time"
+                format="HH:mm"
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item label="Location" required>
+            <Input 
+              size="large"
+              placeholder="Event location"
+            />
+          </Form.Item>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Form.Item label="Capacity" required>
+              <InputNumber 
+                size="large"
+                className="w-full"
+                placeholder="Max attendees"
+                min={1}
+              />
+            </Form.Item>
+            <Form.Item label="Ticket Price (₦)">
+              <InputNumber 
+                size="large"
+                className="w-full"
+                placeholder="0 for free"
+                min={0}
+                formatter={value => `₦ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                parser={value => value.replace(/₦\s?|(,*)/g, '')}
+              />
+            </Form.Item>
+            <Form.Item label="Type" required>
+              <Select size="large" placeholder="Select type">
+                <Select.Option value="Conference">Conference</Select.Option>
+                <Select.Option value="Fundraising">Fundraising</Select.Option>
+                <Select.Option value="Health">Health</Select.Option>
+                <Select.Option value="Environmental">Environmental</Select.Option>
+                <Select.Option value="Social">Social</Select.Option>
+              </Select>
+            </Form.Item>
+          </div>
+
+          <Form.Item label="Organizer" required>
+            <Input 
+              size="large"
+              placeholder="Event organizer name"
+            />
+          </Form.Item>
+
+          <Form.Item label="Status" required>
+            <Select size="large" placeholder="Select status">
+              <Select.Option value="Draft">Draft</Select.Option>
+              <Select.Option value="Published">Published</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Drawer>
+
+      {/* Edit Event Drawer */}
+      <Drawer
+        title="Edit Event"
+        placement="right"
+        onClose={() => setShowEditModal(false)}
+        open={showEditModal && selectedEvent}
+        width={600}
+        extra={
+          <div className="flex gap-2">
+            <Button onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button type="default">
+              Save as Draft
+            </Button>
+            <Button type="primary">
+              Update Event
+            </Button>
+          </div>
+        }
+      >
+        {selectedEvent && (
+          <Form layout="vertical">
+            <Form.Item label="Event Title" required>
+              <Input 
+                size="large"
+                defaultValue={selectedEvent.title}
+                placeholder="Enter event title"
+              />
+            </Form.Item>
+
+            <Form.Item label="Description">
+              <Input.TextArea 
+                rows={3}
+                defaultValue={selectedEvent.description}
+                placeholder="Event description..."
+              />
+            </Form.Item>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Form.Item label="Date" required>
+                <DatePicker 
+                  size="large"
+                  className="w-full"
+                  placeholder="Select date"
+                />
+              </Form.Item>
+              <Form.Item label="Time" required>
+                <TimePicker 
+                  size="large"
+                  className="w-full"
+                  placeholder="Select time"
+                  format="HH:mm"
+                />
+              </Form.Item>
             </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Event Title</label>
-                <input type="text" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                <textarea className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" rows="3"></textarea>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                  <input type="date" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
-                  <input type="time" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                <input type="text" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Capacity</label>
-                  <input type="number" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ticket Price (₦)</label>
-                  <input type="number" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                  <select className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500">
-                    <option value="Conference">Conference</option>
-                    <option value="Fundraising">Fundraising</option>
-                    <option value="Health">Health</option>
-                    <option value="Environmental">Environmental</option>
-                    <option value="Social">Social</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Organizer</label>
-                <input type="text" className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" />
-              </div>
+
+            <Form.Item label="Location" required>
+              <Input 
+                size="large"
+                defaultValue={selectedEvent.location}
+                placeholder="Event location"
+              />
+            </Form.Item>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Form.Item label="Capacity" required>
+                <InputNumber 
+                  size="large"
+                  className="w-full"
+                  defaultValue={selectedEvent.capacity}
+                  placeholder="Max attendees"
+                  min={1}
+                />
+              </Form.Item>
+              <Form.Item label="Ticket Price (₦)">
+                <InputNumber 
+                  size="large"
+                  className="w-full"
+                  defaultValue={selectedEvent.ticketPrice}
+                  placeholder="0 for free"
+                  min={0}
+                  formatter={value => `₦ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value.replace(/₦\s?|(,*)/g, '')}
+                />
+              </Form.Item>
+              <Form.Item label="Type" required>
+                <Select 
+                  size="large" 
+                  defaultValue={selectedEvent.type}
+                  placeholder="Select type"
+                >
+                  <Select.Option value="Conference">Conference</Select.Option>
+                  <Select.Option value="Fundraising">Fundraising</Select.Option>
+                  <Select.Option value="Health">Health</Select.Option>
+                  <Select.Option value="Environmental">Environmental</Select.Option>
+                  <Select.Option value="Social">Social</Select.Option>
+                </Select>
+              </Form.Item>
             </div>
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+
+            <Form.Item label="Organizer" required>
+              <Input 
+                size="large"
+                defaultValue={selectedEvent.organizer}
+                placeholder="Event organizer name"
+              />
+            </Form.Item>
+
+            <Form.Item label="Status" required>
+              <Select 
+                size="large" 
+                defaultValue={selectedEvent.status}
+                placeholder="Select status"
               >
-                Cancel
-              </button>
-              <button className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                Create Event
-              </button>
+                <Select.Option value="Draft">Draft</Select.Option>
+                <Select.Option value="Published">Published</Select.Option>
+                <Select.Option value="Completed">Completed</Select.Option>
+                <Select.Option value="Cancelled">Cancelled</Select.Option>
+              </Select>
+            </Form.Item>
+          </Form>
+        )}
+      </Drawer>
+
+      {/* Delete Event Modal */}
+      <Modal
+        title="Delete Event"
+        open={showDeleteModal}
+        onOk={() => {
+          // Handle delete logic here
+          setShowDeleteModal(false);
+          setSelectedEvent(null);
+        }}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setSelectedEvent(null);
+        }}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete this event?</p>
+        {selectedEvent && (
+          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+            <p className="font-medium text-gray-900">{selectedEvent.title}</p>
+            <p className="text-sm text-gray-600">{selectedEvent.description}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs text-gray-500">
+                {new Date(selectedEvent.date).toLocaleDateString()} at {selectedEvent.time}
+              </span>
+              <span className="text-xs text-gray-500">•</span>
+              <span className="text-xs text-gray-500">{selectedEvent.registered} registered</span>
             </div>
           </div>
-        </div>
-      )}
+        )}
+        <p className="mt-3 text-sm text-gray-500">This action cannot be undone and will affect all registered participants.</p>
+      </Modal>
     </div>
   );
 }
