@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, MessageCircle, Send, HeadphonesIcon } from 'lucide-react';
-import { Button, ScrollReveal } from '../../components/ui';
-import Drawer from '../../components/ui/Drawer';
+import { Button, ScrollReveal, Drawer } from '../../components/ui';
 import { ContactForm } from '../../components/forms';
 
 const contactMethods = [
@@ -165,19 +164,11 @@ const Contact = () => {
       </section>
       {/* Contact Form Drawer */}
       <Drawer
-        isOpen={showContactDrawer}
+        title="Contact Us"
+        placement="right"
         onClose={() => setShowContactDrawer(false)}
-        position="right"
-         title={
-          <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-             Contact Us
-            </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
-              Your details are safe with us
-            </p>
-            </div>
-          }
+        open={showContactDrawer}
+        width={600}
       >
         <ContactForm onClose={() => setShowContactDrawer(false)} />
       </Drawer>

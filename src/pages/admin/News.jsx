@@ -1,3 +1,3 @@
-import NewsManagement from './components/NewsManagement';
+import NewsAdmin from './News/News';
 
-export default NewsManagement;
+export default NewsAdmin;

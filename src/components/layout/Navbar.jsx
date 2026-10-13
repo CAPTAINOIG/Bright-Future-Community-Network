@@ -1,25 +1,31 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown, Phone } from 'lucide-react';
+import { Drawer } from '../../components/ui';
 import Button from '../ui/Button';
+import { JoinForm } from '../forms';
 
 const navLinks = [
   { label: 'Home', to: '/' },
   { label: 'About', to: '/about' },
   { label: 'Leadership', to: '/leadership' },
-  { label: 'What We Do', children: [
-    { label: 'Programmes', to: '/programmes' },
-    { label: 'Projects', to: '/projects' },
-    { label: 'Community Ideas', to: '/community-ideas' },
-  ]},
+  {
+    label: 'What We Do', children: [
+      { label: 'Programmes', to: '/programmes' },
+      { label: 'Projects', to: '/projects' },
+      { label: 'Community Ideas', to: '/community-ideas' },
+    ]
+  },
   { label: 'Events', to: '/events' },
   { label: 'News', to: '/news' },
   { label: 'Gallery', to: '/gallery' },
-  { label: 'Get Involved', children: [
-    { label: 'Join BFCN', to: '/join' },
-    { label: 'Volunteer', to: '/volunteer' },
-    { label: 'Support Us', to: '/support' },
-  ]},
+  {
+    label: 'Get Involved', children: [
+      { label: 'Join BFCN', to: '/join' },
+      { label: 'Volunteer', to: '/volunteer' },
+      { label: 'Support Us', to: '/support' },
+    ]
+  },
   { label: 'Transparency', to: '/transparency' },
   { label: 'Contact', to: '/contact' },
 ];
@@ -28,6 +34,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [showJoinDrawer, setShowJoinDrawer] = useState(false)
   const location = useLocation();
 
   useEffect(() => { setIsOpen(false); setActiveDropdown(null); }, [location]);
@@ -65,14 +72,14 @@ const Navbar = () => {
                   <ul className={`absolute top-full left-1/2 -translate-x-1/2 min-w-[200px] bg-white border border-gray-200 rounded-xl shadow-lg p-2 list-none transition-all duration-150 ${activeDropdown === link.label ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-2 pointer-events-none'}`}>
                     {link.children.map((child) => (
                       <li key={child.to}>
-                        <NavLink to={child.to} className={({isActive}) => `block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-150 no-underline ${isActive ? 'text-primary-600 bg-primary-50' : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'}`}>{child.label}</NavLink>
+                        <NavLink to={child.to} className={({ isActive }) => `block px-4 py-3 text-sm font-medium rounded-lg transition-all duration-150 no-underline ${isActive ? 'text-primary-600 bg-primary-50' : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'}`}>{child.label}</NavLink>
                       </li>
                     ))}
                   </ul>
                 </li>
               ) : (
                 <li key={link.to}>
-                  <NavLink to={link.to} end={link.to === '/'} className={({isActive}) => `inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 no-underline whitespace-nowrap ${isActive ? 'text-primary-600 bg-primary-50 font-semibold' : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'}`}>{link.label}</NavLink>
+                  <NavLink to={link.to} end={link.to === '/'} className={({ isActive }) => `inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 no-underline whitespace-nowrap ${isActive ? 'text-primary-600 bg-primary-50 font-semibold' : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'}`}>{link.label}</NavLink>
                 </li>
               )
             )}
@@ -80,7 +87,7 @@ const Navbar = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-3 shrink-0">
-            <Button to="/join" variant="primary" size="sm" className="hidden lg:inline-flex">Join BFCN</Button>
+            <Button onClick={() => setShowJoinDrawer(true)} variant="primary" size="sm" className="hidden lg:inline-flex">Join BFCN</Button>
             <button className="flex lg:hidden items-center justify-center w-10 h-10 rounded-lg text-gray-900 hover:bg-gray-100 transition-colors" onClick={() => setIsOpen(!isOpen)} aria-label={isOpen ? 'Close menu' : 'Open menu'}>
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -106,7 +113,7 @@ const Navbar = () => {
                           <NavLink
                             to={child.to}
                             onClick={() => setIsOpen(false)}
-                            className={({isActive}) => `block px-4 py-3 text-sm rounded-lg border-l-2 ml-3 transition-all no-underline ${isActive ? 'text-primary-600 border-primary-600 bg-primary-50' : 'text-gray-600 border-gray-200 hover:text-primary-600 hover:border-primary-600 hover:bg-primary-50'}`}
+                            className={({ isActive }) => `block px-4 py-3 text-sm rounded-lg border-l-2 ml-3 transition-all no-underline ${isActive ? 'text-primary-600 border-primary-600 bg-primary-50' : 'text-gray-600 border-gray-200 hover:text-primary-600 hover:border-primary-600 hover:bg-primary-50'}`}
                           >
                             {child.label}
                           </NavLink>
@@ -121,7 +128,7 @@ const Navbar = () => {
                     to={link.to}
                     end={link.to === '/'}
                     onClick={() => setIsOpen(false)}
-                    className={({isActive}) => `flex items-center px-4 py-4 text-base font-medium rounded-lg transition-all no-underline ${isActive ? 'text-primary-600 bg-primary-50' : 'text-gray-900 hover:text-primary-600 hover:bg-primary-50'}`}
+                    className={({ isActive }) => `flex items-center px-4 py-4 text-base font-medium rounded-lg transition-all no-underline ${isActive ? 'text-primary-600 bg-primary-50' : 'text-gray-900 hover:text-primary-600 hover:bg-primary-50'}`}
                   >
                     {link.label}
                   </NavLink>
@@ -141,6 +148,15 @@ const Navbar = () => {
             </a>
           </div>
         </div>
+        <Drawer
+          title="Join Bright Future Community Network"
+          placement="right"
+          onClose={() => setShowJoinDrawer(false)}
+          open={showJoinDrawer}
+          width={600}
+        >
+          <JoinForm onClose={() => setShowJoinDrawer(false)} />
+        </Drawer>
       </div>
     </header>
   );

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { UserPlus } from 'lucide-react';
 import { Button } from '../ui';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { useCreateMember } from '../../api/member';
 
 const interestOptions = [
@@ -71,6 +71,7 @@ const JoinForm = ({ onClose }) => {
 
   return (
     <div>
+      <Toaster position='top-right' />
       <div className="text-center mb-6">
         <UserPlus size={24} className="text-green-600 mx-auto mb-3" />
         <h3 className="text-lg font-semibold mb-2">Membership Application</h3>

@@ -1,3 +1,3 @@
-import ProjectManagement from './components/ProjectManagement';
+import Project from './Project/Project';
 
-export default ProjectManagement;
+export default Project;

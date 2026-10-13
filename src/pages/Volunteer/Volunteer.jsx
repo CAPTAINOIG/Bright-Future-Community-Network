@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { HandHelping, Heart, Users, Clock, CheckCircle, ArrowRight } from 'lucide-react';
-import { Button, ScrollReveal } from '../../components/ui';
-import Drawer from '../../components/ui/Drawer';
+import { Button, ScrollReveal, Drawer } from '../../components/ui';
 import { VolunteerForm } from '../../components/forms';
 
 const volunteerOpportunities = [
@@ -265,19 +264,11 @@ const Volunteer = () => {
         </div>
       </section>
       <Drawer
-        isOpen={showVolunteerDrawer}
+        title="Volunteer Registration"
+        placement="right"
         onClose={() => setShowVolunteerDrawer(false)}
-        position="right"
-         title={
-          <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              Register as Volunteer
-            </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
-               Your details are safe with us
-            </p>
-            </div>
-          }
+        open={showVolunteerDrawer}
+        width={600}
       >
         <VolunteerForm onClose={() => setShowVolunteerDrawer(false)} />
       </Drawer>

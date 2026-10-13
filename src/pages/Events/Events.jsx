@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
-import { Button, ScrollReveal, Badge } from "../../components/ui";
-import { inputClass } from "../../utils/exportCsv";
+import { Button, ScrollReveal, Badge, Drawer } from "../../components/ui";
+import EventsForm from "./EventsForm";
 
 const events = [
   {
@@ -59,20 +58,20 @@ const events = [
 
 const Events = () => {
   const [tab, setTab] = useState("upcoming");
-  const [regEvent, setRegEvent] = useState(null);
-  const [registered, setRegistered] = useState(false);
+  const [showRegisterDrawer, setShowRegisterDrawer] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const {register, handleSubmit, reset, formState: { errors }} = useForm({defaultValues: {fullName: "", email: "", phone: "" }});
-  const filtered = events.filter((e) => e.status === tab);
-  const onRegister = (data) => {
-    console.log("Registration:", data);
-    setRegistered(true);
-    setTimeout(() => {
-      setRegEvent(null);
-      setRegistered(false);
-      reset();
-    }, 3000);
+  const openRegister = (event) => {
+    setSelectedEvent(event);
+    setShowRegisterDrawer(true);
   };
+
+  const closeRegister = () => {
+    setShowRegisterDrawer(false);
+    setTimeout(() => setSelectedEvent(null), 300);
+  };
+
+  const filtered = events.filter((e) => e.status === tab);
 
   return (
     <div>
@@ -158,89 +157,12 @@ const Events = () => {
                     <Button
                       variant="primary"
                       size="sm"
-                      onClick={() => setRegEvent(event.id)}
+                      onClick={() => openRegister(event)}
                     >
                       Register
                     </Button>
                   )}
                 </div>
-
-                {regEvent === event.id && (
-                  <div className="mt-3 p-6 bg-gray-50 border border-gray-200 rounded-lg">
-                    {registered ? (
-                      <div className="text-center py-4 text-green-700">
-                        <h4 className="font-bold">✓ Registered!</h4>
-                        <p className="text-sm">
-                          You&apos;re registered for {event.title}.
-                        </p>
-                      </div>
-                    ) : (
-                      <form onSubmit={handleSubmit(onRegister)}>
-                        <h4 className="text-base font-bold mb-4">
-                          Register for {event.title}
-                        </h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <label className="block text-sm font-medium mb-2">
-                              Full Name *
-                            </label>
-                            <input {...register("fullName", {required: "Full name is required",
-                            })}
-                              placeholder="Your name"
-                              className={inputClass("fullName")}
-                            />
-                            {errors.fullName && (
-                              <span className="text-sm text-red-600 mt-1 block">
-                                {errors.fullName.message}
-                              </span>
-                            )}
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-2">
-                              Email *
-                            </label>
-                            <input {...register("email", { required: "Email is required",
-                                pattern: {
-                                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                  message: "Enter a valid email address",
-                                },
-                              })}
-                              type="email"
-                              placeholder="your@email.com"
-                              className={inputClass("email")}
-                            />
-                            {errors.email && (
-                              <span className="text-sm text-red-600 mt-1 block">
-                                {errors.email.message}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium mb-2">
-                            Phone
-                          </label>
-
-                          <input
-                            {...register("phone")}
-                            placeholder="+234..."
-                            className={inputClass("phone")}
-                          />
-                        </div>
-
-                        <div className="flex gap-3">
-                          <Button type="submit" variant="primary" size="sm">
-                            Confirm
-                          </Button>
-
-                          <Button variant="ghost" size="sm" onClick={() => {setRegEvent(null); reset()}}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                )}
               </ScrollReveal>
             ))}
             {filtered.length === 0 && (
@@ -253,6 +175,27 @@ const Events = () => {
           </div>
         </div>
       </section>
+
+      <Drawer
+        isOpen={showRegisterDrawer}
+        onClose={closeRegister}
+        title={
+          <div className="pr-6">
+            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+              Register for Event
+            </h2>
+            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+              Reserve your seat — we&apos;ll send a confirmation to your email
+            </p>
+          </div>
+        }
+        position="right"
+      >
+        <EventsForm
+          event={selectedEvent}
+          onClose={closeRegister}
+        />
+      </Drawer>
     </div>
   );
 };

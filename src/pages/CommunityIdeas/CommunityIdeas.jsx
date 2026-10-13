@@ -108,7 +108,7 @@ const ideaBenefits = [
   'Direct line to project and programme leads',
 ];
 
-const CommunityIdeas = () => {
+const CommunityIdeasManagement = () => {
   const [showTracker, setShowTracker] = useState(false);
   const [showIdeaDrawer, setShowIdeaDrawer] = useState(false);
 
@@ -412,4 +412,4 @@ const CommunityIdeas = () => {
   );
 };
 
-export default CommunityIdeas;
+export default CommunityIdeasManagement;

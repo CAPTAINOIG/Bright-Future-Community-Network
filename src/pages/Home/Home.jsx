@@ -1,20 +1,42 @@
 import { Users, BookOpen, Briefcase, Calendar, ArrowRight, MapPin, Clock, ChevronRight, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button, SectionHeader, Card, ScrollReveal, Badge } from '../../components/ui';
+import { Button, SectionHeader, Card, ScrollReveal, Badge, Drawer } from '../../components/ui';
 import { events, impactQuotes, news, programmes, projects, stats } from './dummy';
 import { JoinForm } from '../../components/forms';
 import { useState } from 'react';
-import Drawer from '../../components/ui/Drawer';
+import heroVideo from '../../assets/video.mp4';
 
 const Home = () => {
   const [showJoinDrawer, setShowJoinDrawer] = useState(false)
   return (
     <div>
-      <section className="relative min-h-[92vh] flex items-center bg-gradient-to-br from-primary-800 via-primary-600 to-primary-700 overflow-hidden -mt-[72px] pt-[72px]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.15)_0%,transparent_50%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.05)_0%,transparent_40%)]" />
-        <div className="absolute inset-0 hero-pattern" />
+      <section className="relative min-h-[92vh] flex items-center overflow-hidden -mt-[72px] pt-[72px]">
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <video
+            className="absolute left-0 w-full h-full object-cover opacity-50"
+            style={{
+              objectPosition: 'center 20%',
+              height: 'calc(100% + 60px)',
+              minWidth: '100%',
+              minHeight: '100%'
+            }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          >
+            <source src={heroVideo} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div className="absolute inset-0 bg-black/45" />
+        </div>
+        <div className="absolute inset-0  z-[1]" />
+        <div className="absolute inset-0 z-[1]" />
+        <div className="absolute inset-0 z-[1]" />
         <div className="container-main relative z-10 py-16 pb-24">
-          <ScrollReveal className="text-center max-w-[800px] mx-auto">
+          <div className="absolute inset-0" />
+          <ScrollReveal className="text-center max-w-[800px] mx-auto relative z-10">
             <div className="inline-flex items-center justify-center mb-8">
               <img src="/images/bfcn-logo.png" alt="BFCN Logo" className="w-[120px] h-[120px] md:w-[140px] md:h-[140px] rounded-full object-contain border-4 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white" />
             </div>
@@ -184,20 +206,13 @@ const Home = () => {
           </ScrollReveal>
         </div>
       </section>
+      {/* Join Form Drawer */}
       <Drawer
-        isOpen={showJoinDrawer}
-        title={
-          <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              Join Bright Future Community Network
-            </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
-              Your details are safe with us
-            </p>
-            </div>
-          }
+        title="Join Bright Future Community Network"
+        placement="right"
         onClose={() => setShowJoinDrawer(false)}
-        position="right"
+        open={showJoinDrawer}
+        width={600}
       >
         <JoinForm onClose={() => setShowJoinDrawer(false)} />
       </Drawer>

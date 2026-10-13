@@ -1,7 +1,6 @@
 import { Target, Eye, Heart, Shield, Users, Lightbulb, Handshake, TrendingUp, BookOpen, Award, ArrowRight } from 'lucide-react';
-import { Button, SectionHeader, ScrollReveal } from '../../components/ui';
+import { Button, SectionHeader, ScrollReveal, Drawer } from '../../components/ui';
 import { useState } from 'react';
-import Drawer from '../../components/ui/Drawer';
 import { JoinForm } from '../../components/forms';
 
 const values = [
@@ -130,22 +129,14 @@ const About = () => {
         </div>
       </section>
        <Drawer
-        isOpen={showJoinDrawer}
-        onClose={() => setShowJoinDrawer(false)}
-        position="right"
-        title={
-          <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              Join Bright Future Community Network
-            </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
-              Your details are safe with us
-            </p>
-            </div>
-          }
-      >
-        <JoinForm onClose={() => setShowJoinDrawer(false)} />
-      </Drawer>
+          title="Join Bright Future Community Network"
+          placement="right"
+          onClose={() => setShowJoinDrawer(false)}
+          open={showJoinDrawer}
+          width={600}
+        >
+          <JoinForm onClose={() => setShowJoinDrawer(false)} />
+        </Drawer>
     </div>
   );
 }

@@ -9,14 +9,12 @@ export { default as SectionHeader } from './SectionHeader';
 
 // Enhanced UI Components
 export { default as Modal } from './Modal';
+export { default as Drawer } from './Drawer';
 export { default as FormField } from './FormField';
 export { default as Dropdown } from './Dropdown';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { ToastProvider, toast } from './Toast';
-
-// Drawer adapter
-export { default as CustomDrawer } from './Drawer';
 
 // Ant Design primitives used across the application.
 export {
@@ -28,7 +26,7 @@ export {
 	Checkbox,
 	ColorPicker,
 	DatePicker,
-	Drawer,
+	Drawer as AntDrawer,
 	Form,
 	Image,
 	Input,

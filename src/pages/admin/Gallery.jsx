@@ -1,3 +1,3 @@
-import GalleryManagement from './components/GalleryManagement';
+import GalleryAdmin from './Gallery/Gallery';
 
-export default GalleryManagement;
+export default GalleryAdmin;
