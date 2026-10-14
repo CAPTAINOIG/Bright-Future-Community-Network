@@ -9,7 +9,7 @@ const useAuthStore = create(
       token: null,
       isLoading: true,
       
-       setAuth: (user, token) => {
+      setAuth: (user, token) => {
         set({
           user,
           token,
@@ -24,7 +24,13 @@ const useAuthStore = create(
       
       logout: () => {
         set({ user: null, isAuthenticated: false, token: null, isLoading: false });
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('bfcn-auth-storage');
+        }
       },
+
+      finishLoading: () => set({ isLoading: false }),
+
       getUser: () => get().user,
       getToken: () => get().token,
       getIsAuthenticated: () => get().isAuthenticated,
@@ -33,10 +39,14 @@ const useAuthStore = create(
       name: 'bfcn-auth-storage',
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated,
+        isAuthenticated: state.isAuthenticated, 
         token: state.token,
-        isLoading: state.isLoading,
-      })
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isLoading = false;
+        }
+      },
     }
   )
 );

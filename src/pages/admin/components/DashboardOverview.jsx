@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, CalendarDays, Eye, Heart, Lightbulb, MessageSquare, Plus, UserCheck, Users, FolderKanban } from 'lucide-react';
+import { useGetMember } from '../../../api/member';
 
-const stats = [
-  { label: 'Total members', value: '1,234', change: '+12.4%', detail: 'vs. last month', icon: Users, tone: 'green' },
-  { label: 'Active volunteers', value: '89', change: '+5.1%', detail: 'vs. last month', icon: UserCheck, tone: 'gold' },
-  { label: 'Ongoing projects', value: '15', change: '+2', detail: 'new this quarter', icon: FolderKanban, tone: 'blue' },
-  { label: 'Upcoming events', value: '08', change: 'next 30 days', detail: 'across 4 regions', icon: CalendarDays, tone: 'orange' },
-];
+// const stats = [
+//   { label: 'Total members', value: `${total}`, change: '+12.4%', detail: 'vs. last month', icon: Users, tone: 'green' },
+//   { label: 'Active volunteers', value: `${rawMembers.length}`, change: '+5.1%', detail: 'vs. last month', icon: UserCheck, tone: 'gold' },
+//   { label: 'Ongoing projects', value: '15', change: '+2', detail: 'new this quarter', icon: FolderKanban, tone: 'blue' },
+//   { label: 'Upcoming events', value: '08', change: 'next 30 days', detail: 'across 4 regions', icon: CalendarDays, tone: 'orange' },
+// ];
 
 const activities = [
   { label: 'New member registered', name: 'John Doe', time: '2 min ago', color: 'bg-[#427456]' },
@@ -22,7 +23,48 @@ const quickActions = [
   { label: 'Review ideas', path: '/admin/ideas', icon: Lightbulb },
 ];
 
-export default function DashboardOverview() {
+const DashboardOverview = () => {
+  const { data: response, isPending: membersLoading, isError: membersError } = useGetMember();
+  const rawMembers = Array.isArray(response?.data?.members) ? response.data.members : [];
+  const total = response?.data?.pagination?.total ?? response?.data?.pagination?.totalMembers ?? rawMembers.length;
+
+  const activeMembers = rawMembers.filter((member) => member.isActive === true).length;
+
+  const stats = [
+    {
+      label: 'Total members',
+      value: membersLoading ? '—' : total.toLocaleString(),
+      change: null,
+      detail: 'Registered members',
+      icon: Users,
+      tone: 'green',
+    },
+    {
+      label: 'Active members',
+      value: membersLoading ? '—' : activeMembers.toLocaleString(),
+      change: null,
+      detail: 'Currently active',
+      icon: UserCheck,
+      tone: 'gold',
+    },
+    {
+      label: 'Ongoing projects',
+      value: '—',
+      change: null,
+      detail: 'No project data yet',
+      icon: FolderKanban,
+      tone: 'blue',
+    },
+    {
+      label: 'Upcoming events',
+      value: '—',
+      change: null,
+      detail: 'No event data yet',
+      icon: CalendarDays,
+      tone: 'orange',
+    },
+  ];
+
   return (
     <div className="space-y-8">
       <section className="relative overflow-hidden rounded-[26px] bg-[#1a3326] px-6 py-7 text-white md:px-9 md:py-8">
@@ -54,3 +96,5 @@ export default function DashboardOverview() {
     </div>
   );
 }
+
+export default DashboardOverview;

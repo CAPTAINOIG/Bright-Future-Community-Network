@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { LoadingSpinner } from '../ui';
 import useAuthStore from '../../store/useAuthStore';
 
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuthStore()
+  const { user, isAuthenticated, isLoading } = useAuthStore();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -14,9 +15,16 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+  if (!user || !isAuthenticated) {
+    return (
+      <Navigate
+        to="/admin/login"
+        replace
+        state={{ from: location }}
+      />
+    );
   }
+
   return children;
 }
 

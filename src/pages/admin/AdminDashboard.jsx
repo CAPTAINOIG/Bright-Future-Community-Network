@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
   BarChart3, Bell, BookOpen, CalendarDays, ChevronRight, FolderKanban,
@@ -25,15 +25,14 @@ const menuItems = [
   { id: 'settings', label: 'Website settings', icon: Settings2, path: '/admin/settings' },
 ];
 
-export default function AdminDashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const AdminDashboard = () => {
   const location = useLocation();
   const { user, logout, isLoading } = useAuthStore();
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const currentPath = location.pathname;
   const activeSection = menuItems.find(item => item.path === currentPath)?.id || 'overview';
   const activeItem = menuItems.find(item => item.id === activeSection) || menuItems[0];
-
+  
   const handleLogout = () => {
     logout();
     toast.success('Logged out successfully');
@@ -43,8 +42,8 @@ export default function AdminDashboard() {
   return (
     <div className="admin-shell min-h-screen flex bg-[#f7f5ef] text-[#17231d]">
       <AnimatePresence>
-        <div className={`fixed inset-y-0 left-0 z-50 w-[276px] bg-[#14251d] text-white transform transition-transform duration-300 lg:!static lg:!translate-x-0 lg:!flex lg:inset-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <div className="flex flex-col w-full">
+        <div className={`fixed inset-y-0 left-0 z-50 w-[276px] bg-[#14251d] text-white transform transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 overflow-hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <div className="flex flex-col w-full h-full min-h-0">
             <div className="flex items-center justify-between h-[92px] px-7 border-b border-white/10">
               <Link to="/admin" className="flex items-center gap-3 no-underline text-white">
                 <div className="grid place-items-center w-10 h-10 rounded-xl bg-[#e9b949] text-[#14251d] font-black text-lg">B</div>
@@ -53,7 +52,7 @@ export default function AdminDashboard() {
               <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/60 hover:text-white" aria-label="Close navigation"><X size={20} /></button>
             </div>
             <div className="px-5 pt-7 pb-3 text-[10px] uppercase tracking-[0.22em] text-white/35">Workspace</div>
-            <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+            <nav className="folder flex-1 px-4 space-y-1 min-h-0">
               {menuItems.map((item) => {
                 const Icon = item.icon; const isActive = activeSection === item.id;
                 return (
@@ -65,7 +64,7 @@ export default function AdminDashboard() {
                 );
               })}
             </nav>
-            <div className="p-5 mt-5 border-t border-white/10">
+            <div className="p-5 mt-auto border-t border-white/10">
               <div className="flex items-center gap-3 px-2 mb-4"><div className="grid place-items-center w-9 h-9 rounded-full bg-[#d9ece0] text-[#14251d] text-sm font-bold">{(user?.name || 'A').charAt(0)}</div><div className="min-w-0"><p className="text-xs font-semibold truncate">{user?.name || 'Admin'}</p><p className="text-[10px] text-white/40 truncate">Administrator</p></div></div>
               <button
               onClick={handleLogout}
@@ -75,7 +74,6 @@ export default function AdminDashboard() {
         </div>
       </AnimatePresence>
 
-      {/* Main Content */}
       <div className="flex-1 min-w-0">
         <header className="h-[92px] flex items-center justify-between px-5 md:px-10 border-b border-[#dfe3d9] bg-[#f7f5ef]/90 backdrop-blur-sm">
           <div className="flex items-center gap-4">
@@ -112,3 +110,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+export default AdminDashboard;
