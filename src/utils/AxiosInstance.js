@@ -1,4 +1,5 @@
 import axios from "axios";
+import useAuthStore from "../store/useAuthStore";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
@@ -11,20 +12,20 @@ const axiosInstance = axios.create({
 });
 
 //  Request interceptor to inject token dynamically
-// axiosInstance.interceptors.request.use((config) => {
-//   const authStore = useAuthStore.getState();
-//   const token = authStore.getToken();
+axiosInstance.interceptors.request.use((config) => {
+  const authStore = useAuthStore.getState();
+  const token = authStore.getToken();
 
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   if (config.data instanceof FormData) {
-//     config.headers["Content-Type"] = "multipart/form-data";
-//   } else {
-//     config.headers["Content-Type"] = "application/json";
-//   }
-//   return config;
-// });
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (config.data instanceof FormData) {
+    config.headers["Content-Type"] = "multipart/form-data";
+  } else {
+    config.headers["Content-Type"] = "application/json";
+  }
+  return config;
+});
 
 // axiosInstance.interceptors.response.use(
 //   (response) => response,

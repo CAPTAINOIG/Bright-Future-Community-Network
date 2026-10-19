@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Send } from 'lucide-react';
 import { Button } from '../ui';
 import { toast } from 'sonner';
+import { X } from 'lucide-react';
 
-export default function ContactForm({ onClose }) {
+const ContactForm = ({ onClose }) => {
   const [form, setForm] = useState({ 
     name: '', 
     email: '', 
@@ -144,6 +145,7 @@ export default function ContactForm({ onClose }) {
             type="button"
             variant="outline"
             onClick={onClose}
+            icon={X}
             fullWidth
             size='lg'
           >
@@ -164,3 +166,5 @@ export default function ContactForm({ onClose }) {
     </div>
   );
 }
+
+export default ContactForm;

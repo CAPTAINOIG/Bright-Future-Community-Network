@@ -9,42 +9,42 @@ const volunteerOpportunities = [
     description: 'Help teach and mentor children in underserved communities',
     icon: '📚',
     commitment: '4-6 hours/week',
-    location: 'Various schools'
+    community: 'Various schools'
   },
   {
     title: 'Community Outreach',
     description: 'Connect with community members and spread awareness',
     icon: '🤝',
     commitment: '3-5 hours/week',
-    location: 'Field work'
+    community: 'Field work'
   },
   {
     title: 'Youth Development',
     description: 'Mentor young people and help them build life skills',
     icon: '🌱',
     commitment: '2-4 hours/week',
-    location: 'Youth centers'
+    community: 'Youth centers'
   },
   {
     title: 'Media & Communications',
     description: 'Help us tell stories and create engaging content',
     icon: '📱',
     commitment: 'Flexible',
-    location: 'Remote/Office'
+    community: 'Remote/Office'
   },
   {
     title: 'Event Support',
     description: 'Assist with organizing and running community events',
     icon: '🎉',
     commitment: 'Event-based',
-    location: 'Various venues'
+    community: 'Various venues'
   },
   {
     title: 'Skills Training',
     description: 'Share your professional skills with community members',
     icon: '⚡',
     commitment: '2-3 hours/week',
-    location: 'Training centers'
+    community: 'Training centers'
   }
 ];
 
@@ -222,8 +222,8 @@ const Volunteer = () => {
                       <span className="font-medium">{opportunity.commitment}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Location:</span>
-                      <span className="font-medium">{opportunity.location}</span>
+                      <span className="text-gray-500">Community:</span>
+                      <span className="font-medium">{opportunity.community}</span>
                     </div>
                   </div>
                   <Button

@@ -2,26 +2,26 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../utils/AxiosInstance";
 
 export const useCreateMember = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["member"],
     mutationFn: async (data) => {
       const res = await axiosInstance.post("/api/members/register", data);
       return res.data
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['member'] })
+    }
   });
 };
 
-export const useGetMember = () => {
-  const queryClient = useQueryClient()
+export const useGetMember = (params = {}) => {
   return useQuery({
-    queryKey: ["member"],
+    queryKey: ["member", params],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/members");
+      const res = await axiosInstance.get("/api/members", { params });
       return res.data;
     },
-     onSuccess: () =>{
-      queryClient.invalidateQueries({queryKey : ['member']})
-    }
   });
 };
 
@@ -39,12 +39,16 @@ export const useDeleteMember = () => {
   });
 };  
 
-export const useEditMember = () => {
+export const useEditMember = (id) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["member"],
-    mutationFn: async (data) => {
-      const res = await axiosInstance.put("/api/members", data);
+    mutationFn: async ({ ...data }) => {
+      const res = await axiosInstance.put(`/api/members/${id}`, data);
       return res.data
     },
+    onSuccess: () =>{
+      queryClient.invalidateQueries({queryKey : ['member']})
+    }
   });
 };

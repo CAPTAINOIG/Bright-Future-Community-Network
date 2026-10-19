@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, X } from 'lucide-react';
 import { Button } from '../ui';
 import { toast, Toaster } from 'sonner';
 import { useCreateMember } from '../../api/member';
@@ -48,7 +48,7 @@ const JoinForm = ({ onClose }) => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await createMember(data);
+      await createMember(data);
       toast.success(res.message);
       reset();
       onClose();
@@ -226,6 +226,7 @@ const JoinForm = ({ onClose }) => {
             type="button"
             variant="outline"
             size='lg'
+            icon={X}
             onClick={onClose}
             fullWidth
           >

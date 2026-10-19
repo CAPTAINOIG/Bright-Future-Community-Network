@@ -15,23 +15,31 @@ import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
 import { Button, Input, Tag } from 'antd';
 import { exportCsv } from '../../../utils/exportCsv';
-import { useGetMember } from '../../../api/member';
-import { JoinForm } from '../../../components/forms';
+import { useGetMember, useDeleteMember } from '../../../api/member';
+import { JoinForm, EditMemberForm } from '../../../components/forms';
+import MemberDetails from './MemberDetails';
+import { getStatusBadge, softColor } from './utilsMember';
+import { Toaster } from 'sonner';
 
 const EnhancedMember = () => {
-  const { data: response = { members: [], pagination: {} }, isPending: membersLoading } = useGetMember();
+  const { data: response = { members: [], pagination: {} }, isPending: membersLoading } = useGetMember({ limit: 1000 });
   const rawMembers = Array.isArray(response?.data?.members) ? response.data?.members : [];
   const apiPagination = response?.data?.pagination;
   const total = apiPagination?.total;
-  const limit = apiPagination?.limit;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showMemberDrawer, setShowMemberDrawer] = useState(false);
+  const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [communityFilter, setCommunityFilter] = useState('All');
+  const [interestFilter, setInterestFilter] = useState('All');
+
+  const { mutateAsync: deleteMember, isPending: isDeleteMemberLoading, isError: isDeleteMemberError } = useDeleteMember();
 
   const filteredMembers = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -50,9 +58,16 @@ const EnhancedMember = () => {
         (statusFilter === 'Active' && member?.isActive === true) ||
         (statusFilter === 'Inactive' && member?.isActive === false);
 
-      return matchesSearch && matchesStatus;
+      const matchesCommunity =
+        communityFilter === 'All' || member?.community === communityFilter;
+
+      const matchesInterest =
+        interestFilter === 'All' ||
+        (Array.isArray(member?.interests) && member.interests.includes(interestFilter));
+
+      return matchesSearch && matchesStatus && matchesCommunity && matchesInterest;
     });
-  }, [rawMembers, searchTerm, statusFilter]);
+  }, [rawMembers, searchTerm, statusFilter, communityFilter, interestFilter]);
 
   const totalMembers = total ?? rawMembers.length;
   const activeCount = useMemo(() => rawMembers.filter((m) => m?.isActive === true).length, [rawMembers]);
@@ -62,23 +77,21 @@ const EnhancedMember = () => {
     return rawMembers.filter((m) => m?.createdAt && new Date(m.createdAt) >= start).length;
   }, [rawMembers]);
 
-  const softColor = (seed) => {
-    const palette = [
-      'bg-[#d9ece0] text-[#427456] border-[#c4dfcd]',
-      'bg-[#e6e1f4] text-[#564189] border-[#d4cbec]',
-      'bg-[#f8e5d6] text-[#8a5a2b] border-[#f1cfb2]',
-      'bg-[#dce8f7] text-[#2f5a8e] border-[#c2d7f0]',
-      'bg-[#f7e0e0] text-[#8f3a3a] border-[#efc6c6]',
-      'bg-[#eaf4d7] text-[#556b2f] border-[#d7e9bb]',
-    ];
-    let hash = 0;
-    for (let i = 0; i < (seed ?? '').length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-    return palette[hash % palette.length];
-  };
+  const communityOptions = useMemo(
+    () => [...new Set(rawMembers.map((m) => m?.community).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
+    [rawMembers]
+  );
 
-  const getStatusBadge = (isActive) => {
-    if (isActive === true) return 'px-3 py-1 text-xs font-medium rounded-full border bg-green-100 text-green-800 border-green-200';
-    return 'px-3 py-1 text-xs font-medium rounded-full border bg-gray-100 text-gray-800 border-gray-200';
+  const interestOptions = useMemo(
+    () => [...new Set(rawMembers.flatMap((m) => (Array.isArray(m?.interests) ? m.interests : [])).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
+    [rawMembers]
+  );
+
+  const activeFilterCount = [communityFilter !== 'All', interestFilter !== 'All'].filter(Boolean).length;
+
+  const resetMoreFilters = () => {
+    setCommunityFilter('All');
+    setInterestFilter('All');
   };
 
   const chip = (value) => {
@@ -87,36 +100,46 @@ const EnhancedMember = () => {
     return <span className={cls}>{value}</span>;
   };
 
-  const openAddMember = () => {
+  const handleAddMember = () => {
     setSelectedMember(null);
     setShowMemberDrawer(true);
   };
 
-  const handleEdit = (member) => {
+  const handleMemberDetails = (member) => {
     setSelectedMember(member);
-    setShowMemberDrawer(true);
+    setShowDetailsDrawer(true);
   };
 
-  const closeMemberDrawer = () => {
+  const handleMemberEdit = (member) => {
+    setSelectedMember(member);
+    setShowDetailsDrawer(false);
+    setShowEditDrawer(true);
+  };
+
+  const handleCloseMemberDrawer = () => {
     setShowMemberDrawer(false);
     setTimeout(() => setSelectedMember(null), 300);
   };
 
-  const handleFormSubmitted = () => {
-    closeMemberDrawer();
+  const handleCloseDetailsDrawer = () => {
+    setShowDetailsDrawer(false);
+    setTimeout(() => setSelectedMember(null), 300);
+  };
+
+  const handleCloseEditDrawer = () => {
+    setShowEditDrawer(false);
+    setTimeout(() => setSelectedMember(null), 300);
   };
 
   const handleDelete = async () => {
-    setIsDeleting(true);
+    if (!selectedMember?._id) return;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      toast.success('Member deleted successfully!');
+      const res = await deleteMember(selectedMember._id);
+      toast.success(res?.message || 'Member deleted successfully!');
       setShowDeleteDialog(false);
       setSelectedMember(null);
-    } catch {
-      toast.error('Failed to delete member.');
-    } finally {
-      setIsDeleting(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete member.');
     }
   };
 
@@ -133,20 +156,12 @@ const EnhancedMember = () => {
         </button>
         {open && (
           <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-            <button
-              onClick={() => {
-                toast.info(`Viewing ${member.fullName ?? 'member'}`);
-                setOpen(false);
-              }}
+            <button onClick={() => { handleMemberDetails(member); setOpen(false); }}
               className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg transition-colors flex items-center gap-2"
             >
               <EyeIcon className="h-4 w-4" /> View Details
             </button>
-            <button
-              onClick={() => {
-                handleEdit(member);
-                setOpen(false);
-              }}
+            <button onClick={() => { handleMemberEdit(member); setOpen(false); }}
               className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
             >
               <PencilIcon className="h-4 w-4" /> Edit Member
@@ -261,10 +276,11 @@ const EnhancedMember = () => {
     },
   ];
 
-  const pageSize = Number(limit) || 10;
+  const pageSize = 10;
 
   return (
     <div className="space-y-6">
+      <Toaster position='top-right'/>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -283,7 +299,7 @@ const EnhancedMember = () => {
             type="primary"
             size="large"
             icon={<PlusIcon className="h-5 w-5" />}
-            onClick={openAddMember}
+            onClick={handleAddMember}
           >
             Add Member
           </Button>
@@ -361,9 +377,65 @@ const EnhancedMember = () => {
                 </div>
               )}
             </div>
-            <Button size="large" icon={<FunnelIcon className="h-5 w-5" />}>
-              More filters
-            </Button>
+            <div className="relative">
+              <Button
+                size="large"
+                icon={<FunnelIcon className="h-5 w-5" />}
+                onClick={() => setFiltersOpen(!filtersOpen)}
+              >
+                More filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+              </Button>
+              {filtersOpen && (
+                <div className="absolute top-full right-0 mt-1 w-72 rounded-lg border border-gray-200 bg-white p-4 shadow-lg z-50">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Community
+                      </label>
+                      <select
+                        value={communityFilter}
+                        onChange={(event) => setCommunityFilter(event.target.value)}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-[#427456] focus:outline-none"
+                      >
+                        <option value="All">All communities</option>
+                        {communityOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-gray-600">
+                        Area of interest
+                      </label>
+                      <select
+                        value={interestFilter}
+                        onChange={(event) => setInterestFilter(event.target.value)}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-[#427456] focus:outline-none"
+                      >
+                        <option value="All">All interests</option>
+                        {interestOptions.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between pt-1">
+                      <button
+                        onClick={resetMoreFilters}
+                        className="text-xs font-medium text-gray-500 hover:text-gray-700"
+                      >
+                        Reset
+                      </button>
+                      <button
+                        onClick={() => setFiltersOpen(false)}
+                        className="rounded-lg bg-[#427456] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#35603f]"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             <Button
               size="large"
               icon={<ArrowDownTrayIcon className="h-5 w-5" />}
@@ -397,26 +469,66 @@ const EnhancedMember = () => {
 
       <Drawer
         isOpen={showMemberDrawer}
-        onClose={closeMemberDrawer}
+        onClose={handleCloseMemberDrawer}
         title={
           <div className="pr-6">
             <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              {selectedMember ? 'Edit Member' : 'Add New Member'}
+              Add New Member
             </h2>
             <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
-              {selectedMember
-                ? 'Update member details in the directory'
-                : 'Add a new member to the BFCN community'}
+              Add a new member to the BFCN community
             </p>
           </div>
-        } 
+        }
         position="right"
         width={600}
       >
-        <JoinForm
+        <JoinForm onClose={handleCloseMemberDrawer} />
+      </Drawer>
+
+      <Drawer
+        isOpen={showDetailsDrawer}
+        onClose={handleCloseDetailsDrawer}
+        title={
+          <div className="pr-6">
+            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+              Member Details
+            </h2>
+            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+              Full profile for {selectedMember?.fullName || 'this member'}
+            </p>
+          </div>
+        }
+        position="right"
+        width={600}
+      >
+        <MemberDetails
           member={selectedMember}
-          onClose={closeMemberDrawer}
-          onSubmitted={handleFormSubmitted}
+          onEdit={() => handleMemberEdit(selectedMember)}
+          onClose={handleCloseDetailsDrawer}
+        />
+      </Drawer>
+
+      <Drawer
+        isOpen={showEditDrawer}
+        onClose={handleCloseEditDrawer}
+        title={
+          <div className="pr-6">
+            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+              Edit Member
+            </h2>
+            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+              Update member details in the directory
+            </p>
+          </div>
+        }
+        position="right"
+        width={600}
+      >
+        <EditMemberForm
+          member={selectedMember}
+          onClose={handleCloseEditDrawer}
+          onSubmitted={handleCloseEditDrawer}
         />
       </Drawer>
 
@@ -431,7 +543,7 @@ const EnhancedMember = () => {
         message={`Are you sure you want to delete ${selectedMember?.fullName ?? 'this member'}? This action cannot be undone.`}
         type="danger"
         confirmText="Delete"
-        loading={isDeleting}
+        loading={isDeleteMemberLoading}
       />
     </div>
   );

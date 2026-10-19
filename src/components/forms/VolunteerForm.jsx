@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { HandHelping } from 'lucide-react';
+import { HandHelping, X } from 'lucide-react';
 import { Button } from '../ui';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
+import { useCreateVolunteer } from '../../api/volunteer';
 
-const volunteerAreas = [
+const volunteerSkills = [
   'Education',
   'Youth Development',
   'Community Outreach',
@@ -15,7 +16,9 @@ const volunteerAreas = [
   'Skills Training',
 ];
 
-export default function VolunteerForm({ onClose }) {
+const VolunteerForm = ({ onClose }) => {
+  const { mutateAsync: volunteerMember, isPending: isCreateVolunteerLoading, isError: isCreateVolunteerError } = useCreateVolunteer();
+
   const {
     register,
     handleSubmit,
@@ -28,30 +31,33 @@ export default function VolunteerForm({ onClose }) {
       fullName: '',
       phone: '',
       email: '',
-      location: '',
-      areas: [],
+      community: '',
+      skills: [],
       availability: '',
       experience: '',
     },
   });
 
-  const areas = watch('areas');
+  const skills = watch('skills');
   const fullName = watch('fullName');
 
-  const onSubmit = (data) => {
-    console.log('Volunteer Registration:', data);
-    toast.success(`Thank you, ${fullName}. We will contact you about opportunities.`);
-    reset();
-    onClose();
+  const onSubmit = async (data) => {
+    try {
+      await volunteerMember(data);
+      toast.success(`Thank you, ${fullName}. We will contact you about opportunities.`);
+      reset();
+      onClose();
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || 'An error occurred. Please try again.');
+    }
   };
 
-  const toggleArea = (area) => {
-    const currentAreas = areas || [];
-    const updatedAreas = currentAreas.includes(area)
-      ? currentAreas.filter((item) => item !== area)
-      : [...currentAreas, area];
-
-    setValue('areas', updatedAreas, {
+  const toggleSkill = (skill) => {  
+    const currentskills = skills || [];
+    const updatedskills = currentskills.includes(skill)
+      ? currentskills.filter((item) => item !== skill)
+      : [...currentskills, skill];
+    setValue('skills', updatedskills, {
       shouldValidate: true,
       shouldDirty: true,
     });
@@ -64,6 +70,7 @@ export default function VolunteerForm({ onClose }) {
 
   return (
     <div>
+      <Toaster position='top-right' />
       <div className="text-center mb-6">
         <HandHelping size={24} className="text-green-600 mx-auto mb-3" />
         <h3 className="text-lg font-semibold mb-2">Volunteer Registration</h3>
@@ -124,53 +131,53 @@ export default function VolunteerForm({ onClose }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Location *</label>
+            <label className="block text-sm font-medium mb-2">Community *</label>
             <input
-              {...register('location', { required: 'Required' })}
+              {...register('community', { required: 'Required' })}
               placeholder="City/Town"
-              className={inputClass('location')}
-            />
-            {errors.location && (
+              className={inputClass('community')}
+              />
+            {errors.community && (
               <span className="text-sm text-red-600 mt-1 block">
-                {errors.location.message}
+                {errors.community.message}
               </span>
             )}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Volunteer Areas *</label>
+          <label className="block text-sm font-medium mb-2">Volunteer skills *</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {volunteerAreas.map((area) => (
+            {volunteerSkills.map((skill) => (
               <label
-                key={area}
+                key={skill}
                 className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer text-sm transition-all ${
-                  areas?.includes(area)
+                  skills?.includes(skill)
                     ? 'border-green-600 bg-green-50 text-green-600 font-medium'
                     : 'border-gray-200 hover:border-green-600 hover:bg-green-50'
                 }`}
               >
                 <input
                   type="checkbox"
-                  checked={areas?.includes(area)}
-                  onChange={() => toggleArea(area)}
+                  checked={skills?.includes(skill)}
+                  onChange={() => toggleSkill(skill)}
                   className="w-4 h-4 accent-green-600"
                 />
-                <span>{area}</span>
+                <span>{skill}</span>
               </label>
             ))}
           </div>
 
           <input
             type="hidden"
-            {...register('areas', {
+            {...register('skills', {
               validate: (value) => value?.length > 0 || 'Select at least one',
             })}
           />
 
-          {errors.areas && (
+          {errors.skills && (
             <span className="text-sm text-red-600 mt-1 block">
-              {errors.areas.message}
+              {errors.skills.message}
             </span>
           )}
         </div>
@@ -205,6 +212,7 @@ export default function VolunteerForm({ onClose }) {
             variant="outline"
             onClick={onClose}
             size='lg'
+            icon={X}
             fullWidth
           >
             Cancel
@@ -213,6 +221,7 @@ export default function VolunteerForm({ onClose }) {
             type="submit"
             variant="primary"
             size='lg'
+            loading={isCreateVolunteerLoading}
             fullWidth
             icon={HandHelping}
           >
@@ -223,3 +232,5 @@ export default function VolunteerForm({ onClose }) {
     </div>
   );
 }
+
+export default VolunteerForm;
