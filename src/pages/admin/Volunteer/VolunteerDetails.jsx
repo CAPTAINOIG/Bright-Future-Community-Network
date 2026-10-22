@@ -12,20 +12,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../../../components/ui';
 import { initialsOf } from './utilsVolunteer';
-
-const InfoCard = ({ icon: Icon, label, value, accent, bg }) => (
-  <div className="flex items-start gap-3 rounded-2xl border border-[#eef1ec] bg-white px-4 py-3.5 transition-shadow hover:shadow-[0_10px_30px_-18px_rgba(20,40,28,0.35)]">
-    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${bg} ${accent}`}>
-      <Icon size={16} />
-    </span>
-    <div className="min-w-0">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#91a097]">{label}</p>
-      <p className="mt-0.5 truncate text-sm font-medium text-[#17231d]" title={value || ''}>
-        {value || '—'}
-      </p>
-    </div>
-  </div>
-);
+import { DetailItem, SectionLabel, pillClass } from '../components/AdminUI';
 
 const VolunteerDetails = ({ volunteer, onEdit, onClose }) => {
     console.log(volunteer)
@@ -39,78 +26,61 @@ const VolunteerDetails = ({ volunteer, onEdit, onClose }) => {
 
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-[24px] bg-[#14251d] px-6 py-6 text-white">
-        <div className="absolute -right-10 -top-14 h-40 w-40 rounded-full border-[20px] border-[#e9b949]/15" />
-        <div className="absolute -bottom-16 right-16 h-32 w-32 rounded-full border border-white/10" />
-        <div className="relative flex items-center gap-4">
-          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#e9b949] text-xl font-black text-[#14251d] shadow-[0_14px_34px_-14px_rgba(233,185,73,0.85)]">
-            {initialsOf(volunteer.fullName)}
-          </div>
-          <div className="min-w-0">
-            <h3 className="truncate font-serif text-2xl font-bold leading-tight">
-              {volunteer.fullName || 'Unknown volunteer'}
-            </h3>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                  isActive ? 'bg-[#d9ece0] text-[#1f5133]' : 'bg-white/12 text-white/70'
-                }`}
-              >
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-[#2f7d4f]' : 'bg-white/50'}`}
-                />
-                {isActive ? 'Active volunteer' : 'Inactive'}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white/70">
-                <Hash size={12} /> {volunteerId}
-              </span>
-            </div>
+      <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
+        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-primary-50 text-lg font-semibold text-primary-700">
+          {initialsOf(volunteer.fullName)}
+        </div>
+        <div className="min-w-0">
+          <h3 className="m-0 truncate font-serif text-2xl leading-tight text-gray-900">
+            {volunteer.fullName || 'Unknown volunteer'}
+          </h3>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className={pillClass(isActive ? 'success' : 'neutral')}>
+              <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-primary-600' : 'bg-gray-400'}`} />
+              {isActive ? 'Active volunteer' : 'Inactive'}
+            </span>
+            <span className="inline-flex items-center gap-1 text-xs font-medium tabular-nums text-gray-500">
+              <Hash size={12} /> {volunteerId}
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <InfoCard icon={Mail} label="Email" value={volunteer.email} accent="text-[#427456]" bg="bg-[#edf3eb]" />
-        <InfoCard icon={Phone} label="Phone" value={volunteer.phone} accent="text-[#427456]" bg="bg-[#edf3eb]" />
-        <InfoCard icon={Clock} label="Availabilty" value={volunteer.availability} accent="text-[#a27058]" bg="bg-[#f4e3d8]" />
-        <InfoCard icon={Users} label="Community" value={volunteer.community} accent="text-[#6487a0]" bg="bg-[#dfeaf0]" />
-        <InfoCard icon={Briefcase} label="Experience" value={volunteer.experience} accent="text-[#a27018]" bg="bg-[#f7e8bd]" />
-        <InfoCard icon={CalendarDays} label="Joined" value={joined} accent="text-[#427456]" bg="bg-[#edf3eb]" />
-      </div>
+      <section className="space-y-4">
+        <SectionLabel>Profile</SectionLabel>
+        <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+          <DetailItem icon={Mail} label="Email" value={volunteer.email} />
+          <DetailItem icon={Phone} label="Phone" value={volunteer.phone} />
+          <DetailItem icon={Clock} label="Availability" value={volunteer.availability} />
+          <DetailItem icon={Users} label="Community" value={volunteer.community} />
+          <DetailItem icon={Briefcase} label="Experience" value={volunteer.experience} />
+          <DetailItem icon={CalendarDays} label="Joined" value={joined} />
+        </dl>
+      </section>
 
-      <div className="rounded-2xl border border-[#eef1ec] bg-white px-4 py-4">
-        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#91a097]">
-          Areas of interest
-        </p>
+      <section className="space-y-3">
+        <SectionLabel>Areas of interest</SectionLabel>
         {skills.length ? (
           <div className="flex flex-wrap gap-2">
             {skills.map((skill) => (
-              <span
-                key={skill}
-                className="rounded-full border border-[#d5e6da] bg-[#edf6f0] px-3 py-1 text-xs font-medium text-[#2f6b47]"
-              >
+              <span key={skill} className={pillClass('success')}>
                 {skill}
               </span>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-[#91a097]">—</p>
+          <p className="m-0 text-sm text-gray-400">—</p>
         )}
-      </div>
+      </section>
 
-      <div className="rounded-2xl border border-dashed border-[#dfe3d9] bg-[#fffdf8] px-4 py-6 text-center">
-        <span className="mx-auto mb-2.5 grid h-10 w-10 place-items-center rounded-full bg-[#f1f3ee] text-[#9aa79e]">
-          <Quote size={16} />
-        </span>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#91a097]">
-          Why they volunteer
-        </p>
-        <p className="mt-1 text-sm text-[#9aa79e]">
+      <section className="space-y-3">
+        <SectionLabel className="flex items-center gap-2"><Quote size={13} /> Why they volunteer</SectionLabel>
+        <p className={`m-0 rounded-xl bg-gray-50 px-4 py-3 text-[15px] leading-relaxed ${volunteer.reason ? 'text-gray-700' : 'text-gray-400'}`}>
           {volunteer.reason || 'Motivation not provided yet.'}
         </p>
-      </div>
+      </section>
 
-      <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row">
+      <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row">
         <Button type="button" variant="outline" size="lg" onClick={onClose} icon={X} fullWidth>
           Close
         </Button>

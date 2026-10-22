@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Briefcase, Users, MapPin, Search } from 'lucide-react';
+import { Briefcase, Users, MapPin, Search, CheckCircle } from 'lucide-react';
 import { ScrollReveal, Card, Badge } from '../../components/ui';
 
 const projects = [
@@ -74,52 +74,45 @@ const Projects = () => {
 
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">
-              Our Impact
-            </span>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
-              Projects
-            </h1>
-            <p className="text-base text-white/85 max-w-[560px] mx-auto">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-8 bg-accent-300" />Our impact</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">Projects</h1>
+            <p className="text-lg text-white/70 leading-relaxed max-w-[620px] m-0">
               Concrete actions creating real change in our communities.
             </p>
           </ScrollReveal>
         </div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path
-              d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-            <div className="relative flex-1 max-w-[360px]">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 mb-12">
+            <div className="relative w-full lg:max-w-[380px]">
               <Search
                 size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                aria-hidden="true"
               />
               <input
                 type="text"
                 placeholder="Search projects..."
+                aria-label="Search projects"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full py-3 px-4 pl-10 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400"
+                className="w-full h-12 pl-11 pr-4 border border-gray-300 rounded-xl bg-white text-[15px] text-gray-900 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition-all placeholder:text-gray-400"
               />
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap" role="group" aria-label="Filter projects by status">
               {statuses.map((s) => (
                 <button
                   key={s}
-                  className={`px-4 py-2 border rounded-full text-sm font-medium cursor-pointer transition-all ${filter === s ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-600 border-gray-200 hover:border-primary-600 hover:text-primary-600"}`}
+                  type="button"
+                  aria-pressed={filter === s}
+                  className={`h-10 px-5 border rounded-full text-sm font-semibold cursor-pointer transition-colors ${filter === s ? "bg-primary-800 text-white border-primary-800" : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900"}`}
                   onClick={() => setFilter(s)}
                 >
                   {s}
@@ -129,10 +122,12 @@ const Projects = () => {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="text-center py-16">
-              <Briefcase size={48} className="text-gray-300 mb-4 mx-auto" />
-              <h3 className="text-lg font-bold">No projects found</h3>
-              <p className="text-gray-600">
+            <div className="text-center py-20 px-6 rounded-[20px] border border-dashed border-gray-300 bg-gray-50">
+              <span className="grid place-items-center w-14 h-14 mx-auto mb-5 rounded-full bg-white text-primary-300 border border-gray-200">
+                <Briefcase size={24} strokeWidth={1.75} />
+              </span>
+              <h3 className="font-serif text-2xl text-gray-900 mb-2">No projects found</h3>
+              <p className="text-[15px] text-gray-600 m-0">
                 Try adjusting your search or filter.
               </p>
             </div>
@@ -142,13 +137,13 @@ const Projects = () => {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {filtered.map((p) => (
-                <Card key={p.id} variant="elevated">
-                  <div className="h-[200px] overflow-hidden rounded-t-xl bg-gradient-to-br from-primary-50 to-primary-100">
+                <Card key={p.id} variant="elevated" className="h-full">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100">
                     {p.image ? (
                       <img
                         src={p.image}
                         alt={p.title}
-                        className="w-full h-full object-cover rounded-t-xl transition-transform duration-500 hover:scale-105"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-[1.04]"
                         loading="lazy"
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
@@ -157,26 +152,27 @@ const Projects = () => {
                       />
                     ) : null}
                     <div
-                      className={`${p.image ? "hidden" : "flex"} items-center justify-center h-full text-primary-300`}
+                      className={`${p.image ? "hidden" : "flex"} absolute inset-0 items-center justify-center text-primary-300`}
                     >
-                      <Briefcase size={40} />
+                      <Briefcase size={40} strokeWidth={1.5} />
                     </div>
                   </div>
                   <Card.Body>
-                    <div className="mb-3">
+                    <div className="mb-4">
                       <Badge.Status status={p.status} />
                     </div>
                     <Card.Title>{p.title}</Card.Title>
                     <Card.Text>{p.description}</Card.Text>
                     {p.outcomes.length > 0 && (
-                      <div className="mt-3">
-                        <strong className="text-xs text-primary-600 uppercase tracking-wider">
-                          Key Outcomes:
+                      <div className="mt-5 rounded-xl bg-gray-50 p-4">
+                        <strong className="block text-[11px] font-bold text-primary-700 uppercase tracking-[0.14em]">
+                          Key outcomes
                         </strong>
-                        <ul className="list-none p-0 mt-2">
+                        <ul className="list-none p-0 m-0 mt-3 space-y-2">
                           {p.outcomes.map((o, i) => (
-                            <li key={i} className="text-xs text-gray-600 py-1">
-                              ✓ {o}
+                            <li key={i} className="flex items-start gap-2 text-[13px] text-gray-600 leading-snug">
+                              <CheckCircle size={14} className="mt-0.5 shrink-0 text-primary-600" aria-hidden="true" />
+                              {o}
                             </li>
                           ))}
                         </ul>

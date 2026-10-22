@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { ArrowRight, Calendar, Clock, MapPin, Users } from "lucide-react";
 import { Button, ScrollReveal, Badge, Drawer } from "../../components/ui";
 import EventsForm from "./EventsForm";
 
@@ -75,104 +75,108 @@ const Events = () => {
 
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">
-              Join Us
-            </span>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
-              Events
-            </h1>
-            <p className="text-base text-white/85 max-w-[560px] mx-auto">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-8 bg-accent-300" />Join us</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">Events</h1>
+            <p className="text-lg text-white/70 leading-relaxed max-w-[620px] m-0">
               Community events, workshops, and activities that bring us
               together.
             </p>
           </ScrollReveal>
         </div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="white" />
-          </svg>
-        </div>
       </section>
-      <section className="py-16 md:py-20">
+
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="container-main">
-          <div className="flex gap-2 mb-8 border-b border-gray-200">
+          <div className="flex gap-2 flex-wrap mb-10" role="tablist" aria-label="Event timeframe">
             {["upcoming", "past"].map((t) => (
               <button
                 key={t}
-                className={`px-6 py-3 text-sm font-semibold border-b-[3px] -mb-px transition-all cursor-pointer bg-transparent ${
+                type="button"
+                role="tab"
+                aria-selected={tab === t}
+                className={`h-11 px-6 rounded-full border text-sm font-semibold cursor-pointer transition-colors ${
                   tab === t
-                    ? "text-primary-600 border-primary-600"
-                    : "text-gray-500 border-transparent hover:text-primary-600"
+                    ? "bg-primary-800 text-white border-primary-800"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900"
                 }`}
                 onClick={() => setTab(t)}
               >
-                {t === "upcoming" ? "Upcoming" : "Past"} Events
+                {t === "upcoming" ? "Upcoming" : "Past"} events
               </button>
             ))}
           </div>
 
-          <div className="flex flex-col gap-4">
-            {filtered.map((event) => (
-              <ScrollReveal key={event.id}>
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-5 p-6 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-all">
-                  <div className="flex md:flex-col items-center justify-center gap-2 md:gap-0 min-w-[72px] px-3 py-3 bg-gradient-to-br from-primary-600 to-primary-700 text-white rounded-lg shrink-0 text-center">
-                    <span className="text-2xl font-bold leading-none">
-                      {new Date(event.date).getDate()}
-                    </span>
-                    <span className="text-xs font-semibold uppercase">
-                      {new Date(event.date).toLocaleDateString("en", {month: "short" })}
-                    </span>
-                    <span className="text-xs opacity-70">
-                      {new Date(event.date).getFullYear()}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <Badge.Status status={event.status === "upcoming" ? "Upcoming" : "Past"} />
-                    <h3 className="text-lg font-bold mt-2 mb-2">
-                      {event.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {event.description}
-                    </p>
-                    <div className="flex gap-4 flex-wrap text-xs text-gray-500">
-                      <span className="inline-flex items-center gap-1">
-                        <Clock size={14} />
-                        {event.time}
+          {filtered.length > 0 ? (
+            <div className="flex flex-col bg-white rounded-[20px] border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+              {filtered.map((event) => (
+                <ScrollReveal key={event.id}>
+                  <article className="grid grid-cols-[64px_1fr] md:grid-cols-[96px_1fr_auto] items-start md:items-center gap-5 md:gap-8 p-5 md:p-7 hover:bg-gray-50/70 transition-colors">
+                    <div className="flex flex-col items-center justify-center aspect-square rounded-2xl bg-primary-50 text-primary-800 text-center">
+                      <span className="font-serif text-2xl md:text-3xl leading-none">
+                        {new Date(event.date).getDate()}
                       </span>
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin size={14} />
-                        {event.venue}
+                      <span className="mt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600">
+                        {new Date(event.date).toLocaleDateString("en", { month: "short" })}
                       </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Users size={14} />
-                        {event.capacity}
+                      <span className="hidden md:block mt-0.5 text-[11px] font-medium text-gray-500">
+                        {new Date(event.date).getFullYear()}
                       </span>
                     </div>
-                  </div>
-                  {event.status === "upcoming" && (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => openRegister(event)}
-                    >
-                      Register
-                    </Button>
-                  )}
-                </div>
-              </ScrollReveal>
-            ))}
-            {filtered.length === 0 && (
-              <div className="text-center py-16">
-                <Calendar size={48} className="text-gray-300 mx-auto mb-4" />
-                <h3>No {tab} events</h3>
-                <p className="text-gray-600">Check back soon.</p>
-              </div>
-            )}
-          </div>
+                    <div className="min-w-0">
+                      <div className="mb-3">
+                        <Badge.Status status={event.status === "upcoming" ? "Upcoming" : "Past"} />
+                      </div>
+                      <h3 className="font-serif text-xl md:text-[1.4rem] text-gray-900 leading-snug mb-1.5">
+                        {event.title}
+                      </h3>
+                      <p className="text-[15px] text-gray-600 leading-relaxed mb-3 line-clamp-2">
+                        {event.description}
+                      </p>
+                      <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] font-medium text-gray-500">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock size={14} />
+                          {event.time}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin size={14} />
+                          {event.venue}
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Users size={14} />
+                          {event.capacity}
+                        </span>
+                      </div>
+                    </div>
+                    {event.status === "upcoming" && (
+                      <div className="col-start-2 md:col-start-auto">
+                        <Button
+                          variant="primary"
+                          onClick={() => openRegister(event)}
+                          iconRight={ArrowRight}
+                          aria-label={`Register for ${event.title}`}
+                        >
+                          Register
+                        </Button>
+                      </div>
+                    )}
+                  </article>
+                </ScrollReveal>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 px-6 rounded-[20px] border border-dashed border-gray-300 bg-white">
+              <span className="grid place-items-center w-14 h-14 mx-auto mb-5 rounded-full bg-primary-50 text-primary-700">
+                <Calendar size={24} strokeWidth={1.75} />
+              </span>
+              <h3 className="font-serif text-2xl text-gray-900 mb-2">No {tab} events</h3>
+              <p className="text-[15px] text-gray-600 m-0">Check back soon.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -181,10 +185,10 @@ const Events = () => {
         onClose={closeRegister}
         title={
           <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+            <h2 className="font-serif text-xl m-0 text-gray-900">
               Register for Event
             </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+            <p className="text-xs text-gray-500 mt-1 mb-0 leading-relaxed">
               Reserve your seat — we&apos;ll send a confirmation to your email
             </p>
           </div>

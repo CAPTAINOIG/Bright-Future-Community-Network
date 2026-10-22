@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import { SectionHeader, ScrollReveal, Button } from '../../components/ui';
 import segun from '../Leadership/image/segun.jpeg'
 import Drawer from '../../components/ui/Drawer';
@@ -20,77 +20,88 @@ const LeaderCard = ({ leader }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-center">
-      {/* <div className="w-full aspect-square bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center"> */}
-        {/* <div className="flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary-600 to-primary-700 text-white font-serif text-2xl font-bold"> */}
-          {/* {leader.name.split(' ').map(n => n[0]).join('').slice(0, 2)} */}
-          <img
-            src={leader.img}
-            alt={leader.name}
-            className="w-full h-auto object-cover"
-          />
-        {/* </div> */}
-      {/* </div> */}
-      <div className="p-5">
-        <h3 className="text-base font-bold text-gray-900 mb-1">{leader.name}</h3>
-        <h3 className="block text-sm font-semibold text-gray-600 mb-3">{leader.Alias}</h3>
-        <span className="block text-sm font-semibold text-primary-600 mb-3">{leader.position}</span>
-        <p className={`text-sm text-gray-600 leading-relaxed text-left mb-3 ${expanded ? '' : 'line-clamp-3'}`}>{leader.bio}</p>
-        <button className="inline-flex items-center gap-1 text-xs font-semibold text-primary-600 bg-transparent border-none cursor-pointer hover:text-primary-800" onClick={() => setExpanded(!expanded)}>
-          {expanded ? <><ChevronUp size={14} /> Show Less</> : <><ChevronDown size={14} /> Read More</>}
+    <article className="group flex flex-col bg-white border border-gray-200 rounded-[20px] overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[var(--shadow-lift)]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100">
+        <img
+          src={leader.img}
+          alt={leader.name}
+          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]"
+          loading="lazy"
+        />
+      </div>
+      <div className="flex flex-col flex-1 p-6">
+        <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600 mb-2">{leader.position}</span>
+        <h3 className="font-serif text-[1.35rem] text-gray-900 leading-snug mb-1">{leader.name}</h3>
+        <span className="block text-[13px] font-medium text-gray-500 mb-4">{leader.Alias}</span>
+        <p className={`text-[15px] text-gray-600 leading-relaxed mb-4 ${expanded ? '' : 'line-clamp-3'}`}>{leader.bio}</p>
+        <button
+          type="button"
+          className="mt-auto self-start inline-flex items-center gap-1 rounded-full text-sm font-semibold text-primary-700 bg-transparent border-none p-0 cursor-pointer hover:text-primary-800"
+          onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+        >
+          {expanded ? <><ChevronUp size={16} /> Show less</> : <><ChevronDown size={16} /> Read more</>}
         </button>
       </div>
-    </div>
+    </article>
   );
 }
 
 const Leadership = () => {
-   const [showJoinDrawer, setShowJoinDrawer] = useState(false);
+  const [showJoinDrawer, setShowJoinDrawer] = useState(false);
 
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">Our People</span>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">Leadership</h1>
-            <p className="text-base text-white/85 leading-relaxed max-w-[560px] mx-auto">Meet the dedicated individuals who lead BFCN&apos;s mission.</p>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-8 bg-accent-300" />Our people</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">Leadership</h1>
+            <p className="text-lg text-white/70 leading-relaxed max-w-[620px] m-0">Meet the dedicated individuals who lead BFCN&apos;s mission.</p>
           </ScrollReveal>
         </div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="white" /></svg></div>
       </section>
-      <section className="py-16 md:py-20">
+
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <ScrollReveal><SectionHeader label="Executive Team" title="BFCN Leadership" subtitle="Diverse expertise, passion, and commitment to community development." /></ScrollReveal>
+          <ScrollReveal><SectionHeader align="left" label="Executive team" title="BFCN leadership" subtitle="Diverse expertise, passion, and commitment to community development." /></ScrollReveal>
           <ScrollReveal animation="stagger-children" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {executives.map((l) => <LeaderCard key={l.id} leader={l} />)}
           </ScrollReveal>
         </div>
       </section>
-      <section className="py-16 md:py-20 bg-primary-600">
-        <div className="container-main text-center">
-          <ScrollReveal>
-            <h2 className="font-serif text-3xl text-white mb-4">Join Our Team</h2>
-            <p className="text-white/85 max-w-[500px] mx-auto mb-8">Passionate about community development? We&apos;re always looking for dedicated individuals.</p>
-            <Button onClick={() => setShowJoinDrawer(true)} variant="white" size="lg">Volunteer With Us</Button>
+
+      {/* CTA */}
+      <section className="py-20 md:py-28 bg-gray-50">
+        <div className="container-main">
+          <ScrollReveal className="relative overflow-hidden rounded-[28px] bg-primary-800 px-6 py-14 md:px-16 md:py-20 text-center">
+            <div className="absolute -right-32 -top-32 w-[420px] h-[420px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+            <div className="relative">
+              <span className="eyebrow text-accent-300 mb-5"><span className="h-px w-6 bg-accent-300" />Get involved<span className="h-px w-6 bg-accent-300" /></span>
+              <h2 className="font-serif text-4xl md:text-[3.25rem] leading-[1.05] text-white mb-5">Join our team</h2>
+              <p className="text-base md:text-lg text-white/70 max-w-[560px] mx-auto mb-10 leading-relaxed">Passionate about community development? We&apos;re always looking for dedicated individuals.</p>
+              <Button onClick={() => setShowJoinDrawer(true)} variant="accent" size="lg" iconRight={ArrowRight}>Volunteer with us</Button>
+            </div>
           </ScrollReveal>
         </div>
       </section>
-        <Drawer
+
+      <Drawer
         isOpen={showJoinDrawer}
         onClose={() => setShowJoinDrawer(false)}
         position="right"
-         title={
+        title={
           <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+            <h2 className="font-serif text-xl m-0 text-gray-900">
               Volunteer Application Form
             </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+            <p className="text-xs text-gray-500 mt-1 mb-0 leading-relaxed">
               Your details are safe with us
             </p>
-            </div>
-          }
+          </div>
+        }
       >
         <VolunteerForm onClose={() => setShowJoinDrawer(false)} />
       </Drawer>

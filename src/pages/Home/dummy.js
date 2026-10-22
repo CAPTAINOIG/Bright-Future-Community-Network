@@ -8,8 +8,8 @@ export const stats = [
 ];
 
 export const programmes = [
-  { icon: BookOpen, title: 'Education Support', description: 'Scholarships, learning materials, tutoring, and educational infrastructure support for students across communities.', color: '#1B5E20' },
-  { icon: Lightbulb, title: 'Youth Development', description: 'Mentorship, leadership training, career guidance, and personal development programs for young people.', color: '#D4A017' },
+  { icon: BookOpen, title: 'Education Support', description: 'Scholarships, learning materials, tutoring, and educational infrastructure support for students across communities.', color: '#114a31' },
+  { icon: Lightbulb, title: 'Youth Development', description: 'Mentorship, leadership training, career guidance, and personal development programs for young people.', color: '#d19b2a' },
   { icon: Briefcase, title: 'Skills & Entrepreneurship', description: 'Vocational training, business mentoring, startup support, and entrepreneurship workshops for community members.', color: '#1565c0' },
   { icon: Target, title: 'Leadership Development', description: 'Building future community leaders through structured mentorship, governance training, and civic engagement.', color: '#c62828' },
   { icon: Handshake, title: 'Humanitarian Support', description: 'Emergency relief, welfare support, healthcare access, and community welfare programmes.', color: '#f57c00' },

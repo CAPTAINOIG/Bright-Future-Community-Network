@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Phone, Mail, MapPin, Clock, MessageCircle, Send, HeadphonesIcon } from 'lucide-react';
-import { Button, ScrollReveal, Drawer } from '../../components/ui';
+import { Phone, Mail, MapPin, Clock, MessageCircle, Send, HeadphonesIcon, ArrowUpRight } from 'lucide-react';
+import { Button, ScrollReveal, Drawer, SectionHeader } from '../../components/ui';
 import { ContactForm } from '../../components/forms';
 
 const contactMethods = [
@@ -35,90 +35,91 @@ const Contact = () => {
 
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-green-800 to-green-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-        
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-yellow-400 mb-4">
-              Get in Touch
-            </span>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-32 -top-32 w-[460px] h-[460px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-6 bg-accent-300" />Get in Touch</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">
               Contact Us
             </h1>
-            <p className="text-base text-white/85 max-w-[560px] mx-auto mb-8">
+            <p className="text-lg text-white/70 max-w-[620px] leading-relaxed mb-10">
               We're here to help and answer any questions you might have. We look forward to hearing from you.
             </p>
             <Button
-              variant="primary"
+              variant="accent"
               size="lg"
               onClick={() => setShowContactDrawer(true)}
               icon={Send}
-              className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold"
             >
               Send Message
             </Button>
           </ScrollReveal>
         </div>
-        
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="white" />
-          </svg>
-        </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
-              How Can We Help?
-            </h2>
-            <p className="text-gray-600">
-              Choose the best way to reach us. We're committed to responding quickly and helpfully.
-            </p>
+          <ScrollReveal>
+            <SectionHeader
+              align="left"
+              label="Reach us"
+              title="How Can We Help?"
+              subtitle="Choose the best way to reach us. We're committed to responding quickly and helpfully."
+            />
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {contactMethods.map((method, index) => (
-              <ScrollReveal key={index} animation="reveal-up">
-                <div className="text-center p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <method.icon size={32} className="text-green-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">{method.title}</h3>
-                  <p className="text-gray-600 mb-4">{method.description}</p>
-                  <div className="space-y-2">
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 md:mb-20">
+            {contactMethods.map((method, index) => {
+              const external = method.href?.startsWith('http');
+              return (
+                <div key={index} className="flex flex-col p-7 md:p-8 bg-white rounded-[20px] border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+                  <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 mb-6">
+                    <method.icon size={22} strokeWidth={1.75} />
+                  </span>
+                  <h3 className="font-serif text-[1.4rem] text-gray-900 mb-2">{method.title}</h3>
+                  <p className="text-[15px] text-gray-600 leading-relaxed mb-6 flex-1">{method.description}</p>
+                  <div className="pt-5 border-t border-gray-100 space-y-1.5">
                     {method.href ? (
-                      <a 
+                      <a
                         href={method.href}
-                        className="inline-block text-green-600 font-medium hover:text-green-700"
-                        target={method.href.startsWith('http') ? '_blank' : undefined}
-                        rel={method.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        className="group inline-flex items-center gap-1.5 text-[15px] font-semibold text-primary-700 no-underline hover:text-primary-800"
+                        target={external ? '_blank' : undefined}
+                        rel={external ? 'noopener noreferrer' : undefined}
                       >
                         {method.action}
+                        <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                       </a>
                     ) : (
-                      <span className="text-green-600 font-medium">{method.action}</span>
+                      <span className="text-[15px] font-semibold text-primary-700">{method.action}</span>
                     )}
-                    <div className="text-sm text-gray-500">{method.available}</div>
+                    <div className="flex items-center gap-1.5 text-[13px] font-medium text-gray-500"><Clock size={14} />{method.available}</div>
                   </div>
                 </div>
-              </ScrollReveal>
-            ))}
-          </div>
+              );
+            })}
+          </ScrollReveal>
 
-          <ScrollReveal className="text-center">
-            <div className="bg-green-50 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold mb-4">Prefer to Send a Message?</h3>
-              <p className="text-gray-600 mb-6">
-                Fill out our contact form and we'll get back to you within 24 hours.
-              </p>
+          <ScrollReveal className="relative overflow-hidden rounded-[28px] bg-accent-50 border border-accent-100 px-6 py-12 md:px-14 md:py-16">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+              <div className="flex items-start gap-5 max-w-[560px]">
+                <span className="hidden sm:grid place-items-center w-12 h-12 rounded-full bg-white text-accent-600 shrink-0 border border-accent-100" aria-hidden="true">
+                  <HeadphonesIcon size={22} strokeWidth={1.75} />
+                </span>
+                <div>
+                  <h3 className="font-serif text-3xl md:text-[2.25rem] leading-[1.1] text-gray-900 mb-3">Prefer to Send a Message?</h3>
+                  <p className="text-base text-gray-600 leading-relaxed m-0">
+                    Fill out our contact form and we'll get back to you within 24 hours.
+                  </p>
+                </div>
+              </div>
               <Button
                 variant="primary"
                 size="lg"
                 onClick={() => setShowContactDrawer(true)}
                 icon={Send}
+                className="w-full md:w-auto shrink-0"
               >
                 Open Contact Form
               </Button>
@@ -128,29 +129,30 @@ const Contact = () => {
       </section>
 
       {/* Office Information */}
-      <section className="py-16 md:py-20 bg-gray-50">
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">Visit Our Office</h2>
-            <p className="text-gray-600">Come see us in person. We're located in the heart of Ogbomoso.</p>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <ScrollReveal animation="reveal-left">
-              <div className="space-y-8">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                    <MapPin size={24} className="text-green-600" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold mb-2">Our Location</h4>
-                    <p className="text-gray-600">Ogbomoso, Oyo State</p>
-                    <p className="text-gray-600">Nigeria</p>
-                  </div>
+              <SectionHeader
+                align="left"
+                label="Our office"
+                title="Visit Our Office"
+                subtitle="Come see us in person. We're located in the heart of Ogbomoso."
+                className="!mb-10"
+              />
+              <div className="flex items-start gap-4 p-6 rounded-[20px] bg-white border border-gray-200">
+                <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 shrink-0">
+                  <MapPin size={22} strokeWidth={1.75} />
+                </span>
+                <div>
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600 mb-2">Our Location</h4>
+                  <p className="font-serif text-xl text-gray-900 m-0 leading-snug">Ogbomoso, Oyo State</p>
+                  <p className="text-[15px] text-gray-600 m-0 mt-0.5">Nigeria</p>
                 </div>
               </div>
             </ScrollReveal>
             <ScrollReveal animation="reveal-right">
-              <div className="relative h-[300px] bg-gray-200 rounded-2xl overflow-hidden">
+              <div className="relative aspect-[4/3] bg-gray-200 rounded-[20px] overflow-hidden">
                 <img
                   src="https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=800&auto=format&fit=crop&q=80"
                   alt="Ogbomoso, Oyo State"

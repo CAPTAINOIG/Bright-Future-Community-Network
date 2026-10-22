@@ -45,35 +45,27 @@ const supportWays = [
 const Support = () => {
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">
-              Partner With Us
-            </span>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-32 -top-32 w-[460px] h-[460px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-6 bg-accent-300" />Partner With Us</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">
               Support Us
             </h1>
-            <p className="text-base text-white/85 max-w-[560px] mx-auto">
+            <p className="text-lg text-white/70 max-w-[620px] leading-relaxed m-0">
               Your support empowers communities and transforms lives.
             </p>
           </ScrollReveal>
         </div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path
-              d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="container-main">
           <ScrollReveal>
             <SectionHeader
+              align="left"
               label="How to Help"
               title="Ways to Support BFCN"
               subtitle="Every contribution matters. Choose the way that works best for you."
@@ -83,20 +75,23 @@ const Support = () => {
             animation="stagger-children"
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
-            {supportWays.map((w) => (
+            {supportWays.map((w, i) => (
               <div
                 key={w.title}
-                className="p-8 bg-white border border-gray-200 rounded-xl hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+                className="flex flex-col p-7 md:p-9 bg-white border border-gray-200 rounded-[20px] hover:-translate-y-1 hover:shadow-[var(--shadow-lift)] transition-all duration-300"
               >
-                <div className="flex items-center justify-center w-[60px] h-[60px] rounded-xl bg-primary-50 text-primary-600 mb-5">
-                  <w.icon size={28} />
+                <div className="flex items-center justify-between mb-8">
+                  <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700">
+                    <w.icon size={22} strokeWidth={1.75} />
+                  </span>
+                  <span className="font-serif text-sm text-gray-400">0{i + 1}</span>
                 </div>
-                <h3 className="text-xl font-bold mb-3">{w.title}</h3>
-                <p className="text-base text-gray-600 leading-relaxed mb-4">
+                <h3 className="font-serif text-[1.5rem] text-gray-900 mb-3">{w.title}</h3>
+                <p className="text-[15px] text-gray-600 leading-relaxed mb-6 flex-1">
                   {w.description}
                 </p>
-                <div className="p-4 bg-gray-50 rounded-lg border-l-[3px] border-accent-400">
-                  <p className="text-sm text-gray-600 m-0 leading-relaxed">
+                <div className="pt-5 border-t border-gray-100">
+                  <p className="text-sm text-gray-600 m-0 leading-relaxed pl-4 border-l-2 border-accent-400">
                     {w.details}
                   </p>
                 </div>
@@ -106,27 +101,31 @@ const Support = () => {
         </div>
       </section>
 
-      <section className="py-16 md:py-20 bg-primary-600">
-        <div className="container-main text-center">
-          <ScrollReveal>
-            <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">
-              Ready to Support?
-            </h2>
-            <p className="text-white/85 max-w-[500px] mx-auto mb-8">
-              Contact us to learn more about how you can support BFCN.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button to="/contact" variant="white" size="lg" icon={Mail}>
-                Contact Us
-              </Button>
-              <Button
-                to="/transparency"
-                variant="white-outline"
-                size="lg"
-                iconRight={ArrowRight}
-              >
-                View Our Impact
-              </Button>
+      <section className="py-20 md:py-28">
+        <div className="container-main">
+          <ScrollReveal className="relative overflow-hidden rounded-[28px] bg-primary-800 px-6 py-14 md:px-16 md:py-20 text-center">
+            <div className="absolute -right-32 -top-32 w-[420px] h-[420px] rounded-full bg-primary-700/60 blur-3xl" aria-hidden="true" />
+            <div className="relative">
+              <span className="eyebrow text-accent-300 mb-5"><span className="h-px w-6 bg-accent-300" />Get in touch<span className="h-px w-6 bg-accent-300" /></span>
+              <h2 className="font-serif text-4xl md:text-[3.25rem] leading-[1.05] text-white mb-5">
+                Ready to Support?
+              </h2>
+              <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-[520px] mx-auto mb-10">
+                Contact us to learn more about how you can support BFCN.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Button to="/contact" variant="white" size="lg" icon={Mail}>
+                  Contact Us
+                </Button>
+                <Button
+                  to="/transparency"
+                  variant="white-outline"
+                  size="lg"
+                  iconRight={ArrowRight}
+                >
+                  View Our Impact
+                </Button>
+              </div>
             </div>
           </ScrollReveal>
         </div>

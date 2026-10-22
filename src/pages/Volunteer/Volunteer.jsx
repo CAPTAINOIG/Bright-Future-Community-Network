@@ -1,48 +1,48 @@
 import { useState } from 'react';
-import { HandHelping, Heart, Users, Clock, CheckCircle, ArrowRight } from 'lucide-react';
-import { Button, ScrollReveal, Drawer } from '../../components/ui';
+import { HandHelping, Heart, Users, Clock, Check, ArrowRight, BookOpen, Handshake, Sprout, Smartphone, PartyPopper, Zap, MapPin, Star } from 'lucide-react';
+import { Button, ScrollReveal, Drawer, SectionHeader } from '../../components/ui';
 import { VolunteerForm } from '../../components/forms';
 
 const volunteerOpportunities = [
   {
     title: 'Education Support',
     description: 'Help teach and mentor children in underserved communities',
-    icon: '📚',
+    icon: BookOpen,
     commitment: '4-6 hours/week',
     community: 'Various schools'
   },
   {
     title: 'Community Outreach',
     description: 'Connect with community members and spread awareness',
-    icon: '🤝',
+    icon: Handshake,
     commitment: '3-5 hours/week',
     community: 'Field work'
   },
   {
     title: 'Youth Development',
     description: 'Mentor young people and help them build life skills',
-    icon: '🌱',
+    icon: Sprout,
     commitment: '2-4 hours/week',
     community: 'Youth centers'
   },
   {
     title: 'Media & Communications',
     description: 'Help us tell stories and create engaging content',
-    icon: '📱',
+    icon: Smartphone,
     commitment: 'Flexible',
     community: 'Remote/Office'
   },
   {
     title: 'Event Support',
     description: 'Assist with organizing and running community events',
-    icon: '🎉',
+    icon: PartyPopper,
     commitment: 'Event-based',
     community: 'Various venues'
   },
   {
     title: 'Skills Training',
     description: 'Share your professional skills with community members',
-    icon: '⚡',
+    icon: Zap,
     commitment: '2-3 hours/week',
     community: 'Training centers'
   }
@@ -57,109 +57,77 @@ const volunteerBenefits = [
   'Recognition and volunteer certificates'
 ];
 
+const reasons = [
+  { icon: Heart, title: 'Meaningful Impact', text: 'See the direct results of your efforts in improved lives and stronger communities.' },
+  { icon: Users, title: 'Community Connection', text: 'Build lasting relationships with fellow volunteers and community members.' },
+  { icon: Clock, title: 'Flexible Commitment', text: 'Choose opportunities that fit your schedule and availability.' },
+];
+
 const Volunteer = () => {
   const [showVolunteerDrawer, setShowVolunteerDrawer] = useState(false);
 
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-green-800 to-green-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-yellow-400 mb-4">
-              Make a Difference
-            </span>
-
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-32 -top-32 w-[460px] h-[460px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-6 bg-accent-300" />Make a Difference</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">
               Volunteer with BFCN
             </h1>
-
-            <p className="text-base text-white/85 max-w-[560px] mx-auto mb-8">
+            <p className="text-lg text-white/70 max-w-[620px] leading-relaxed mb-10">
               Join our community of changemakers and help build brighter futures in Ogbomoso and beyond.
             </p>
-
             <Button
-              variant="primary"
+              variant="accent"
               size="lg"
               onClick={() => setShowVolunteerDrawer(true)}
               icon={HandHelping}
-              className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold"
             >
               Become a Volunteer
             </Button>
           </ScrollReveal>
         </div>
-
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path
-              d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
       </section>
 
       {/* Why Volunteer Section */}
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
-              Why Volunteer with Us?
-            </h2>
-            <p className="text-gray-600">
-              Your time and skills can create lasting impact in communities that need it most.
-            </p>
+          <ScrollReveal>
+            <SectionHeader
+              align="left"
+              label="Why volunteer"
+              title="Why Volunteer with Us?"
+              subtitle="Your time and skills can create lasting impact in communities that need it most."
+            />
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <ScrollReveal animation="reveal-left">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Heart size={32} className="text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Meaningful Impact</h3>
-                <p className="text-gray-600">
-                  See the direct results of your efforts in improved lives and stronger communities.
-                </p>
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 md:mb-20">
+            {reasons.map((r) => (
+              <div key={r.title} className="p-7 md:p-8 rounded-[20px] border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+                <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 mb-6">
+                  <r.icon size={22} strokeWidth={1.75} />
+                </span>
+                <h3 className="font-serif text-[1.4rem] text-gray-900 mb-3">{r.title}</h3>
+                <p className="text-[15px] text-gray-600 leading-relaxed m-0">{r.text}</p>
               </div>
-            </ScrollReveal>
+            ))}
+          </ScrollReveal>
 
-            <ScrollReveal animation="reveal-up">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users size={32} className="text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Community Connection</h3>
-                <p className="text-gray-600">
-                  Build lasting relationships with fellow volunteers and community members.
-                </p>
-              </div>
-            </ScrollReveal>
-
-            <ScrollReveal animation="reveal-right">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Clock size={32} className="text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Flexible Commitment</h3>
-                <p className="text-gray-600">
-                  Choose opportunities that fit your schedule and availability.
-                </p>
-              </div>
-            </ScrollReveal>
-          </div>
-
-          <ScrollReveal className="bg-green-50 rounded-2xl p-8 md:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <ScrollReveal className="rounded-[28px] bg-primary-50 border border-primary-100 p-6 sm:p-10 md:p-14">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 lg:gap-16 items-center">
               <div>
-                <h3 className="text-2xl font-bold mb-4">What You'll Gain</h3>
-                <ul className="space-y-3">
+                <span className="eyebrow text-primary-600 mb-4"><span className="h-px w-6 bg-accent-400" />The benefits</span>
+                <h3 className="font-serif text-3xl md:text-4xl text-gray-900 leading-[1.1] mb-8">What You'll Gain</h3>
+                <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
                   {volunteerBenefits.map((benefit, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-green-600 shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{benefit}</span>
+                      <span className="grid place-items-center w-6 h-6 rounded-full bg-primary-700 text-white shrink-0 mt-0.5" aria-hidden="true">
+                        <Check size={14} strokeWidth={2.5} />
+                      </span>
+                      <span className="text-[15px] text-gray-700 leading-relaxed">{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -167,28 +135,28 @@ const Volunteer = () => {
                   variant="primary"
                   size="lg"
                   onClick={() => setShowVolunteerDrawer(true)}
-                  icon={ArrowRight}
-                  className="mt-6"
+                  iconRight={ArrowRight}
+                  className="mt-10 w-full sm:w-auto"
                 >
                   Get Started Today
                 </Button>
               </div>
-              <div className="text-center">
-                <div className="bg-white rounded-xl p-8 shadow-sm">
-                  <div className="text-4xl mb-4">🌟</div>
-                  <h4 className="text-xl font-semibold mb-2">Ready to Make a Difference?</h4>
-                  <p className="text-gray-600 mb-4">
-                    Join over 200+ volunteers who are already creating positive change.
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-green-600">200+</div>
-                      <div className="text-sm text-gray-600">Active Volunteers</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-green-600">50+</div>
-                      <div className="text-sm text-gray-600">Projects Supported</div>
-                    </div>
+              <div className="bg-white rounded-[20px] border border-gray-200 p-7 md:p-9 shadow-[var(--shadow-soft)]">
+                <span className="grid place-items-center w-12 h-12 rounded-full bg-accent-50 text-accent-600 mb-6" aria-hidden="true">
+                  <Star size={22} strokeWidth={1.75} />
+                </span>
+                <h4 className="font-serif text-2xl text-gray-900 mb-2">Ready to Make a Difference?</h4>
+                <p className="text-[15px] text-gray-600 leading-relaxed mb-8">
+                  Join over 200+ volunteers who are already creating positive change.
+                </p>
+                <div className="grid grid-cols-2 divide-x divide-gray-200 border-t border-gray-200 pt-6">
+                  <div className="pr-4">
+                    <div className="font-serif text-4xl text-primary-800 leading-none mb-2">200+</div>
+                    <div className="text-sm font-medium text-gray-600">Active Volunteers</div>
+                  </div>
+                  <div className="pl-6">
+                    <div className="font-serif text-4xl text-primary-800 leading-none mb-2">50+</div>
+                    <div className="text-sm font-medium text-gray-600">Projects Supported</div>
                   </div>
                 </div>
               </div>
@@ -198,65 +166,65 @@ const Volunteer = () => {
       </section>
 
       {/* Volunteer Opportunities */}
-      <section className="py-16 md:py-20 bg-gray-50">
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
-              Volunteer Opportunities
-            </h2>
-            <p className="text-gray-600">
-              Find the perfect way to contribute your time and talents.
-            </p>
+          <ScrollReveal>
+            <SectionHeader
+              label="Opportunities"
+              title="Volunteer Opportunities"
+              subtitle="Find the perfect way to contribute your time and talents."
+            />
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {volunteerOpportunities.map((opportunity, index) => (
-              <ScrollReveal key={index} animation="reveal-up">
-                <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="text-3xl mb-4">{opportunity.icon}</div>
-                  <h3 className="text-xl font-semibold mb-2">{opportunity.title}</h3>
-                  <p className="text-gray-600 mb-4">{opportunity.description}</p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Time Commitment:</span>
-                      <span className="font-medium">{opportunity.commitment}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Community:</span>
-                      <span className="font-medium">{opportunity.community}</span>
-                    </div>
+              <div key={index} className="flex flex-col bg-white rounded-[20px] border border-gray-200 p-7 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+                <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 mb-6">
+                  <opportunity.icon size={22} strokeWidth={1.75} />
+                </span>
+                <h3 className="font-serif text-[1.4rem] text-gray-900 mb-2">{opportunity.title}</h3>
+                <p className="text-[15px] text-gray-600 leading-relaxed mb-6 flex-1">{opportunity.description}</p>
+                <dl className="grid grid-cols-2 gap-4 pt-5 border-t border-gray-100 mb-6">
+                  <div>
+                    <dt className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600 mb-1">Time Commitment</dt>
+                    <dd className="m-0 flex items-center gap-1.5 text-sm font-medium text-gray-800"><Clock size={14} className="text-gray-400 shrink-0" />{opportunity.commitment}</dd>
                   </div>
-                  <Button
-                    variant="outline"
-                    fullWidth
-                    onClick={() => setShowVolunteerDrawer(true)}
-                    className="mt-4"
-                  >
-                    Apply Now
-                  </Button>
-                </div>
-              </ScrollReveal>
+                  <div>
+                    <dt className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600 mb-1">Community</dt>
+                    <dd className="m-0 flex items-center gap-1.5 text-sm font-medium text-gray-800"><MapPin size={14} className="text-gray-400 shrink-0" />{opportunity.community}</dd>
+                  </div>
+                </dl>
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  size="lg"
+                  onClick={() => setShowVolunteerDrawer(true)}
+                >
+                  Apply Now
+                </Button>
+              </div>
             ))}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 md:py-20 bg-green-600">
-        <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+      <section className="py-20 md:py-28 bg-primary-800 relative overflow-hidden">
+        <div className="absolute -left-40 -bottom-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative">
+          <ScrollReveal className="text-center max-w-[680px] mx-auto">
+            <span className="eyebrow text-accent-300 mb-5"><span className="h-px w-6 bg-accent-300" />Get involved<span className="h-px w-6 bg-accent-300" /></span>
+            <h2 className="font-serif text-4xl md:text-[3.25rem] text-white leading-[1.05] mb-5">
               Ready to Get Started?
             </h2>
-            <p className="text-white/85 mb-8">
+            <p className="text-base md:text-lg text-white/70 leading-relaxed mb-10">
               Take the first step towards making a meaningful difference in your community.
             </p>
             <Button
-              variant="primary"
+              variant="white"
               size="lg"
               onClick={() => setShowVolunteerDrawer(true)}
               icon={HandHelping}
-              className="bg-white hover:bg-gray-100 text-green-600 font-semibold"
             >
               Register as Volunteer
             </Button>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { UserPlus, Users, Award, Target, CheckCircle, ArrowRight } from 'lucide-react';
-import { Button, ScrollReveal, Drawer } from '../../components/ui';
+import { UserPlus, Users, Award, Target, Check, ArrowRight, Star, Handshake, Sprout } from 'lucide-react';
+import { Button, ScrollReveal, Drawer, SectionHeader } from '../../components/ui';
 import { JoinForm } from '../../components/forms';
 import { Toaster } from 'sonner';
 
@@ -19,21 +19,27 @@ const membershipTypes = [
   {
     title: 'Active Member',
     description: 'Full participation in all BFCN activities and programs',
-    icon: '🌟',
+    icon: Star,
     features: ['Voting rights', 'Committee participation', 'Leadership opportunities', 'Full benefits access']
   },
   {
     title: 'Associate Member',
     description: 'Participate in programs with limited administrative rights',
-    icon: '🤝',
+    icon: Handshake,
     features: ['Program participation', 'Event access', 'Networking opportunities', 'Resource access']
   },
   {
     title: 'Youth Member',
     description: 'Special membership for young people under 25',
-    icon: '🌱',
+    icon: Sprout,
     features: ['Youth programs', 'Mentorship access', 'Skill development', 'Career guidance']
   }
+];
+
+const reasons = [
+  { icon: Users, title: 'Community Impact', text: 'Work together with like-minded individuals to create lasting positive change in our communities.' },
+  { icon: Award, title: 'Personal Growth', text: 'Develop leadership skills, expand your network, and gain valuable experience in community development.' },
+  { icon: Target, title: 'Meaningful Purpose', text: 'Contribute to projects that matter and see the direct impact of your involvement in improving lives.' },
 ];
 
 const Join = () => {
@@ -42,103 +48,66 @@ const Join = () => {
   return (
     <div>
      <Toaster position="top-right" />
-      <section className="relative py-24 bg-gradient-to-br from-green-800 to-green-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-yellow-400 mb-4">
-              Become a Member
-            </span>
-
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-32 -top-32 w-[460px] h-[460px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-6 bg-accent-300" />Become a Member</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">
               Join the BFCN Family
             </h1>
-
-            <p className="text-base text-white/85 max-w-[560px] mx-auto mb-8">
+            <p className="text-lg text-white/70 max-w-[620px] leading-relaxed mb-10">
               Be part of a growing community of changemakers committed to building stronger, more prosperous communities.
             </p>
-
             <Button
-              variant="primary"
+              variant="accent"
               size="lg"
               onClick={() => setShowJoinDrawer(true)}
               icon={UserPlus}
-              className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold"
             >
               Apply for Membership
             </Button>
           </ScrollReveal>
         </div>
-
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path
-              d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      {/* Why join */}
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
-              Why Join BFCN?
-            </h2>
-            <p className="text-gray-600">
-              Become part of a community that's making real change happen.
-            </p>
+          <ScrollReveal>
+            <SectionHeader
+              align="left"
+              label="Why join"
+              title="Why Join BFCN?"
+              subtitle="Become part of a community that's making real change happen."
+            />
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <ScrollReveal animation="reveal-left">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users size={32} className="text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Community Impact</h3>
-                <p className="text-gray-600">
-                  Work together with like-minded individuals to create lasting positive change in our communities.
-                </p>
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 md:mb-20">
+            {reasons.map((r) => (
+              <div key={r.title} className="p-7 md:p-8 rounded-[20px] border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+                <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 mb-6">
+                  <r.icon size={22} strokeWidth={1.75} />
+                </span>
+                <h3 className="font-serif text-[1.4rem] text-gray-900 mb-3">{r.title}</h3>
+                <p className="text-[15px] text-gray-600 leading-relaxed m-0">{r.text}</p>
               </div>
-            </ScrollReveal>
+            ))}
+          </ScrollReveal>
 
-            <ScrollReveal animation="reveal-up">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Award size={32} className="text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Personal Growth</h3>
-                <p className="text-gray-600">
-                  Develop leadership skills, expand your network, and gain valuable experience in community development.
-                </p>
-              </div>
-            </ScrollReveal>
-
-            <ScrollReveal animation="reveal-right">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Target size={32} className="text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Meaningful Purpose</h3>
-                <p className="text-gray-600">
-                  Contribute to projects that matter and see the direct impact of your involvement in improving lives.
-                </p>
-              </div>
-            </ScrollReveal>
-          </div>
-
-          <ScrollReveal className="bg-green-50 rounded-2xl p-8 md:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <ScrollReveal className="rounded-[28px] bg-primary-50 border border-primary-100 p-6 sm:p-10 md:p-14">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-10 lg:gap-16 items-center">
               <div>
-                <h3 className="text-2xl font-bold mb-4">Membership Benefits</h3>
-                <ul className="space-y-3">
+                <span className="eyebrow text-primary-600 mb-4"><span className="h-px w-6 bg-accent-400" />What you get</span>
+                <h3 className="font-serif text-3xl md:text-4xl text-gray-900 leading-[1.1] mb-8">Membership Benefits</h3>
+                <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-4">
                   {membershipBenefits.slice(0, 6).map((benefit, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <CheckCircle size={20} className="text-green-600 shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{benefit}</span>
+                      <span className="grid place-items-center w-6 h-6 rounded-full bg-primary-700 text-white shrink-0 mt-0.5" aria-hidden="true">
+                        <Check size={14} strokeWidth={2.5} />
+                      </span>
+                      <span className="text-[15px] text-gray-700 leading-relaxed">{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -146,28 +115,28 @@ const Join = () => {
                   variant="primary"
                   size="lg"
                   onClick={() => setShowJoinDrawer(true)}
-                  icon={ArrowRight}
-                  className="mt-6"
+                  iconRight={ArrowRight}
+                  className="mt-10 w-full sm:w-auto"
                 >
                   Start Your Application
                 </Button>
               </div>
-              <div className="text-center">
-                <div className="bg-white rounded-xl p-8 shadow-sm">
-                  <div className="text-4xl mb-4">👥</div>
-                  <h4 className="text-xl font-semibold mb-2">Join Our Growing Community</h4>
-                  <p className="text-gray-600 mb-4">
-                    Be part of an organization that's making real difference.
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-green-600">500+</div>
-                      <div className="text-sm text-gray-600">Active Members</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-green-600">25+</div>
-                      <div className="text-sm text-gray-600">Ongoing Projects</div>
-                    </div>
+              <div className="bg-white rounded-[20px] border border-gray-200 p-7 md:p-9 shadow-[var(--shadow-soft)]">
+                <span className="grid place-items-center w-12 h-12 rounded-full bg-accent-50 text-accent-600 mb-6" aria-hidden="true">
+                  <Users size={22} strokeWidth={1.75} />
+                </span>
+                <h4 className="font-serif text-2xl text-gray-900 mb-2">Join Our Growing Community</h4>
+                <p className="text-[15px] text-gray-600 leading-relaxed mb-8">
+                  Be part of an organization that's making real difference.
+                </p>
+                <div className="grid grid-cols-2 divide-x divide-gray-200 border-t border-gray-200 pt-6">
+                  <div className="pr-4">
+                    <div className="font-serif text-4xl text-primary-800 leading-none mb-2">500+</div>
+                    <div className="text-sm font-medium text-gray-600">Active Members</div>
+                  </div>
+                  <div className="pl-6">
+                    <div className="font-serif text-4xl text-primary-800 leading-none mb-2">25+</div>
+                    <div className="text-sm font-medium text-gray-600">Ongoing Projects</div>
                   </div>
                 </div>
               </div>
@@ -176,62 +145,67 @@ const Join = () => {
         </div>
       </section>
 
-      <section className="py-16 md:py-20 bg-gray-50">
+      {/* Membership types */}
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto mb-12">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
-              Membership Types
-            </h2>
-            <p className="text-gray-600">
-              Choose the membership level that best fits your availability and interests.
-            </p>
+          <ScrollReveal>
+            <SectionHeader
+              label="Choose your path"
+              title="Membership Types"
+              subtitle="Choose the membership level that best fits your availability and interests."
+            />
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {membershipTypes.map((type, index) => (
-              <ScrollReveal key={index} animation="reveal-up">
-                <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="text-4xl mb-4">{type.icon}</div>
-                  <h3 className="text-xl font-semibold mb-3">{type.title}</h3>
-                  <p className="text-gray-600 mb-6">{type.description}</p>
-                  <ul className="space-y-2 mb-6">
-                    {type.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <CheckCircle size={16} className="text-green-600" />
-                        <span className="text-sm text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    variant="outline"
-                    fullWidth
-                    onClick={() => setShowJoinDrawer(true)}
-                  >
-                    Apply Now
-                  </Button>
+              <div key={index} className="flex flex-col bg-white rounded-[20px] border border-gray-200 p-7 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)]">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700">
+                    <type.icon size={22} strokeWidth={1.75} />
+                  </span>
+                  <span className="font-serif text-sm text-gray-400">0{index + 1}</span>
                 </div>
-              </ScrollReveal>
+                <h3 className="font-serif text-[1.5rem] text-gray-900 mb-3">{type.title}</h3>
+                <p className="text-[15px] text-gray-600 leading-relaxed mb-6">{type.description}</p>
+                <ul className="space-y-3 mb-8 pt-6 border-t border-gray-100 flex-1">
+                  {type.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center gap-3">
+                      <Check size={16} strokeWidth={2.5} className="text-primary-600 shrink-0" />
+                      <span className="text-sm text-gray-700">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  size="lg"
+                  onClick={() => setShowJoinDrawer(true)}
+                >
+                  Apply Now
+                </Button>
+              </div>
             ))}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 md:py-20 bg-green-600">
-        <div className="container-main">
-          <ScrollReveal className="text-center max-w-[600px] mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+      <section className="py-20 md:py-28 bg-primary-800 relative overflow-hidden">
+        <div className="absolute -left-40 -bottom-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative">
+          <ScrollReveal className="text-center max-w-[680px] mx-auto">
+            <span className="eyebrow text-accent-300 mb-5"><span className="h-px w-6 bg-accent-300" />Get involved<span className="h-px w-6 bg-accent-300" /></span>
+            <h2 className="font-serif text-4xl md:text-[3.25rem] text-white leading-[1.05] mb-5">
               Ready to Make a Difference?
             </h2>
-            <p className="text-white/85 mb-8">
+            <p className="text-base md:text-lg text-white/70 leading-relaxed mb-10">
               Join hundreds of community members who are already creating positive change.
             </p>
             <Button
-              variant="primary"
+              variant="white"
               size="lg"
               onClick={() => setShowJoinDrawer(true)}
               icon={UserPlus}
-              className="bg-white hover:bg-gray-100 text-green-600 font-semibold"
             >
               Submit Your Application
             </Button>

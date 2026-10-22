@@ -7,13 +7,14 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  EllipsisVerticalIcon,
   CalendarIcon,
 } from '@heroicons/react/24/outline';
 import { Drawer, ConfirmDialog, toast } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
-import { Button, Input, Tag, Avatar } from 'antd';
+import { Avatar, Button, Input, Select, Tooltip } from 'antd';
+import { Eye as EyeStatIcon, FilePen as FilePenIcon, Globe as GlobeIcon, Newspaper as NewspaperIcon } from 'lucide-react';
+import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
 import NewsForm from './NewsForm';
 
 const articles = [
@@ -27,11 +28,11 @@ const articles = [
 
 const getStatusBadge = (status) => {
   const map = {
-    Published: { className: 'bg-green-100 text-green-800' },
-    Draft: { className: 'bg-gray-100 text-gray-800' },
-    Archived: { className: 'bg-purple-100 text-purple-800' },
+    Published: { className: 'bg-primary-50 text-primary-700 ring-primary-200' },
+    Draft: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
+    Archived: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
   };
-  return `px-2 py-1 text-xs font-medium rounded-full ${map[status]?.className ?? ''}`;
+  return `inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full ring-1 ring-inset whitespace-nowrap ${map[status]?.className ?? 'bg-gray-100 text-gray-600 ring-gray-200'}`;
 };
 
 export default function NewsManagement() {
@@ -98,10 +99,10 @@ export default function NewsManagement() {
   };
 
   const newsActions = (article) => [
-    { label: 'Preview Article', icon: EyeIcon, onClick: () => toast.info(`Previewing: ${article.title}`) },
-    { label: 'Edit Article', icon: PencilIcon, onClick: () => handleEdit(article) },
+    { label: 'Preview article', icon: EyeIcon, onClick: () => toast.info(`Previewing: ${article.title}`) },
+    { label: 'Edit article', icon: PencilIcon, onClick: () => handleEdit(article) },
     {
-      label: 'Delete Article',
+      label: 'Delete article',
       icon: TrashIcon,
       onClick: () => {
         setSelectedArticle(article);
@@ -110,152 +111,92 @@ export default function NewsManagement() {
     },
   ];
 
-  const ActionMenu = ({ article }) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <div className="relative">
-        <button
-          onClick={() => setOpen(!open)}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 transition-colors hover:border-[#427456] hover:bg-[#f0f7f2] hover:text-[#427456] focus:outline-none focus:ring-2 focus:ring-[#427456]/20"
-        >
-          <EllipsisVerticalIcon className="h-4 w-4" />
-        </button>
-        {open && (
-          <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-            {newsActions(article).map((action, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  action.onClick();
-                  setOpen(false);
-                }}
-                className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 first:rounded-t-lg last:rounded-b-lg"
-              >
-                <action.icon className="h-4 w-4" /> {action.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const ActionMenu = ({ article }) => (
+    <div className="flex items-center gap-0.5">
+      {newsActions(article).map((action, idx) => (
+        <Tooltip key={idx} title={action.label}>
+          <Button
+            type="text"
+            size="small"
+            danger={action.label.startsWith('Delete')}
+            aria-label={action.label}
+            icon={<action.icon className="h-4 w-4" />}
+            onClick={action.onClick}
+          />
+        </Tooltip>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h2 className="text-2xl font-bold text-gray-900">News Management</h2>
-          <p className="text-gray-600">Publish and manage BFCN news articles</p>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.1 }}>
+      <PageIntro
+        title="News management"
+        description="Publish and manage BFCN news articles"
+        actions={
           <Button type="primary" size="large" icon={<PlusIcon className="h-5 w-5" />} onClick={openAddArticle}>
-            New Article
+            New article
           </Button>
-        </motion.div>
-      </div>
+        }
+      />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-6"
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         {[
-          { label: 'Total Articles', value: totalArticles.toLocaleString(), change: 'total posts', color: 'bg-blue-500' },
-          { label: 'Published', value: publishedCount, change: 'public articles', color: 'bg-green-500' },
-          { label: 'Drafts', value: draftCount, change: 'in progress', color: 'bg-gray-500' },
-          { label: 'Total Views', value: totalViews.toLocaleString(), change: 'all time reads', color: 'bg-orange-500' },
+          { label: 'Total articles', value: totalArticles.toLocaleString(), change: 'Total posts', icon: NewspaperIcon },
+          { label: 'Published', value: publishedCount, change: 'Public articles', icon: GlobeIcon },
+          { label: 'Drafts', value: draftCount, change: 'In progress', icon: FilePenIcon, tone: 'accent' },
+          { label: 'Total views', value: totalViews.toLocaleString(), change: 'All time reads', icon: EyeStatIcon, tone: 'accent' },
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-green-600 font-medium">{stat.change}</p>
-              </div>
-              <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-            </div>
-          </div>
+          <StatCard key={index} label={stat.label} value={stat.value.toLocaleString()} hint={stat.change} icon={stat.icon} tone={stat.tone} />
         ))}
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
+        transition={{ duration: 0.4, delay: 0.15 }}
+        className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5"
       >
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <Input
             allowClear
             size="large"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search articles by title, author, or category..."
-            prefix={<MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />}
-            className="flex-1"
+            prefix={<MagnifyingGlassIcon className="h-[18px] w-[18px] text-gray-400" />}
+            className="min-w-0 flex-1"
           />
-          <div className="flex gap-2 flex-wrap">
-            <div className="relative">
-              <button
-                onClick={() => setCategoryOpen(!categoryOpen)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {categoryFilter === 'All' ? 'All categories' : categoryFilter}
-              </button>
-              {categoryOpen && (
-                <div className="absolute top-full mt-1 left-0 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-                  {['All', 'Community News', 'Announcement', 'Event Recap', 'Success Story', 'Press Release', 'Opinion', 'Partnership'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setCategoryFilter(option);
-                        setCategoryOpen(false);
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
-                        categoryFilter === option
-                          ? 'bg-[#427456] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      } first:rounded-t-lg last:rounded-b-lg`}
-                    >
-                      {option === 'All' ? 'All categories' : option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="relative">
-              <button
-                onClick={() => setStatusOpen(!statusOpen)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {statusFilter === 'All' ? 'All statuses' : statusFilter}
-              </button>
-              {statusOpen && (
-                <div className="absolute top-full mt-1 left-0 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-                  {['All', 'Published', 'Draft', 'Archived'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setStatusFilter(option);
-                        setStatusOpen(false);
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
-                        statusFilter === option
-                          ? 'bg-[#427456] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      } first:rounded-t-lg last:rounded-b-lg`}
-                    >
-                      {option === 'All' ? 'All statuses' : option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <Button size="large" icon={<FunnelIcon className="h-5 w-5" />}>More filters</Button>
+          <div className="flex flex-wrap gap-3">
+            <Select
+              size="large"
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              open={categoryOpen}
+              onOpenChange={setCategoryOpen}
+              className="min-w-44"
+              aria-label="Categories"
+              options={['All', 'Community News', 'Announcement', 'Event Recap', 'Success Story', 'Press Release', 'Opinion', 'Partnership'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option }))}
+            />
+            <Select
+              size="large"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              open={statusOpen}
+              onOpenChange={setStatusOpen}
+              className="min-w-44"
+              aria-label="Statuses"
+              options={['All', 'Published', 'Draft', 'Archived'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
+            />
+            <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
             <Button
               size="large"
-              icon={<ArrowDownTrayIcon className="h-5 w-5" />}
+              icon={<ArrowDownTrayIcon className="h-[18px] w-[18px]" />}
               onClick={() => toast.success('Articles exported as CSV')}
             >
               Export
@@ -264,7 +205,7 @@ export default function NewsManagement() {
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="shadow-sm">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
         <SimpleTable
           data={filteredArticles}
           keyField="id"
@@ -278,10 +219,10 @@ export default function NewsManagement() {
                 const a = info.row?.original;
                 return (
                   <div>
-                    <p className="font-medium text-[#17231d] max-w-[320px] truncate">{a?.title}</p>
+                    <p className="m-0 font-semibold text-gray-900 max-w-[320px] truncate">{a?.title}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <Tag color="blue" style={{ margin: 0 }}>{a?.category}</Tag>
-                      <p className="text-xs text-[#708078] m-0 inline-flex items-center gap-1">
+                      <span className={pillClass('neutral')}>{a?.category}</span>
+                      <p className="m-0 inline-flex items-center gap-1 text-xs text-gray-500">
                         <CalendarIcon className="h-3 w-3" />
                         {new Date(a?.publishedDate).toLocaleDateString()}
                       </p>
@@ -297,16 +238,16 @@ export default function NewsManagement() {
                 const a = info.row?.original;
                 return (
                   <div className="flex items-center gap-2">
-                    <Avatar size={32} style={{ backgroundColor: '#427456' }}>
+                    <Avatar size={32} className="!bg-primary-50 !text-xs !font-semibold !text-primary-700">
                       {a?.author.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
                     </Avatar>
-                    <span className="text-sm text-[#34443a]">{a?.author}</span>
+                    <span className="text-[13px] text-gray-700">{a?.author}</span>
                   </div>
                 );
               },
             },
-            { accessorKey: 'views', header: 'Views', cell: (info) => <p className="text-sm text-[#34443a]">{info.row?.original?.views.toLocaleString()}</p> },
-            { accessorKey: 'comments', header: 'Comments', cell: (info) => <p className="text-sm text-[#34443a]">{info.row?.original?.comments}</p> },
+            { accessorKey: 'views', header: 'Views', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.views.toLocaleString()}</p> },
+            { accessorKey: 'comments', header: 'Comments', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.comments}</p> },
             { 
               accessorKey: 'status', 
               header: 'Status', 
@@ -326,10 +267,10 @@ export default function NewsManagement() {
         onClose={closeNewsDrawer}
         title={
           <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
+            <h2 className="m-0 font-serif text-xl text-gray-900">
               {selectedArticle ? 'Edit Article' : 'Write New Article'}
             </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+            <p className="mt-1 mb-0 text-[13px] leading-relaxed text-gray-500">
               {selectedArticle ? 'Update article content' : 'Create a new news article for publication'}
             </p>
           </div>
@@ -351,7 +292,7 @@ export default function NewsManagement() {
           setSelectedArticle(null);
         }}
         onConfirm={handleDelete}
-        title="Delete Article"
+        title="Delete article"
         message={`Are you sure you want to delete "${selectedArticle?.title}"? This action cannot be undone.`}
         type="danger"
         confirmText="Delete"

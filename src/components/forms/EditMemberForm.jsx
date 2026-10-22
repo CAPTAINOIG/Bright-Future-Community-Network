@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { BadgeCheck, Save, Sparkles, UserCog, X } from 'lucide-react';
+import { BadgeCheck, Check, Save, UserCog, X } from 'lucide-react';
 import { Button, toast } from '../ui';
 import { useEditMember } from '../../api/member';
 
@@ -42,9 +42,14 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
   const isActive = watch('isActive');
 
   const field = (name) =>
-    `w-full py-3 px-4 border ${
-      errors[name] ? 'border-red-500' : 'border-[#e3e7e3]'
-    } rounded-xl bg-white text-sm text-[#17231d] focus:outline-none focus:border-[#427456] focus:shadow-[0_0_0_3px_rgba(66,116,86,0.14)] transition-all placeholder:text-gray-400`;
+    `w-full h-12 px-4 rounded-xl border ${
+      errors[name] ? 'border-red-400' : 'border-gray-300'
+    } bg-white text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition`;
+
+  const area = (name) =>
+    `w-full min-h-[120px] px-4 py-3 rounded-xl border ${
+      errors[name] ? 'border-red-400' : 'border-gray-300'
+    } bg-white text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition resize-y`;
 
   const toggleInterest = (interest) => {
     const next = interests.includes(interest)
@@ -55,7 +60,7 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
 
   const onSubmit = async (data) => {
     try {
-      await editMember({ ...data });
+      const res = await editMember({ ...data });
       toast.success(res?.message || 'Member updated successfully');
       onSubmitted?.(res?.data);
       if (!isEditMemberLoading && !isEditMemberError) {
@@ -70,47 +75,50 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
-      <div className="flex items-center gap-3 rounded-2xl border border-[#e3e7e3] bg-white px-4 py-3.5">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#edf3eb] text-[#427456]">
-          <UserCog size={18} />
+      <div className="flex items-center gap-4 rounded-[20px] border border-gray-200 bg-white px-5 py-4">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary-50 text-primary-700" aria-hidden="true">
+          <UserCog size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#17231d]">Update member details</p>
-          <p className="text-xs text-[#708078]">
+          <p className="m-0 font-serif text-lg leading-snug text-gray-900">Update member details</p>
+          <p className="m-0 mt-0.5 text-[13px] text-gray-500">
             Editing {member?.fullName || 'this member'}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-medium text-[#34443a]">Full name *</label>
+          <label htmlFor="edit-member-fullName" className="mb-2 block text-sm font-semibold text-gray-800">Full name <span className="text-red-600" aria-hidden="true">*</span></label>
           <input
+            id="edit-member-fullName"
             {...register('fullName', { required: 'Required' })}
             placeholder="Full name"
             className={field('fullName')}
           />
           {errors.fullName && (
-            <span className="mt-1 block text-sm text-red-600">{errors.fullName.message}</span>
+            <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.fullName.message}</span>
           )}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[#34443a]">Phone *</label>
+          <label htmlFor="edit-member-phone" className="mb-2 block text-sm font-semibold text-gray-800">Phone <span className="text-red-600" aria-hidden="true">*</span></label>
           <input
+            id="edit-member-phone"
             {...register('phone', { required: 'Required' })}
             placeholder="+234..."
             className={field('phone')}
           />
           {errors.phone && (
-            <span className="mt-1 block text-sm text-red-600">{errors.phone.message}</span>
+            <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.phone.message}</span>
           )}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[#34443a]">Email *</label>
+          <label htmlFor="edit-member-email" className="mb-2 block text-sm font-semibold text-gray-800">Email <span className="text-red-600" aria-hidden="true">*</span></label>
           <input
             type="email"
+            id="edit-member-email"
             {...register('email', {
               required: 'Required',
               pattern: {
@@ -122,25 +130,27 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
             className={field('email')}
           />
           {errors.email && (
-            <span className="mt-1 block text-sm text-red-600">{errors.email.message}</span>
+            <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.email.message}</span>
           )}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[#34443a]">Location *</label>
+          <label htmlFor="edit-member-location" className="mb-2 block text-sm font-semibold text-gray-800">Location <span className="text-red-600" aria-hidden="true">*</span></label>
           <input
+            id="edit-member-location"
             {...register('location', { required: 'Required' })}
             placeholder="City / Town"
             className={field('location')}
           />
           {errors.location && (
-            <span className="mt-1 block text-sm text-red-600">{errors.location.message}</span>
+            <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.location.message}</span>
           )}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[#34443a]">Community</label>
+          <label htmlFor="edit-member-community" className="mb-2 block text-sm font-semibold text-gray-800">Community</label>
           <input
+            id="edit-member-community"
             {...register('community')}
             placeholder="Community"
             className={field('community')}
@@ -148,21 +158,22 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-[#34443a]">Skill *</label>
+          <label htmlFor="edit-member-skill" className="mb-2 block text-sm font-semibold text-gray-800">Skill <span className="text-red-600" aria-hidden="true">*</span></label>
           <input
+            id="edit-member-skill"
             {...register('skill', { required: 'Required' })}
             placeholder="E.g. Teaching, Programming"
             className={field('skill')}
           />
           {errors.skill && (
-            <span className="mt-1 block text-sm text-red-600">{errors.skill.message}</span>
+            <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.skill.message}</span>
           )}
         </div>
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-[#34443a]">Areas of interest *</label>
-        <div className="flex flex-wrap gap-2">
+        <p className="mb-2 block text-sm font-semibold text-gray-800" id="edit-member-interests">Areas of interest <span className="text-red-600" aria-hidden="true">*</span></p>
+        <div className="flex flex-wrap gap-2" role="group" aria-labelledby="edit-member-interests">
           {interestOptions.map((opt) => {
             const selected = interests.includes(opt);
             return (
@@ -170,13 +181,14 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
                 key={opt}
                 type="button"
                 onClick={() => toggleInterest(opt)}
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium transition-all ${
+                aria-pressed={selected}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-100 ${
                   selected
-                    ? 'border-[#427456] bg-[#edf6f0] text-[#2f6b47]'
-                    : 'border-[#e3e7e3] bg-white text-[#5b6b62] hover:border-[#9ec3a8] hover:text-[#2f6b47]'
+                    ? 'border-primary-600 bg-primary-50 text-primary-800 font-semibold'
+                    : 'border-gray-300 bg-white text-gray-600 hover:border-primary-400 hover:text-primary-700'
                 }`}
               >
-                {selected && <Sparkles size={13} />}
+                {selected && <Check size={13} strokeWidth={2.5} />}
                 {opt}
               </button>
             );
@@ -189,31 +201,32 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
           })}
         />
         {errors.interests && (
-          <span className="mt-2 block text-sm text-red-600">{errors.interests.message}</span>
+          <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.interests.message}</span>
         )}
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-[#34443a]">Why join BFCN? *</label>
+        <label htmlFor="edit-member-reason" className="mb-2 block text-sm font-semibold text-gray-800">Why join BFCN? <span className="text-red-600" aria-hidden="true">*</span></label>
         <textarea
-          {...register('reason', { required: 'Required' })}
+          id="edit-member-reason"
+            {...register('reason', { required: 'Required' })}
           placeholder="Tell us..."
           rows={4}
-          className={`${field('reason')} resize-y min-h-[100px]`}
+          className={area('reason')}
         />
         {errors.reason && (
-          <span className="mt-1 block text-sm text-red-600">{errors.reason.message}</span>
+          <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.reason.message}</span>
         )}
       </div>
 
-      <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#e3e7e3] bg-white px-4 py-3.5">
+      <label className="flex cursor-pointer items-center justify-between gap-4 rounded-[20px] border border-gray-200 bg-white px-5 py-4 transition-colors hover:border-gray-300">
         <span className="flex items-center gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f7e8bd] text-[#a27018]">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-accent-50 text-accent-600" aria-hidden="true">
             <BadgeCheck size={18} />
           </span>
           <span className="min-w-0">
-            <span className="block text-sm font-semibold text-[#17231d]">Active member</span>
-            <span className="block text-xs text-[#708078]">
+            <span className="block text-sm font-semibold text-gray-900">Active member</span>
+            <span className="block text-[13px] text-gray-500">
               Inactive members are excluded from active filters
             </span>
           </span>
@@ -222,14 +235,14 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
           type="checkbox"
           checked={Boolean(isActive)}
           onChange={(event) => setValue('isActive', event.target.checked)}
-          className="h-5 w-5 shrink-0 accent-[#427456]"
+          className="h-5 w-5 shrink-0 cursor-pointer accent-primary-700"
         />
       </label>
 
-      <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row">
+      <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-6 sm:flex-row">
         <Button
           type="button"
-          variant="outline"
+          variant="secondary"
           size="lg"
           icon={X}
           onClick={onClose}

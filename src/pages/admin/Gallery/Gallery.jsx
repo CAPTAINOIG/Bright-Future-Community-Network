@@ -7,14 +7,15 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  EllipsisVerticalIcon,
   PlayCircleIcon,
   PhotoIcon,
 } from '@heroicons/react/24/outline';
 import { Drawer, ConfirmDialog, toast } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
-import { Button, Input, Tag, Avatar } from 'antd';
+import { Avatar, Button, Input, Select, Tooltip } from 'antd';
+import { Eye as EyeStatIcon, Film as FilmIcon, Image as ImageIcon, Images as ImagesIcon } from 'lucide-react';
+import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
 import MediaForm from './MediaForm';
 
 const mediaItems = [
@@ -27,9 +28,9 @@ const mediaItems = [
 ];
 
 const typeBadge = (type) => {
-  if (type === 'Video') return { className: 'bg-purple-100 text-purple-800', icon: PlayCircleIcon };
-  if (type === 'Document') return { className: 'bg-blue-100 text-blue-800', icon: PhotoIcon };
-  return { className: 'bg-green-100 text-green-800', icon: PhotoIcon };
+  if (type === 'Video') return { className: 'bg-accent-50 text-accent-700 ring-accent-200', icon: PlayCircleIcon };
+  if (type === 'Document') return { className: 'bg-gray-100 text-gray-600 ring-gray-200', icon: PhotoIcon };
+  return { className: 'bg-primary-50 text-primary-700 ring-primary-200', icon: PhotoIcon };
 };
 
 export default function GalleryManagement() {
@@ -98,9 +99,9 @@ export default function GalleryManagement() {
 
   const mediaActions = (media) => [
     { label: 'Preview', icon: EyeIcon, onClick: () => toast.info(`Previewing ${media.title}`) },
-    { label: 'Edit Media', icon: PencilIcon, onClick: () => handleEdit(media) },
+    { label: 'Edit media', icon: PencilIcon, onClick: () => handleEdit(media) },
     {
-      label: 'Delete Media',
+      label: 'Delete media',
       icon: TrashIcon,
       onClick: () => {
         setSelectedMedia(media);
@@ -109,152 +110,92 @@ export default function GalleryManagement() {
     },
   ];
 
-  const ActionMenu = ({ media }) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <div className="relative">
-        <button
-          onClick={() => setOpen(!open)}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 transition-colors hover:border-[#427456] hover:bg-[#f0f7f2] hover:text-[#427456] focus:outline-none focus:ring-2 focus:ring-[#427456]/20"
-        >
-          <EllipsisVerticalIcon className="h-4 w-4" />
-        </button>
-        {open && (
-          <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-            {mediaActions(media).map((action, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  action.onClick();
-                  setOpen(false);
-                }}
-                className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 first:rounded-t-lg last:rounded-b-lg"
-              >
-                <action.icon className="h-4 w-4" /> {action.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const ActionMenu = ({ media }) => (
+    <div className="flex items-center gap-0.5">
+      {mediaActions(media).map((action, idx) => (
+        <Tooltip key={idx} title={action.label}>
+          <Button
+            type="text"
+            size="small"
+            danger={action.label.startsWith('Delete')}
+            aria-label={action.label}
+            icon={<action.icon className="h-4 w-4" />}
+            onClick={action.onClick}
+          />
+        </Tooltip>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h2 className="text-2xl font-bold text-gray-900">Gallery Management</h2>
-          <p className="text-gray-600">Upload and manage BFCN media gallery</p>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.1 }}>
+      <PageIntro
+        title="Gallery management"
+        description="Upload and manage BFCN media gallery"
+        actions={
           <Button type="primary" size="large" icon={<PlusIcon className="h-5 w-5" />} onClick={openAddMedia}>
-            Upload Media
+            Upload media
           </Button>
-        </motion.div>
-      </div>
+        }
+      />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-6"
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         {[
-          { label: 'Total Media', value: totalMedia.toLocaleString(), change: 'items total', color: 'bg-blue-500' },
-          { label: 'Images', value: totalImages.toLocaleString(), change: 'photos', color: 'bg-green-500' },
-          { label: 'Videos', value: totalVideos.toLocaleString(), change: 'clips', color: 'bg-purple-500' },
-          { label: 'Total Views', value: totalViews.toLocaleString(), change: 'all time', color: 'bg-orange-500' },
+          { label: 'Total media', value: totalMedia.toLocaleString(), change: 'Items total', icon: ImagesIcon },
+          { label: 'Images', value: totalImages.toLocaleString(), change: 'Photos', icon: ImageIcon },
+          { label: 'Videos', value: totalVideos.toLocaleString(), change: 'Clips', icon: FilmIcon, tone: 'accent' },
+          { label: 'Total views', value: totalViews.toLocaleString(), change: 'All time', icon: EyeStatIcon, tone: 'accent' },
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-green-600 font-medium">{stat.change}</p>
-              </div>
-              <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-            </div>
-          </div>
+          <StatCard key={index} label={stat.label} value={stat.value.toLocaleString()} hint={stat.change} icon={stat.icon} tone={stat.tone} />
         ))}
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
+        transition={{ duration: 0.4, delay: 0.15 }}
+        className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5"
       >
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <Input
             allowClear
             size="large"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search media by title, caption, tags, or uploader..."
-            prefix={<MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />}
-            className="flex-1"
+            prefix={<MagnifyingGlassIcon className="h-[18px] w-[18px] text-gray-400" />}
+            className="min-w-0 flex-1"
           />
-          <div className="flex gap-2 flex-wrap">
-            <div className="relative">
-              <button
-                onClick={() => setTypeOpen(!typeOpen)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {typeFilter === 'All' ? 'All types' : typeFilter}
-              </button>
-              {typeOpen && (
-                <div className="absolute top-full mt-1 left-0 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-                  {['All', 'Image', 'Video', 'Document', 'Audio'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setTypeFilter(option);
-                        setTypeOpen(false);
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
-                        typeFilter === option
-                          ? 'bg-[#427456] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      } first:rounded-t-lg last:rounded-b-lg`}
-                    >
-                      {option === 'All' ? 'All types' : option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="relative">
-              <button
-                onClick={() => setCategoryOpen(!categoryOpen)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {categoryFilter === 'All' ? 'All categories' : categoryFilter}
-              </button>
-              {categoryOpen && (
-                <div className="absolute top-full mt-1 left-0 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-                  {['All', 'Events', 'Programmes', 'Projects', 'Community', 'Outreach', 'Training'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setCategoryFilter(option);
-                        setCategoryOpen(false);
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
-                        categoryFilter === option
-                          ? 'bg-[#427456] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      } first:rounded-t-lg last:rounded-b-lg`}
-                    >
-                      {option === 'All' ? 'All categories' : option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <Button size="large" icon={<FunnelIcon className="h-5 w-5" />}>More filters</Button>
+          <div className="flex flex-wrap gap-3">
+            <Select
+              size="large"
+              value={typeFilter}
+              onChange={setTypeFilter}
+              open={typeOpen}
+              onOpenChange={setTypeOpen}
+              className="min-w-44"
+              aria-label="Types"
+              options={['All', 'Image', 'Video', 'Document', 'Audio'].map((option) => ({ value: option, label: option === 'All' ? 'All types' : option }))}
+            />
+            <Select
+              size="large"
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              open={categoryOpen}
+              onOpenChange={setCategoryOpen}
+              className="min-w-44"
+              aria-label="Categories"
+              options={['All', 'Events', 'Programmes', 'Projects', 'Community', 'Outreach', 'Training'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option }))}
+            />
+            <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
             <Button
               size="large"
-              icon={<ArrowDownTrayIcon className="h-5 w-5" />}
+              icon={<ArrowDownTrayIcon className="h-[18px] w-[18px]" />}
               onClick={() => toast.success('Gallery exported as CSV')}
             >
               Export
@@ -263,7 +204,7 @@ export default function GalleryManagement() {
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="shadow-sm">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
         <SimpleTable
           data={filteredMedia}
           keyField="id"
@@ -278,12 +219,12 @@ export default function GalleryManagement() {
                 const TypeIcon = typeBadge(m?.type).icon;
                 return (
                   <div className="flex items-center gap-3">
-                    <Avatar shape="square" size={48} src={m?.type === 'Image' ? m?.url : undefined} style={{ backgroundColor: m?.type === 'Video' ? '#7e57c6' : '#427456' }}>
-                      {m?.type !== 'Image' && <TypeIcon className="h-5 w-5 text-white" />}
+                    <Avatar shape="square" size={48} src={m?.type === 'Image' ? m?.url : undefined} className={`shrink-0 !rounded-xl ${m?.type === 'Video' ? '!bg-accent-50' : '!bg-primary-50'}`}>
+                      {m?.type !== 'Image' && <TypeIcon className={`h-5 w-5 ${m?.type === 'Video' ? 'text-accent-700' : 'text-primary-700'}`} />}
                     </Avatar>
                     <div>
-                      <p className="font-medium text-[#17231d] max-w-[280px] truncate">{m?.title}</p>
-                      <p className="text-xs text-[#708078] m-0">by {m?.uploadedBy} · {new Date(m?.uploadDate).toLocaleDateString()}</p>
+                      <p className="m-0 font-semibold text-gray-900 max-w-[280px] truncate">{m?.title}</p>
+                      <p className="m-0 text-xs text-gray-500">by {m?.uploadedBy} · {new Date(m?.uploadDate).toLocaleDateString()}</p>
                     </div>
                   </div>
                 );
@@ -295,13 +236,13 @@ export default function GalleryManagement() {
               cell: (info) => {
                 const m = info.row?.original;
                 const meta = typeBadge(m?.type);
-                return <span className={`px-2 py-1 text-xs font-medium rounded-full ${meta.className}`}>{m?.type}</span>;
+                return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${meta.className}`}>{m?.type}</span>;
               },
             },
             {
               accessorKey: 'category',
               header: 'Category',
-              cell: (info) => <Tag color="blue">{info.row?.original?.category}</Tag>,
+              cell: (info) => <span className={pillClass('neutral')}>{info.row?.original?.category}</span>,
             },
             {
               accessorKey: 'tags',
@@ -310,13 +251,13 @@ export default function GalleryManagement() {
                 const m = info.row?.original;
                 return (
                   <div className="flex flex-wrap gap-1 max-w-[220px]">
-                    {m?.tags.slice(0, 3).map((t, i) => <Tag key={i} color="green" style={{ margin: 2 }}>{t}</Tag>)}
+                    {m?.tags.slice(0, 3).map((t, i) => <span key={i} className={pillClass('neutral')}>{t}</span>)}
                   </div>
                 );
               },
             },
-            { accessorKey: 'views', header: 'Views', cell: (info) => <p className="text-sm text-[#34443a]">{info.row?.original?.views.toLocaleString()}</p> },
-            { accessorKey: 'likes', header: 'Likes', cell: (info) => <p className="text-sm text-[#34443a]">{info.row?.original?.likes.toLocaleString()}</p> },
+            { accessorKey: 'views', header: 'Views', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.views.toLocaleString()}</p> },
+            { accessorKey: 'likes', header: 'Likes', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.likes.toLocaleString()}</p> },
             {
               id: 'actions',
               header: 'Actions',
@@ -331,10 +272,10 @@ export default function GalleryManagement() {
         onClose={closeMediaDrawer}
         title={
           <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              {selectedMedia ? 'Edit Media' : 'Upload New Media'}
+            <h2 className="m-0 font-serif text-xl text-gray-900">
+              {selectedMedia ? 'Edit media' : 'Upload new media'}
             </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+            <p className="mt-1 mb-0 text-[13px] leading-relaxed text-gray-500">
               {selectedMedia ? 'Update media details' : 'Add photos, videos, or documents to the public gallery'}
             </p>
           </div>
@@ -356,7 +297,7 @@ export default function GalleryManagement() {
           setSelectedMedia(null);
         }}
         onConfirm={handleDelete}
-        title="Delete Media"
+        title="Delete media"
         message={`Are you sure you want to delete "${selectedMedia?.title}"? This media will be removed from the public gallery. This action cannot be undone.`}
         type="danger"
         confirmText="Delete"

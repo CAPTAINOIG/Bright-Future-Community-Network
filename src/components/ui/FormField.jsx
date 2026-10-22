@@ -39,26 +39,26 @@ const FormField = forwardRef(({
   };
 
   const options = buildOptions(children);
-  const inputProps = { ...controlProps, name, value, defaultValue, onBlur, status: error ? 'error' : undefined };
+  const inputProps = { size: 'large', ...controlProps, name, value, defaultValue, onBlur, status: error ? 'error' : undefined };
   const handleValueChange = (nextValue, option) => {
     const synthetic = { target: { name, value: nextValue }, currentTarget: { name, value: nextValue }, option };
     onChange?.(synthetic);
   };
 
   return (
-    <div className="space-y-1">
+    <div>
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-semibold text-gray-800 mb-2">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>}
         </label>
       )}
       {type === 'textarea' ? <Input.TextArea ref={ref} className={baseClasses} placeholder={placeholder} {...inputProps} onChange={onChange} />
-        : type === 'select' ? <Select ref={ref} className={baseClasses} options={options} placeholder={placeholder} value={value} defaultValue={defaultValue} onChange={handleValueChange} onBlur={onBlur} status={error ? 'error' : undefined} />
+        : type === 'select' ? <Select ref={ref} size={controlProps.size || 'large'} className={baseClasses} options={options} placeholder={placeholder} value={value} defaultValue={defaultValue} onChange={handleValueChange} onBlur={onBlur} status={error ? 'error' : undefined} />
           : type === 'date' ? <DatePicker ref={ref} className={baseClasses} placeholder={placeholder} {...inputProps} onChange={(date) => handleValueChange(date?.format('YYYY-MM-DD') || '')} />
             : type === 'time' ? <TimePicker ref={ref} className={baseClasses} placeholder={placeholder} {...inputProps} onChange={(time) => handleValueChange(time?.format('HH:mm') || '')} />
               : <Input ref={ref} className={baseClasses} type={type} placeholder={placeholder} {...inputProps} onChange={onChange} />}
-      {error && <Form.ErrorList errors={[error.message]} />}
+      {error && <div className="text-[13px] text-red-600 mt-1.5"><Form.ErrorList errors={[error.message]} /></div>}
     </div>
   );
 });

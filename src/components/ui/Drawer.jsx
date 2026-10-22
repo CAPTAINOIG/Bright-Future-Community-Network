@@ -15,25 +15,27 @@ const POSITION_TO_PLACEMENT = {
 const radiusForPlacement = (placement, radius) => {
   switch (placement) {
     case 'right':
-      return `${radius} 0 0 ${radius}`;
+      return `${radius}px 0 0 ${radius}px`;
     case 'left':
-      return `0 ${radius} ${radius} 0`;
+      return `0 ${radius}px ${radius}px 0`;
     case 'top':
-      return `0 0 ${radius} ${radius}`;
+      return `0 0 ${radius}px ${radius}px`;
     case 'bottom':
-      return `${radius} ${radius} 0 0`;
+      return `${radius}px ${radius}px 0 0`;
     default:
-      return radius;
+      return `${radius}px`;
   }
 };
 
 const HEADER_BG = '#ffffff';
-const HEADER_BORDER = '#ecefec';
-const BODY_BG = '#fafbf9';
-const TEXT_PRIMARY = '#17231d';
-const TEXT_SECONDARY = '#708078';
-const ACCENT = '#1b5e20';
+const HEADER_BORDER = '#e2e6e1';
+const BODY_BG = '#f7f8f6';
+const TEXT_PRIMARY = '#151a17';
+const TEXT_SECONDARY = '#6e786f';
+const TEXT_MUTED = '#515b53';
+const ACCENT = '#17603f';
 const RADIUS = 24;
+const TITLE_FONT = "'Fraunces', 'Iowan Old Style', Georgia, serif";
 
 const Drawer = (props) => {
   const {
@@ -102,11 +104,11 @@ const Drawer = (props) => {
             colorTextSecondary: TEXT_SECONDARY,
             colorBgElevated: '#ffffff',
             colorBorder: HEADER_BORDER,
-            borderRadius: RADIUS,
-            borderRadiusLG: RADIUS,
-            borderRadiusXS: 10,
+            borderRadius: 12,
+            borderRadiusLG: 16,
+            borderRadiusXS: 8,
             fontFamily:
-              'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+              "'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
           },
           components: {
             Drawer: {
@@ -139,17 +141,17 @@ const Drawer = (props) => {
               <div className="flex-1 min-w-0">
                 {typeof title === 'string' ? (
                   <h3
-                    className="m-0 font-serif text-xl md:text-[22px] font-bold leading-tight truncate"
-                    style={{ color: TEXT_PRIMARY }}
+                    className="m-0 text-[1.35rem] md:text-[1.6rem] leading-[1.15]"
+                    style={{ color: TEXT_PRIMARY, fontFamily: TITLE_FONT, fontWeight: 500, letterSpacing: '-0.02em' }}
                   >
                     {title}
                   </h3>
                 ) : (
-                  <div className="font-serif">{title}</div>
+                  <div style={{ fontFamily: TITLE_FONT, fontWeight: 500, color: TEXT_PRIMARY }}>{title}</div>
                 )}
                 {(subtitle || description) && (
                   <p
-                    className="m-0 mt-2 text-[13px] leading-relaxed"
+                    className="m-0 mt-1.5 text-sm leading-relaxed"
                     style={{ color: TEXT_SECONDARY }}
                   >
                     {subtitle}
@@ -168,22 +170,24 @@ const Drawer = (props) => {
                 type="button"
                 aria-label="Close drawer"
                 onClick={resolvedClose}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-all duration-150 hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[color:var(--tw-ring-color,#1b5e20)]"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border cursor-pointer transition-colors duration-150 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-100"
                 style={{
-                  backgroundColor: '#f4f6f4',
-                  borderColor: '#e3e7e3',
-                  color: '#44514a',
+                  backgroundColor: '#ffffff',
+                  borderColor: HEADER_BORDER,
+                  color: TEXT_MUTED,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#eef2ee';
-                  e.currentTarget.style.color = TEXT_PRIMARY;
+                  e.currentTarget.style.backgroundColor = '#eff7f2';
+                  e.currentTarget.style.borderColor = '#b9dcc8';
+                  e.currentTarget.style.color = ACCENT;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f4f6f4';
-                  e.currentTarget.style.color = '#44514a';
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.borderColor = HEADER_BORDER;
+                  e.currentTarget.style.color = TEXT_MUTED;
                 }}
               >
-                <X size={16} strokeWidth={2.2} />
+                <X size={18} strokeWidth={2} />
               </button>
             ) : undefined
           }
@@ -202,12 +206,12 @@ const Drawer = (props) => {
             overflow: 'hidden',
             boxShadow:
               resolvedPlacement === 'right'
-                ? '-24px 0 60px -16px rgba(20, 40, 28, 0.28)'
+                ? '-24px 0 60px -16px rgba(11, 35, 24, 0.28)'
                 : resolvedPlacement === 'left'
-                ? '24px 0 60px -16px rgba(20, 40, 28, 0.28)'
+                ? '24px 0 60px -16px rgba(11, 35, 24, 0.28)'
                 : resolvedPlacement === 'top'
-                ? '0 24px 60px -16px rgba(20, 40, 28, 0.28)'
-                : '0 -24px 60px -16px rgba(20, 40, 28, 0.28)',
+                ? '0 24px 60px -16px rgba(11, 35, 24, 0.28)'
+                : '0 -24px 60px -16px rgba(11, 35, 24, 0.28)',
           }}
           style={{
             borderRadius: radius,
@@ -215,6 +219,7 @@ const Drawer = (props) => {
           }}
           styles={{
             wrapper: {
+              maxWidth: '100vw',
               borderRadius: radius,
               overflow: 'hidden',
             },
@@ -228,7 +233,7 @@ const Drawer = (props) => {
               overflow: 'hidden',
             },
             header: {
-              padding: '22px 28px 18px 28px',
+              padding: '24px 28px 20px 28px',
               borderBottom: `1px solid ${HEADER_BORDER}`,
               background: HEADER_BG,
               display: 'flex',
@@ -252,7 +257,7 @@ const Drawer = (props) => {
               borderBottomRightRadius: resolvedPlacement === 'left' || resolvedPlacement === 'top' ? RADIUS : 0,
             },
             mask: {
-              backgroundColor: 'rgba(17, 34, 24, 0.58)',
+              backgroundColor: 'rgba(11, 35, 24, 0.55)',
               backdropFilter: 'blur(2px)',
             },
           }}

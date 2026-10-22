@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { Filter, Eye, CheckCircle, XCircle, MessageSquare, ThumbsUp, User, Calendar } from 'lucide-react';
+import { Filter, Eye, CheckCircle, XCircle, MessageSquare, ThumbsUp, User, Calendar, Lightbulb, Clock3, BadgeCheck, Loader, Trophy } from 'lucide-react';
+import { Button, Modal } from 'antd';
+import { PageIntro, StatCard, SectionLabel, DetailItem, pillClass } from './AdminUI';
+import { EmptyState } from '../../../components/ui';
 import AdminFilterBar from '../../../components/admin/AdminFilterBar';
 
 const ideas = [
@@ -104,23 +107,23 @@ export default function CommunityIdeasManagement() {
   });
 
   const getStatusBadge = (status) => {
-    const colors = {
-      'Under Review': 'bg-yellow-100 text-yellow-800',
-      'Approved': 'bg-green-100 text-green-800',
-      'In Progress': 'bg-blue-100 text-blue-800',
-      'Completed': 'bg-purple-100 text-purple-800',
-      'Rejected': 'bg-red-100 text-red-800'
+    const tones = {
+      'Under Review': 'warning',
+      'Approved': 'success',
+      'In Progress': 'success',
+      'Completed': 'neutral',
+      'Rejected': 'danger'
     };
-    return `px-2 py-1 text-xs font-medium rounded-full ${colors[status]}`;
+    return pillClass(tones[status]);
   };
 
   const getPriorityBadge = (priority) => {
-    const colors = {
-      'High': 'bg-red-100 text-red-800',
-      'Medium': 'bg-yellow-100 text-yellow-800',
-      'Low': 'bg-gray-100 text-gray-800'
+    const tones = {
+      'High': 'danger',
+      'Medium': 'warning',
+      'Low': 'neutral'
     };
-    return `px-2 py-1 text-xs font-medium rounded-full ${colors[priority]}`;
+    return pillClass(tones[priority]);
   };
 
   const formatCurrency = (amount) => {
@@ -151,116 +154,107 @@ export default function CommunityIdeasManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Community Ideas Management</h2>
-          <p className="text-gray-600">Review and manage community-submitted project ideas</p>
-        </div>
-        <div className="flex gap-2">
-          <button className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <Filter size={18} />
-            Export Report
-          </button>
-        </div>
-      </div>
+      <PageIntro
+        title="Community ideas management"
+        description="Review and manage community-submitted project ideas"
+        actions={
+          <Button size="large" icon={<Filter size={17} />}>
+            Export report
+          </Button>
+        }
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {[
-          { label: 'Total Ideas', value: '84', color: 'bg-blue-500' },
-          { label: 'Under Review', value: '12', color: 'bg-yellow-500' },
-          { label: 'Approved', value: '28', color: 'bg-green-500' },
-          { label: 'In Progress', value: '15', color: 'bg-purple-500' },
-          { label: 'Completed', value: '18', color: 'bg-emerald-500' }
+          { label: 'Total ideas', value: '84', icon: Lightbulb },
+          { label: 'Under review', value: '12', icon: Clock3, tone: 'accent' },
+          { label: 'Approved', value: '28', icon: BadgeCheck },
+          { label: 'In progress', value: '15', icon: Loader },
+          { label: 'Completed', value: '18', icon: Trophy, tone: 'accent' }
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              </div>
-              <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-            </div>
-          </div>
+          <StatCard key={index} label={stat.label} value={stat.value} icon={stat.icon} tone={stat.tone} />
         ))}
       </div>
 
       <AdminFilterBar searchValue={searchTerm} onSearchChange={setSearchTerm} searchPlaceholder="Search ideas..." filters={[{ key: 'status', label: 'statuses', value: statusFilter, onChange: setStatusFilter, options: ['All', 'Under Review', 'Approved', 'In Progress', 'Completed', 'Rejected'] }, { key: 'category', label: 'categories', value: categoryFilter, onChange: setCategoryFilter, options: ['All', 'Health', 'Education', 'Infrastructure', 'Agriculture', 'Economic Development'] }, { key: 'priority', label: 'priorities', value: priorityFilter, onChange: setPriorityFilter, options: ['All', 'High', 'Medium', 'Low'] }]} />
 
-      {/* Ideas List */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="divide-y divide-gray-200">
+      {/* Ideas list */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+        {filteredIdeas.length === 0 && (
+          <EmptyState icon={Lightbulb} title="No ideas found" description="Try adjusting your search or filters." />
+        )}
+        <div className="divide-y divide-gray-100">
           {filteredIdeas.map((idea) => (
-            <div key={idea.id} className="p-6 hover:bg-gray-50 transition-colors">
-              <div className="flex items-start gap-6">
-                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
-                  <User size={24} className="text-primary-600" />
+            <div key={idea.id} className="p-5 transition-colors hover:bg-gray-50 md:p-6">
+              <div className="flex items-start gap-4 md:gap-5">
+                <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700 sm:flex">
+                  <User size={18} />
                 </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{idea.title}</h3>
-                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">{idea.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+
+                <div className="min-w-0 flex-1">
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="m-0 mb-1 text-[15px] font-semibold text-gray-900">{idea.title}</h3>
+                      <p className="m-0 mb-2 line-clamp-2 text-sm text-gray-500">{idea.description}</p>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
-                          <User size={14} />
+                          <User size={13} />
                           {idea.author}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Calendar size={14} />
+                          <Calendar size={13} />
                           {formatDate(idea.submittedDate)}
                         </span>
                       </div>
                     </div>
-                    
-                    <div className="flex flex-col items-end gap-2 ml-4">
+
+                    <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
                       <span className={getStatusBadge(idea.status)}>{idea.status}</span>
                       <span className={getPriorityBadge(idea.priority)}>{idea.priority}</span>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <dl className="m-0 mb-4 grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4 md:grid-cols-4">
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Category</p>
-                      <p className="text-sm font-medium text-gray-900">{idea.category}</p>
+                      <dt className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500">Category</dt>
+                      <dd className="m-0 text-sm font-medium text-gray-900">{idea.category}</dd>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Estimated Budget</p>
-                      <p className="text-sm font-medium text-gray-900">{formatCurrency(idea.estimatedBudget)}</p>
+                      <dt className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500">Estimated budget</dt>
+                      <dd className="m-0 text-sm font-medium tabular-nums text-gray-900">{formatCurrency(idea.estimatedBudget)}</dd>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Community Support</p>
-                      <div className="flex items-center gap-2">
-                        <span className="flex items-center gap-1 text-sm">
-                          <ThumbsUp size={14} className="text-green-600" />
+                      <dt className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500">Community support</dt>
+                      <dd className="m-0 flex items-center gap-3">
+                        <span className="flex items-center gap-1 text-sm tabular-nums text-gray-900">
+                          <ThumbsUp size={14} className="text-primary-600" />
                           {idea.votes}
                         </span>
-                        <span className="flex items-center gap-1 text-sm">
-                          <MessageSquare size={14} className="text-blue-600" />
+                        <span className="flex items-center gap-1 text-sm tabular-nums text-gray-900">
+                          <MessageSquare size={14} className="text-gray-400" />
                           {idea.comments}
                         </span>
-                      </div>
+                      </dd>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 mb-1">Feasibility Score</p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-primary-500 h-2 rounded-full"
+                      <dt className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-500">Feasibility score</dt>
+                      <dd className="m-0 flex items-center gap-2">
+                        <div className="h-1.5 flex-1 rounded-full bg-primary-100">
+                          <div
+                            className="h-1.5 rounded-full bg-primary-600"
                             style={{ width: `${idea.feasibilityScore * 10}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-900">{idea.feasibilityScore}/10</span>
-                      </div>
+                        <span className="text-sm font-medium tabular-nums text-gray-900">{idea.feasibilityScore}/10</span>
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
                       {idea.tags.slice(0, 3).map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                        <span key={index} className={pillClass('neutral')}>
                           {tag}
                         </span>
                       ))}
@@ -269,31 +263,19 @@ export default function CommunityIdeasManagement() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => viewDetails(idea)}
-                        className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                      >
-                        <Eye size={14} />
-                        View Details
-                      </button>
-                      
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button icon={<Eye size={15} />} onClick={() => viewDetails(idea)}>
+                        View details
+                      </Button>
+
                       {idea.status === 'Under Review' && (
                         <>
-                          <button 
-                            onClick={() => updateStatus(idea.id, 'Approved')}
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                          >
-                            <CheckCircle size={14} />
-                            Approve
-                          </button>
-                          <button 
-                            onClick={() => updateStatus(idea.id, 'Rejected')}
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                          >
-                            <XCircle size={14} />
+                          <Button danger icon={<XCircle size={15} />} onClick={() => updateStatus(idea.id, 'Rejected')}>
                             Reject
-                          </button>
+                          </Button>
+                          <Button type="primary" icon={<CheckCircle size={15} />} onClick={() => updateStatus(idea.id, 'Approved')}>
+                            Approve
+                          </Button>
                         </>
                       )}
                     </div>
@@ -305,105 +287,106 @@ export default function CommunityIdeasManagement() {
         </div>
       </div>
 
-      {/* Idea Details Modal */}
-      {showDetailsModal && selectedIdea && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-start justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 pr-4">{selectedIdea.title}</h3>
-                <div className="flex items-center gap-2">
-                  <span className={getStatusBadge(selectedIdea.status)}>{selectedIdea.status}</span>
-                  <span className={getPriorityBadge(selectedIdea.priority)}>{selectedIdea.priority}</span>
-                </div>
+      {/* Idea details modal */}
+      <Modal
+        open={Boolean(showDetailsModal && selectedIdea)}
+        onCancel={() => setShowDetailsModal(false)}
+        width={760}
+        centered
+        destroyOnHidden
+        title={
+          selectedIdea && (
+            <div className="pr-8">
+              <h3 className="m-0 font-serif text-2xl leading-tight text-gray-900">{selectedIdea.title}</h3>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className={getStatusBadge(selectedIdea.status)}>{selectedIdea.status}</span>
+                <span className={getPriorityBadge(selectedIdea.priority)}>{selectedIdea.priority}</span>
               </div>
             </div>
-            
-            <div className="p-6 space-y-6">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Description</h4>
-                <p className="text-gray-600">{selectedIdea.description}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Submitter Information</h4>
-                  <p className="text-sm text-gray-600">Name: {selectedIdea.author}</p>
-                  <p className="text-sm text-gray-600">Email: {selectedIdea.email}</p>
-                  <p className="text-sm text-gray-600">Submitted: {formatDate(selectedIdea.submittedDate)}</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Project Details</h4>
-                  <p className="text-sm text-gray-600">Category: {selectedIdea.category}</p>
-                  <p className="text-sm text-gray-600">Budget: {formatCurrency(selectedIdea.estimatedBudget)}</p>
-                  <p className="text-sm text-gray-600">Feasibility: {selectedIdea.feasibilityScore}/10</p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Community Engagement</h4>
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2">
-                    <ThumbsUp size={16} className="text-green-600" />
-                    <span className="text-sm text-gray-600">{selectedIdea.votes} votes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MessageSquare size={16} className="text-blue-600" />
-                    <span className="text-sm text-gray-600">{selectedIdea.comments} comments</span>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Tags</h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedIdea.tags.map((tag, index) => (
-                    <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Feasibility Assessment</h4>
-                <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
-                  <div 
-                    className="bg-primary-500 h-3 rounded-full"
-                    style={{ width: `${selectedIdea.feasibilityScore * 10}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600">Score: {selectedIdea.feasibilityScore}/10</p>
-              </div>
-            </div>
-            
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button 
-                onClick={() => setShowDetailsModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Close
-              </button>
+          )
+        }
+        footer={
+          selectedIdea && (
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button onClick={() => setShowDetailsModal(false)}>Close</Button>
               {selectedIdea.status === 'Under Review' && (
                 <>
-                  <button 
-                    onClick={() => updateStatus(selectedIdea.id, 'Rejected')}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
+                  <Button danger onClick={() => updateStatus(selectedIdea.id, 'Rejected')}>
                     Reject
-                  </button>
-                  <button 
-                    onClick={() => updateStatus(selectedIdea.id, 'Approved')}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
+                  </Button>
+                  <Button type="primary" onClick={() => updateStatus(selectedIdea.id, 'Approved')}>
                     Approve
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
+          )
+        }
+      >
+        {selectedIdea && (
+          <div className="space-y-6 py-2">
+            <section className="space-y-3">
+              <SectionLabel>Description</SectionLabel>
+              <p className="m-0 text-[15px] leading-relaxed text-gray-700">{selectedIdea.description}</p>
+            </section>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <section className="space-y-4">
+                <SectionLabel>Submitter information</SectionLabel>
+                <dl className="m-0 space-y-4">
+                  <DetailItem label="Name" value={selectedIdea.author} />
+                  <DetailItem label="Email" value={selectedIdea.email} />
+                  <DetailItem label="Submitted" value={formatDate(selectedIdea.submittedDate)} />
+                </dl>
+              </section>
+              <section className="space-y-4">
+                <SectionLabel>Project details</SectionLabel>
+                <dl className="m-0 space-y-4">
+                  <DetailItem label="Category" value={selectedIdea.category} />
+                  <DetailItem label="Budget" value={formatCurrency(selectedIdea.estimatedBudget)} />
+                  <DetailItem label="Feasibility" value={`${selectedIdea.feasibilityScore}/10`} />
+                </dl>
+              </section>
+            </div>
+
+            <section className="space-y-3">
+              <SectionLabel>Community engagement</SectionLabel>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <ThumbsUp size={16} className="text-primary-600" />
+                  <span className="text-sm text-gray-700">{selectedIdea.votes} votes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MessageSquare size={16} className="text-gray-400" />
+                  <span className="text-sm text-gray-700">{selectedIdea.comments} comments</span>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <SectionLabel>Tags</SectionLabel>
+              <div className="flex flex-wrap gap-2">
+                {selectedIdea.tags.map((tag, index) => (
+                  <span key={index} className={pillClass('neutral')}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <SectionLabel>Feasibility assessment</SectionLabel>
+              <div className="h-2 w-full rounded-full bg-primary-100">
+                <div
+                  className="h-2 rounded-full bg-primary-600"
+                  style={{ width: `${selectedIdea.feasibilityScore * 10}%` }}
+                ></div>
+              </div>
+              <p className="m-0 text-sm text-gray-500">Score: {selectedIdea.feasibilityScore}/10</p>
+            </section>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }

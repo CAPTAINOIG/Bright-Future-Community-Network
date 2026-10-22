@@ -69,55 +69,50 @@ const News = () => {
       a.title.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const [featured, ...rest] = filtered;
+
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">
-              Stay Informed
-            </span>
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
-              News & Updates
-            </h1>
-            <p className="text-base text-white/85 max-w-[560px] mx-auto">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-8 bg-accent-300" />Stay informed</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">News &amp; updates</h1>
+            <p className="text-lg text-white/70 leading-relaxed max-w-[620px] m-0">
               Latest news from BFCN programmes, projects, and community
               activities.
             </p>
           </ScrollReveal>
         </div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path
-              d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-            <div className="relative flex-1 max-w-[360px]">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 mb-12">
+            <div className="relative w-full lg:max-w-[380px]">
               <Search
                 size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                aria-hidden="true"
               />
               <input
                 type="text"
                 placeholder="Search news..."
+                aria-label="Search news"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full py-3 px-4 pl-10 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 transition-all placeholder:text-gray-400"
+                className="w-full h-12 pl-11 pr-4 border border-gray-300 rounded-xl bg-white text-[15px] text-gray-900 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition-all placeholder:text-gray-400"
               />
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap" role="group" aria-label="Filter news by category">
               {categories.map((c) => (
                 <button
                   key={c}
-                  className={`px-4 py-2 border rounded-full text-sm font-medium cursor-pointer transition-all ${category === c ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-600 border-gray-200 hover:border-primary-600 hover:text-primary-600"}`}
+                  type="button"
+                  aria-pressed={category === c}
+                  className={`h-10 px-5 border rounded-full text-sm font-semibold cursor-pointer transition-colors ${category === c ? "bg-primary-800 text-white border-primary-800" : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900"}`}
                   onClick={() => setCategory(c)}
                 >
                   {c}
@@ -125,18 +120,16 @@ const News = () => {
               ))}
             </div>
           </div>
-          <ScrollReveal
-            animation="stagger-children"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {filtered.map((a) => (
-              <Card key={a.id} variant="elevated">
-                <div className="h-[200px] overflow-hidden rounded-t-xl bg-gradient-to-br from-primary-50 to-primary-100">
-                  {a.image ? (
+
+          {featured && (
+            <ScrollReveal className="mb-6">
+              <article className="group grid lg:grid-cols-[1.25fr_1fr] overflow-hidden rounded-[20px] border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[var(--shadow-lift)]">
+                <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[400px] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100">
+                  {featured.image ? (
                     <img
-                      src={a.image}
-                      alt={a.title}
-                      className="w-full h-full object-cover rounded-t-xl transition-transform duration-500 hover:scale-105"
+                      src={featured.image}
+                      alt={featured.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
@@ -145,27 +138,70 @@ const News = () => {
                     />
                   ) : null}
                   <div
-                    className={`${a.image ? "hidden" : "flex"} items-center justify-center h-full text-primary-300`}
+                    className={`${featured.image ? "hidden" : "flex"} absolute inset-0 items-center justify-center text-primary-300`}
                   >
-                    <BookOpen size={36} />
+                    <BookOpen size={40} strokeWidth={1.5} />
                   </div>
                 </div>
-                <Card.Body>
-                  <Card.Tag>{a.category}</Card.Tag>
-                  <Card.Title>{a.title}</Card.Title>
-                  <Card.Text>{a.excerpt}</Card.Text>
-                  <Card.Meta>
-                    <Card.MetaItem icon={Calendar}>{a.date}</Card.MetaItem>
-                    <Card.MetaItem icon={User}>{a.author}</Card.MetaItem>
-                  </Card.Meta>
-                </Card.Body>
-              </Card>
-            ))}
-          </ScrollReveal>
+                <div className="flex flex-col justify-center p-7 md:p-10 lg:p-12">
+                  <span className="inline-block text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600 mb-4">{featured.category}</span>
+                  <h2 className="font-serif text-[1.75rem] md:text-[2.25rem] leading-[1.12] text-gray-900 mb-4">{featured.title}</h2>
+                  <p className="text-base text-gray-600 leading-relaxed mb-0 max-w-[620px]">{featured.excerpt}</p>
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] font-medium text-gray-500 mt-8 pt-5 border-t border-gray-100">
+                    <span className="inline-flex items-center gap-1.5"><Calendar size={14} />{featured.date}</span>
+                    <span className="inline-flex items-center gap-1.5"><User size={14} />{featured.author}</span>
+                  </div>
+                </div>
+              </article>
+            </ScrollReveal>
+          )}
+
+          {rest.length > 0 && (
+            <ScrollReveal
+              animation="stagger-children"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {rest.map((a) => (
+                <Card key={a.id} variant="elevated" className="h-full">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100">
+                    {a.image ? (
+                      <img
+                        src={a.image}
+                        alt={a.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-[1.04]"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          e.currentTarget.nextSibling.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className={`${a.image ? "hidden" : "flex"} absolute inset-0 items-center justify-center text-primary-300`}
+                    >
+                      <BookOpen size={36} strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <Card.Body>
+                    <Card.Tag>{a.category}</Card.Tag>
+                    <Card.Title>{a.title}</Card.Title>
+                    <Card.Text>{a.excerpt}</Card.Text>
+                    <Card.Meta>
+                      <Card.MetaItem icon={Calendar}>{a.date}</Card.MetaItem>
+                      <Card.MetaItem icon={User}>{a.author}</Card.MetaItem>
+                    </Card.Meta>
+                  </Card.Body>
+                </Card>
+              ))}
+            </ScrollReveal>
+          )}
+
           {filtered.length === 0 && (
-            <div className="text-center py-16">
-              <BookOpen size={48} className="text-gray-300 mx-auto" />
-              <h3 className="mt-4">No articles found</h3>
+            <div className="text-center py-20 px-6 rounded-[20px] border border-dashed border-gray-300 bg-gray-50">
+              <span className="grid place-items-center w-14 h-14 mx-auto mb-5 rounded-full bg-white text-primary-300 border border-gray-200">
+                <BookOpen size={24} strokeWidth={1.75} />
+              </span>
+              <h3 className="font-serif text-2xl text-gray-900 m-0">No articles found</h3>
             </div>
           )}
         </div>

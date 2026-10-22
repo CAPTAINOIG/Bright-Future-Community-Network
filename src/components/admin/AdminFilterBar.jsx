@@ -11,25 +11,25 @@ export default function AdminFilterBar({
   extra,
 }) {
   return (
-    <div className="rounded-2xl border border-[#dfe3d9] bg-white p-4 shadow-sm md:p-5">
-      <div className="flex flex-col gap-3 xl:flex-row">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
         <Input
           allowClear
           size="large"
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder={searchPlaceholder}
-          prefix={<Search size={18} className="text-[#829087]" />}
+          prefix={<Search size={18} className="text-gray-400" />}
           className="min-w-0 flex-1"
         />
-        <Space wrap size={[10, 10]}>
+        <Space wrap size={[12, 12]}>
           {filters.map((filter) => (
             <Select
               key={filter.key}
               size="large"
               value={filter.value}
               onChange={filter.onChange}
-              className="min-w-36"
+              className="min-w-40"
               aria-label={filter.label}
               options={filter.options.map((option) => typeof option === 'string' ? { value: option, label: option === 'All' ? `All ${filter.label}` : option } : option)}
             />

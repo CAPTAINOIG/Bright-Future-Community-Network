@@ -41,20 +41,20 @@ const EventsForm = ({ event, onClose, onSubmitted }) => {
   };
 
   const inputClass = (field) =>
-    `w-full py-3 px-4 border ${errors[field] ? 'border-red-500' : 'border-gray-200'} rounded-lg bg-white text-sm focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_3px_rgba(27,94,32,0.12)] transition-all placeholder:text-gray-400`;
+    `w-full h-12 px-4 border ${errors[field] ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_4px_rgba(220,38,38,0.12)]' : 'border-gray-300 focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)]'} rounded-xl bg-white text-[15px] text-gray-900 focus:outline-none transition-all placeholder:text-gray-400`;
 
   return (
     <div>
       {submitted ? (
         <div className="py-8 text-center">
-          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 mb-5">
+          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-primary-50 text-primary-700 ring-1 ring-inset ring-primary-200 mb-6">
             <CheckCircle2 size={32} />
           </div>
-          <h3 className="font-serif text-2xl font-bold mb-2">
+          <h3 className="font-serif text-[1.75rem] text-gray-900 mb-3">
             You&apos;re registered!
           </h3>
-          <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
-            See you at <span className="font-semibold text-[#17231d]">{event?.title}</span>.
+          <p className="text-[15px] text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+            See you at <span className="font-semibold text-gray-900">{event?.title}</span>.
             We&apos;ve noted your spot and will send a confirmation to your email.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -70,7 +70,7 @@ const EventsForm = ({ event, onClose, onSubmitted }) => {
               Browse Other Events
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="lg"
               onClick={handleSubmitAnother}
               icon={UserRound}
@@ -82,11 +82,12 @@ const EventsForm = ({ event, onClose, onSubmitted }) => {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5 py-2">
           {event && (
-            <div className="p-4 rounded-xl bg-[#f4f6f4] border border-[#e3e7e3] space-y-2 mb-1">
-              <h4 className="font-serif text-lg font-bold text-[#17231d] m-0 leading-tight">
+            <div className="p-5 rounded-2xl bg-primary-50/60 border border-primary-100 space-y-3 mb-1">
+              <span className="eyebrow text-primary-600"><span className="h-px w-6 bg-accent-400" aria-hidden="true" />You&apos;re registering for</span>
+              <h3 className="font-serif text-xl text-gray-900 m-0 leading-snug">
                 {event.title}
-              </h4>
-              <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#5a6b62]">
+              </h3>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-[13px] font-medium text-gray-600">
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar size={14} />
                   {new Date(event.date).toLocaleDateString('en-NG', {
@@ -110,26 +111,28 @@ const EventsForm = ({ event, onClose, onSubmitted }) => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="event-fullName" className="block text-sm font-semibold text-gray-800 mb-2">
                 Full Name <span className="text-red-500">*</span>
               </label>
               <input
+                id="event-fullName"
                 {...register('fullName', { required: 'Full name is required' })}
                 placeholder="Your name"
                 className={inputClass('fullName')}
               />
               {errors.fullName && (
-                <span className="text-sm text-red-600 mt-1 block">
+                <span className="text-[13px] text-red-600 mt-1.5 block" role="alert">
                   {errors.fullName.message}
                 </span>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label htmlFor="event-email" className="block text-sm font-semibold text-gray-800 mb-2">
                 Email <span className="text-red-500">*</span>
               </label>
               <input
+                id="event-email"
                 {...register('email', {
                   required: 'Email is required',
                   pattern: {
@@ -142,7 +145,7 @@ const EventsForm = ({ event, onClose, onSubmitted }) => {
                 className={inputClass('email')}
               />
               {errors.email && (
-                <span className="text-sm text-red-600 mt-1 block">
+                <span className="text-[13px] text-red-600 mt-1.5 block" role="alert">
                   {errors.email.message}
                 </span>
               )}
@@ -150,8 +153,9 @@ const EventsForm = ({ event, onClose, onSubmitted }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Phone</label>
+            <label htmlFor="event-phone" className="block text-sm font-semibold text-gray-800 mb-2">Phone</label>
             <input
+              id="event-phone"
               {...register('phone')}
               placeholder="+234..."
               className={inputClass('phone')}
@@ -161,7 +165,7 @@ const EventsForm = ({ event, onClose, onSubmitted }) => {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="lg"
               onClick={handleCancel}
               icon={X}

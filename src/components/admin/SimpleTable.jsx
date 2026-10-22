@@ -111,8 +111,8 @@ const SimpleTable = ({
   // Loading state
   if (loading) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-[#e5eae5] bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-[#edf0eb] px-6 py-5">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-5 md:px-6">
           <div className="space-y-2">
             <div className="h-4 w-36 animate-pulse rounded-md bg-gray-100" />
             <div className="h-3 w-52 animate-pulse rounded-md bg-gray-50" />
@@ -137,8 +137,8 @@ const SimpleTable = ({
           ))}
         </div>
 
-        <div className="border-t border-[#edf0eb] px-6 py-4">
-          <p className="text-xs font-medium text-[#829087]">
+        <div className="border-t border-gray-100 px-5 py-4 md:px-6">
+          <p className="text-xs font-medium text-gray-400">
             Loading your records...
           </p>
         </div>
@@ -149,16 +149,16 @@ const SimpleTable = ({
   // Empty state
   if (data.length === 0) {
     return (
-      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-[#dce5dc] bg-white px-6 py-12 text-center">
-        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#edf5ed]">
-          <InboxIcon className="h-8 w-8 text-[#427456]" strokeWidth={1.5} />
+      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
+        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
+          <InboxIcon className="h-8 w-8 text-primary-600" strokeWidth={1.5} />
         </div>
 
-        <h3 className="text-base font-semibold tracking-tight text-[#17231d]">
+        <h3 className="text-base font-semibold tracking-tight text-gray-900">
           {emptyTitle}
         </h3>
 
-        <p className="mt-2 max-w-sm text-sm leading-6 text-[#829087]">
+        <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500">
           {emptyDescription}
         </p>
       </div>
@@ -166,21 +166,21 @@ const SimpleTable = ({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#e3e9e2] bg-white shadow-[0_4px_24px_rgba(23,35,29,0.035)]">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[var(--shadow-soft)]">
       {/* Table heading */}
-      <div className="flex flex-col gap-3 border-b border-[#e9eee8] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6">
         <div>
-          <h3 className="text-sm font-semibold tracking-tight text-[#17231d]">
+          <h3 className="text-[15px] font-semibold tracking-tight text-gray-900">
             Records
           </h3>
-          <p className="mt-1 text-xs text-[#829087]">
+          <p className="mt-0.5 text-[13px] text-gray-500">
             Manage and review your information
           </p>
         </div>
 
-        <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#dce9dd] bg-[#f1f7f0] px-3 py-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#427456]" />
-          <span className="text-xs font-semibold tabular-nums text-[#315e3e]">
+        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-primary-50 px-3 py-1 ring-1 ring-inset ring-primary-100">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary-600" />
+          <span className="text-xs font-semibold tabular-nums text-primary-700">
             {sortedData.length.toLocaleString()} records
           </span>
         </div>
@@ -190,7 +190,7 @@ const SimpleTable = ({
       <div className="overflow-x-auto">
         <table className="w-full min-w-max border-collapse text-left">
           <thead>
-            <tr className="bg-[#f8faf7]">
+            <tr className="bg-gray-50">
               {columns.map((column) => {
                 const columnKey = getColumnKey(column);
                 const isSorted = sorting?.key === columnKey;
@@ -199,7 +199,7 @@ const SimpleTable = ({
                   <th
                     key={columnKey}
                     scope="col"
-                    className="border-b border-[#e8ede7] px-5 py-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[#718077] sm:px-6"
+                    className="border-b border-gray-200 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500 sm:px-6"
                   >
                     <div className="flex items-center gap-2">
                       <span className="whitespace-nowrap">
@@ -212,10 +212,10 @@ const SimpleTable = ({
                           onClick={() => toggleSort(columnKey)}
                           aria-label={`Sort by ${column.header}`}
                           aria-pressed={isSorted}
-                          className={`inline-flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#427456]/30 ${
+                          className={`inline-flex h-7 w-7 items-center justify-center rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-600/30 ${
                             isSorted
-                              ? 'bg-[#e5f0e5] text-[#315e3e]'
-                              : 'text-[#a0aaa2] hover:bg-[#edf2eb] hover:text-[#427456]'
+                              ? 'bg-primary-100 text-primary-700'
+                              : 'text-gray-400 hover:bg-gray-100 hover:text-primary-600'
                           }`}
                         >
                           {isSorted ? (
@@ -236,11 +236,11 @@ const SimpleTable = ({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-[#edf0eb]">
+          <tbody className="divide-y divide-gray-100">
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row?.[keyField] ?? rowIndex}
-                className="group transition-colors duration-150 hover:bg-[#f7faf6]"
+                className="group transition-colors duration-150 hover:bg-gray-50"
               >
                 {columns.map((column) => {
                   const columnKey = getColumnKey(column);
@@ -248,7 +248,7 @@ const SimpleTable = ({
                   return (
                     <td
                       key={columnKey}
-                      className="px-5 py-[18px] text-[13px] leading-5 text-[#46564b] sm:px-6"
+                      className="px-5 py-3.5 text-[13px] leading-5 text-gray-700 sm:px-6"
                     >
                       <div className="min-w-0">
                         {getCellValue(column, row)}
@@ -263,14 +263,14 @@ const SimpleTable = ({
       </div>
 
       {/* Footer / Pagination */}
-      <div className="flex flex-col gap-4 border-t border-[#e8ede7] bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="text-xs leading-5 text-[#829087]">
+      <div className="flex flex-col gap-4 border-t border-gray-100 bg-white px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between md:px-6">
+        <p className="text-xs leading-5 text-gray-500">
           Showing{' '}
-          <span className="font-semibold text-[#34483a]">
+          <span className="font-semibold text-gray-900">
             {startResult}–{endResult}
           </span>{' '}
           of{' '}
-          <span className="font-semibold text-[#34483a]">
+          <span className="font-semibold text-gray-900">
             {sortedData.length.toLocaleString()}
           </span>{' '}
           results
@@ -281,7 +281,7 @@ const SimpleTable = ({
             type="button"
             onClick={() => setPageIndex((page) => Math.max(0, page - 1))}
             disabled={currentPage === 0}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e0e7df] bg-white px-3 text-xs font-semibold text-[#46564b] transition-all hover:border-[#b8cdb9] hover:bg-[#f7faf6] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 text-xs font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ChevronLeftIcon className="h-4 w-4" />
             <span>Previous</span>
@@ -313,7 +313,7 @@ const SimpleTable = ({
                 typeof page === 'string' ? (
                   <span
                     key={page}
-                    className="flex h-9 w-7 items-center justify-center text-xs text-[#829087]"
+                    className="flex h-9 w-7 items-center justify-center text-xs text-gray-400"
                   >
                     …
                   </span>
@@ -324,10 +324,10 @@ const SimpleTable = ({
                     onClick={() => setPageIndex(page)}
                     aria-label={`Go to page ${page + 1}`}
                     aria-current={currentPage === page ? 'page' : undefined}
-                    className={`h-9 min-w-9 rounded-lg px-2 text-xs font-semibold transition-all ${
+                    className={`h-9 min-w-9 rounded-full px-2 text-xs font-semibold tabular-nums transition-colors ${
                       currentPage === page
-                        ? 'bg-[#244b34] text-white shadow-sm'
-                        : 'text-[#718077] hover:bg-[#f0f5ef] hover:text-[#244b34]'
+                        ? 'bg-primary-600 text-white'
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
                     {page + 1}
@@ -344,7 +344,7 @@ const SimpleTable = ({
               )
             }
             disabled={currentPage >= totalPages - 1}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#e0e7df] bg-white px-3 text-xs font-semibold text-[#46564b] transition-all hover:border-[#b8cdb9] hover:bg-[#f7faf6] disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 text-xs font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <span>Next</span>
             <ChevronRightIcon className="h-4 w-4" />

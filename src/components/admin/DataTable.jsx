@@ -54,7 +54,7 @@ export default function DataTable({
   } : false;
 
   return (
-    <div className={`overflow-hidden rounded-xl border border-[#dfe3d9] bg-white shadow-sm ${className}`}>
+    <div className={`overflow-hidden rounded-2xl border border-gray-200 bg-white ${className}`}>
       <Table
         rowKey={keyField}
         columns={tableColumns}
@@ -64,7 +64,7 @@ export default function DataTable({
         size="middle"
         showSorterTooltip={{ target: 'sorter-icon' }}
         onChange={onTableChange}
-        rowClassName={(row) => selectedIds.includes(row[keyField]) ? 'bg-[#edf5ed]' : ''}
+        rowClassName={(row) => selectedIds.includes(row[keyField]) ? 'bg-primary-50' : ''}
         rowSelection={selectable ? {
           selectedRowKeys: selectedIds,
           onChange: onSelectionChange,
@@ -72,8 +72,8 @@ export default function DataTable({
         } : undefined}
         className={headerRowClassName}
       />
-      <div className="flex items-center justify-between border-t border-[#edf0eb] bg-[#fafbf9] px-4 py-3 text-xs text-[#708078]">
-        <span><span className="font-semibold text-[#34443a]">{data.length}</span> matching record{data.length === 1 ? '' : 's'}</span>
+      <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-5 py-3 text-xs text-gray-500">
+        <span><span className="font-semibold text-gray-700">{data.length}</span> matching record{data.length === 1 ? '' : 's'}</span>
         <span className="hidden sm:inline">Use column headers to sort</span>
       </div>
     </div>

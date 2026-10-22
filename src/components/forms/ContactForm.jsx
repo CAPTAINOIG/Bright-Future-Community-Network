@@ -4,13 +4,17 @@ import { Button } from '../ui';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
 
+const labelClass = 'block text-sm font-semibold text-gray-800 mb-2';
+const errorClass = 'text-[13px] text-red-600 mt-1.5 block';
+const Req = () => <span className="text-red-600 ml-0.5" aria-hidden="true">*</span>;
+
 const ContactForm = ({ onClose }) => {
-  const [form, setForm] = useState({ 
-    name: '', 
-    email: '', 
-    phone: '', 
-    subject: '', 
-    message: '' 
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,15 +32,15 @@ const ContactForm = ({ onClose }) => {
   const handleSubmit = async (ev) => {
     ev.preventDefault();
     const validationErrors = validate();
-    
+
     if (Object.keys(validationErrors).length) {
       setErrors(validationErrors);
       return;
     }
-    
+
     setErrors({});
     setIsSubmitting(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       toast.success('Message sent successfully! We\'ll respond within 24-48 hours.');
@@ -54,96 +58,116 @@ const ContactForm = ({ onClose }) => {
   };
 
   const inputClass = (field) =>
-    `w-full py-3 px-4 border ${
-      errors[field] ? 'border-red-500' : 'border-gray-200'
-    } rounded-lg bg-white text-gray-900 text-sm focus:outline-none focus:border-green-600 focus:shadow-[0_0_0_3px_rgba(34,197,94,0.12)] transition-all placeholder:text-gray-400`;
+    `w-full h-12 px-4 rounded-xl border ${
+      errors[field] ? 'border-red-400' : 'border-gray-300'
+    } bg-white text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition`;
+
+  const textareaClass = (field) =>
+    `w-full min-h-[140px] px-4 py-3 rounded-xl border ${
+      errors[field] ? 'border-red-400' : 'border-gray-300'
+    } bg-white text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition resize-y`;
 
   return (
     <div>
-      <div className="text-center mb-6">
-        <Send size={24} className="text-green-600 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold mb-2">Send Us a Message</h3>
-        <p className="text-sm text-gray-600">Fill out the form and we'll respond as soon as possible.</p>
+      <div className="flex items-start gap-4 mb-8">
+        <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 shrink-0" aria-hidden="true">
+          <Send size={20} strokeWidth={1.75} />
+        </span>
+        <div>
+          <h3 className="font-serif text-xl text-gray-900 mb-1 leading-snug">Send Us a Message</h3>
+          <p className="text-sm text-gray-600 m-0">Fill out the form and we'll respond as soon as possible.</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Full Name *</label>
+            <label htmlFor="contact-name" className={labelClass}>Full Name <Req /></label>
             <input
+              id="contact-name"
               name="name"
               value={form.name}
               onChange={handleChange}
               placeholder="Your full name"
+              autoComplete="name"
+              aria-invalid={!!errors.name}
               className={inputClass('name')}
             />
             {errors.name && (
-              <span className="text-sm text-red-600 mt-1 block">{errors.name}</span>
+              <span className={errorClass} role="alert">{errors.name}</span>
             )}
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Email *</label>
+            <label htmlFor="contact-email" className={labelClass}>Email <Req /></label>
             <input
+              id="contact-email"
               name="email"
               type="email"
               value={form.email}
               onChange={handleChange}
               placeholder="your@email.com"
+              autoComplete="email"
+              aria-invalid={!!errors.email}
               className={inputClass('email')}
             />
             {errors.email && (
-              <span className="text-sm text-red-600 mt-1 block">{errors.email}</span>
+              <span className={errorClass} role="alert">{errors.email}</span>
             )}
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Phone</label>
+            <label htmlFor="contact-phone" className={labelClass}>Phone</label>
             <input
+              id="contact-phone"
               name="phone"
+              type="tel"
               value={form.phone}
               onChange={handleChange}
               placeholder="+234..."
+              autoComplete="tel"
               className={inputClass('phone')}
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">Subject *</label>
+            <label htmlFor="contact-subject" className={labelClass}>Subject <Req /></label>
             <input
+              id="contact-subject"
               name="subject"
               value={form.subject}
               onChange={handleChange}
               placeholder="How can we help?"
+              aria-invalid={!!errors.subject}
               className={inputClass('subject')}
             />
             {errors.subject && (
-              <span className="text-sm text-red-600 mt-1 block">{errors.subject}</span>
+              <span className={errorClass} role="alert">{errors.subject}</span>
             )}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">Message *</label>
+          <label htmlFor="contact-message" className={labelClass}>Message <Req /></label>
           <textarea
+            id="contact-message"
             name="message"
             value={form.message}
             onChange={handleChange}
             placeholder="Tell us more..."
             rows={5}
-            className={`${inputClass('message')} resize-y min-h-[120px]`}
+            aria-invalid={!!errors.message}
+            className={textareaClass('message')}
           />
           {errors.message && (
-            <span className="text-sm text-red-600 mt-1 block">{errors.message}</span>
+            <span className={errorClass} role="alert">{errors.message}</span>
           )}
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 mt-3 border-t border-gray-200">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={onClose}
             icon={X}
             fullWidth

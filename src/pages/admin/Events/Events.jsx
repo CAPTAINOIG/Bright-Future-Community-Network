@@ -7,12 +7,13 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  EllipsisVerticalIcon,
 } from '@heroicons/react/24/outline';
 import { Drawer, ConfirmDialog, toast } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
-import { Button, Input, Tag, Badge, Progress } from 'antd';
+import { Button, Input, Progress, Select, Tooltip } from 'antd';
+import { CalendarClock as CalendarClockIcon, CalendarDays as CalendarDaysIcon, Radio as RadioIcon, Ticket as TicketIcon } from 'lucide-react';
+import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
 import EventForm from './EventForm';
 
 const events = [
@@ -25,12 +26,12 @@ const events = [
 
 const getStatusBadge = (status) => {
   const map = {
-    Upcoming: { className: 'bg-blue-100 text-blue-800' },
-    Ongoing: { className: 'bg-green-100 text-green-800' },
-    Completed: { className: 'bg-gray-100 text-gray-800' },
-    Cancelled: { className: 'bg-red-100 text-red-800' },
+    Upcoming: { className: 'bg-accent-50 text-accent-700 ring-accent-200' },
+    Ongoing: { className: 'bg-primary-50 text-primary-700 ring-primary-200' },
+    Completed: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
+    Cancelled: { className: 'bg-red-50 text-red-700 ring-red-200' },
   };
-  return `px-2 py-1 text-xs font-medium rounded-full ${map[status]?.className ?? ''}`;
+  return `inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full ring-1 ring-inset whitespace-nowrap ${map[status]?.className ?? 'bg-gray-100 text-gray-600 ring-gray-200'}`;
 };
 
 export default function EventManagement() {
@@ -97,10 +98,10 @@ export default function EventManagement() {
   };
 
   const eventActions = (event) => [
-    { label: 'View Details', icon: EyeIcon, onClick: () => toast.info(`Viewing ${event.title}`) },
-    { label: 'Edit Event', icon: PencilIcon, onClick: () => handleEdit(event) },
+    { label: 'View details', icon: EyeIcon, onClick: () => toast.info(`Viewing ${event.title}`) },
+    { label: 'Edit event', icon: PencilIcon, onClick: () => handleEdit(event) },
     {
-      label: 'Delete Event',
+      label: 'Delete event',
       icon: TrashIcon,
       onClick: () => {
         setSelectedEvent(event);
@@ -109,152 +110,92 @@ export default function EventManagement() {
     },
   ];
 
-  const ActionMenu = ({ event }) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <div className="relative">
-        <button
-          onClick={() => setOpen(!open)}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 transition-colors hover:border-[#427456] hover:bg-[#f0f7f2] hover:text-[#427456] focus:outline-none focus:ring-2 focus:ring-[#427456]/20"
-        >
-          <EllipsisVerticalIcon className="h-4 w-4" />
-        </button>
-        {open && (
-          <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-            {eventActions(event).map((action, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  action.onClick();
-                  setOpen(false);
-                }}
-                className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2 first:rounded-t-lg last:rounded-b-lg"
-              >
-                <action.icon className="h-4 w-4" /> {action.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const ActionMenu = ({ event }) => (
+    <div className="flex items-center gap-0.5">
+      {eventActions(event).map((action, idx) => (
+        <Tooltip key={idx} title={action.label}>
+          <Button
+            type="text"
+            size="small"
+            danger={action.label.startsWith('Delete')}
+            aria-label={action.label}
+            icon={<action.icon className="h-4 w-4" />}
+            onClick={action.onClick}
+          />
+        </Tooltip>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h2 className="text-2xl font-bold text-gray-900">Event Management</h2>
-          <p className="text-gray-600">Manage BFCN events and registrations</p>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.1 }}>
+      <PageIntro
+        title="Event management"
+        description="Manage BFCN events and registrations"
+        actions={
           <Button type="primary" size="large" icon={<PlusIcon className="h-5 w-5" />} onClick={openAddEvent}>
-            New Event
+            New event
           </Button>
-        </motion.div>
-      </div>
+        }
+      />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-6"
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         {[
-          { label: 'Total Events', value: totalEvents, change: 'scheduled', color: 'bg-blue-500' },
-          { label: 'Ongoing', value: ongoingCount, change: 'live now', color: 'bg-green-500' },
-          { label: 'Upcoming', value: upcomingCount, change: 'next up', color: 'bg-purple-500' },
-          { label: 'Registrations', value: totalRegistrations.toLocaleString(), change: 'total signups', color: 'bg-orange-500' },
+          { label: 'Total events', value: totalEvents, change: 'Scheduled', icon: CalendarDaysIcon },
+          { label: 'Ongoing', value: ongoingCount, change: 'Live now', icon: RadioIcon },
+          { label: 'Upcoming', value: upcomingCount, change: 'Next up', icon: CalendarClockIcon, tone: 'accent' },
+          { label: 'Registrations', value: totalRegistrations.toLocaleString(), change: 'Total signups', icon: TicketIcon, tone: 'accent' },
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-green-600 font-medium">{stat.change}</p>
-              </div>
-              <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-            </div>
-          </div>
+          <StatCard key={index} label={stat.label} value={stat.value.toLocaleString()} hint={stat.change} icon={stat.icon} tone={stat.tone} />
         ))}
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
+        transition={{ duration: 0.4, delay: 0.15 }}
+        className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5"
       >
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <Input
             allowClear
             size="large"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search events by title, venue, or city..."
-            prefix={<MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />}
-            className="flex-1"
+            prefix={<MagnifyingGlassIcon className="h-[18px] w-[18px] text-gray-400" />}
+            className="min-w-0 flex-1"
           />
-          <div className="flex gap-2 flex-wrap">
-            <div className="relative">
-              <button
-                onClick={() => setCategoryOpen(!categoryOpen)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {categoryFilter === 'All' ? 'All categories' : categoryFilter}
-              </button>
-              {categoryOpen && (
-                <div className="absolute top-full mt-1 left-0 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-                  {['All', 'Community', 'Training', 'Workshop', 'Meeting', 'Celebration', 'Fundraiser', 'Outreach'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setCategoryFilter(option);
-                        setCategoryOpen(false);
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
-                        categoryFilter === option
-                          ? 'bg-[#427456] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      } first:rounded-t-lg last:rounded-b-lg`}
-                    >
-                      {option === 'All' ? 'All categories' : option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="relative">
-              <button
-                onClick={() => setStatusOpen(!statusOpen)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {statusFilter === 'All' ? 'All statuses' : statusFilter}
-              </button>
-              {statusOpen && (
-                <div className="absolute top-full mt-1 left-0 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-                  {['All', 'Upcoming', 'Ongoing', 'Completed', 'Cancelled'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setStatusFilter(option);
-                        setStatusOpen(false);
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm transition-colors ${
-                        statusFilter === option
-                          ? 'bg-[#427456] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      } first:rounded-t-lg last:rounded-b-lg`}
-                    >
-                      {option === 'All' ? 'All statuses' : option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <Button size="large" icon={<FunnelIcon className="h-5 w-5" />}>More filters</Button>
+          <div className="flex flex-wrap gap-3">
+            <Select
+              size="large"
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              open={categoryOpen}
+              onOpenChange={setCategoryOpen}
+              className="min-w-44"
+              aria-label="Categories"
+              options={['All', 'Community', 'Training', 'Workshop', 'Meeting', 'Celebration', 'Fundraiser', 'Outreach'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option }))}
+            />
+            <Select
+              size="large"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              open={statusOpen}
+              onOpenChange={setStatusOpen}
+              className="min-w-44"
+              aria-label="Statuses"
+              options={['All', 'Upcoming', 'Ongoing', 'Completed', 'Cancelled'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
+            />
+            <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
             <Button
               size="large"
-              icon={<ArrowDownTrayIcon className="h-5 w-5" />}
+              icon={<ArrowDownTrayIcon className="h-[18px] w-[18px]" />}
               onClick={() => toast.success('Events exported as CSV')}
             >
               Export
@@ -263,7 +204,7 @@ export default function EventManagement() {
         </div>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="shadow-sm">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
         <SimpleTable
           data={filteredEvents}
           keyField="id"
@@ -277,10 +218,10 @@ export default function EventManagement() {
                 const e = info.row?.original;
                 return (
                   <div>
-                    <p className="font-medium text-[#17231d]">{e?.title}</p>
+                    <p className="m-0 font-semibold text-gray-900">{e?.title}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <Tag color="geekblue" style={{ margin: 0 }}>{e?.category}</Tag>
-                      <p className="text-xs text-[#708078] m-0">
+                      <span className={pillClass('neutral')}>{e?.category}</span>
+                      <p className="m-0 text-xs text-gray-500">
                         {new Date(e?.date).toLocaleDateString()} · {e?.time}
                       </p>
                     </div>
@@ -293,7 +234,7 @@ export default function EventManagement() {
               header: 'Location', 
               cell: (info) => {
                 const e = info.row?.original;
-                return <div><p className="text-sm text-[#34443a]">{e?.venue}</p><p className="text-xs text-[#708078]">{e?.city}</p></div>;
+                return <div><p className="m-0 text-[13px] text-gray-700">{e?.venue}</p><p className="m-0 text-xs text-gray-500">{e?.city}</p></div>;
               }
             },
             {
@@ -305,13 +246,13 @@ export default function EventManagement() {
                 const color = pct >= 90 ? 'red' : pct >= 60 ? 'orange' : 'green';
                 return (
                   <div>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-[#708078]">{e?.registrations} / {e?.capacity}</span>
-                      <Badge count={`${pct}%`} color={color} showZero />
+                    <div className="mb-1 flex min-w-[140px] items-center justify-between gap-3 text-xs">
+                      <span className="tabular-nums text-gray-500">{e?.registrations} / {e?.capacity}</span>
+                      <span className={`font-semibold tabular-nums ${color === 'red' ? 'text-red-600' : color === 'orange' ? 'text-accent-600' : 'text-primary-700'}`}>{pct}%</span>
                     </div>
-                    <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-primary-100">
                       <div
-                        className={`h-full rounded-full ${pct >= 90 ? 'bg-red-500' : pct >= 60 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                        className={`h-full rounded-full ${pct >= 90 ? 'bg-red-500' : pct >= 60 ? 'bg-accent-300' : 'bg-primary-600'}`}
                         style={{ width: `${Math.min(pct, 100)}%` }}
                       />
                     </div>
@@ -324,7 +265,7 @@ export default function EventManagement() {
               header: 'Cost', 
               cell: (info) => {
                 const e = info.row?.original;
-                return e?.cost === 0 ? <Tag color="green">Free</Tag> : `₦${e?.cost.toLocaleString()}`;
+                return e?.cost === 0 ? <span className={pillClass('success')}>Free</span> : `₦${e?.cost.toLocaleString()}`;
               }
             },
             { 
@@ -346,10 +287,10 @@ export default function EventManagement() {
         onClose={closeEventDrawer}
         title={
           <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              {selectedEvent ? 'Edit Event' : 'Create New Event'}
+            <h2 className="m-0 font-serif text-xl text-gray-900">
+              {selectedEvent ? 'Edit event' : 'Create new event'}
             </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+            <p className="mt-1 mb-0 text-[13px] leading-relaxed text-gray-500">
               {selectedEvent ? 'Update event details' : 'Schedule a new BFCN community event'}
             </p>
           </div>
@@ -371,7 +312,7 @@ export default function EventManagement() {
           setSelectedEvent(null);
         }}
         onConfirm={handleDelete}
-        title="Delete Event"
+        title="Delete event"
         message={`Are you sure you want to delete "${selectedEvent?.title}"? All registrations and attendee records will be removed. This action cannot be undone.`}
         type="danger"
         confirmText="Delete"

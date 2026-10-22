@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { Mail, Phone, Eye, Archive, Trash2, Reply, Star, Clock } from 'lucide-react';
+import { Mail, Phone, Eye, Archive, Trash2, Reply, Star, Clock, Inbox, MailOpen, AlertTriangle, CalendarDays, Send } from 'lucide-react';
+import { Button, Input, Modal, Tooltip } from 'antd';
+import { PageIntro, StatCard, SectionLabel, pillClass } from './AdminUI';
+import { EmptyState } from '../../../components/ui';
 import AdminFilterBar from '../../../components/admin/AdminFilterBar';
 
 const messages = [
@@ -104,22 +107,22 @@ export default function ContactMessages() {
   });
 
   const getStatusBadge = (status) => {
-    const colors = {
-      'Unread': 'bg-blue-100 text-blue-800',
-      'Read': 'bg-gray-100 text-gray-800',
-      'Replied': 'bg-green-100 text-green-800',
-      'Archived': 'bg-purple-100 text-purple-800'
+    const tones = {
+      'Unread': 'warning',
+      'Read': 'neutral',
+      'Replied': 'success',
+      'Archived': 'neutral'
     };
-    return `px-2 py-1 text-xs font-medium rounded-full ${colors[status]}`;
+    return pillClass(tones[status]);
   };
 
   const getPriorityBadge = (priority) => {
-    const colors = {
-      'High': 'bg-red-100 text-red-800',
-      'Medium': 'bg-yellow-100 text-yellow-800',
-      'Low': 'bg-gray-100 text-gray-800'
+    const tones = {
+      'High': 'danger',
+      'Medium': 'warning',
+      'Low': 'neutral'
     };
-    return `px-2 py-1 text-xs font-medium rounded-full ${colors[priority]}`;
+    return pillClass(tones[priority]);
   };
 
   const formatDate = (dateString) => {
@@ -156,115 +159,103 @@ export default function ContactMessages() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Contact Messages</h2>
-          <p className="text-gray-600">Manage incoming messages and inquiries</p>
-        </div>
-        <div className="flex gap-2">
-          <button className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-            <Archive size={18} />
-            Archive Selected
-          </button>
-        </div>
-      </div>
+      <PageIntro
+        title="Contact messages"
+        description="Manage incoming messages and inquiries"
+        actions={
+          <Button size="large" icon={<Archive size={17} />}>
+            Archive selected
+          </Button>
+        }
+      />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: 'Total Messages', value: '142', color: 'bg-blue-500' },
-          { label: 'Unread', value: '8', color: 'bg-red-500' },
-          { label: 'High Priority', value: '5', color: 'bg-orange-500' },
-          { label: 'This Week', value: '23', color: 'bg-green-500' }
+          { label: 'Total messages', value: '142', icon: Inbox },
+          { label: 'Unread', value: '8', icon: MailOpen },
+          { label: 'High priority', value: '5', icon: AlertTriangle, tone: 'accent' },
+          { label: 'This week', value: '23', icon: CalendarDays, tone: 'accent' }
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              </div>
-              <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-            </div>
-          </div>
+          <StatCard key={index} label={stat.label} value={stat.value} icon={stat.icon} tone={stat.tone} />
         ))}
       </div>
 
       <AdminFilterBar searchValue={searchTerm} onSearchChange={setSearchTerm} searchPlaceholder="Search messages..." filters={[{ key: 'status', label: 'statuses', value: statusFilter, onChange: setStatusFilter, options: ['All', 'Unread', 'Read', 'Replied', 'Archived'] }, { key: 'category', label: 'categories', value: categoryFilter, onChange: setCategoryFilter, options: ['All', 'Partnership', 'Volunteer', 'Donation', 'Feedback', 'Support'] }, { key: 'priority', label: 'priorities', value: priorityFilter, onChange: setPriorityFilter, options: ['All', 'High', 'Medium', 'Low'] }]} />
 
-      {/* Messages List */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="divide-y divide-gray-200">
+      {/* Messages list */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+        {filteredMessages.length === 0 && (
+          <EmptyState icon={Inbox} title="No messages found" description="Try adjusting your search or filters." />
+        )}
+        <div className="divide-y divide-gray-100">
           {filteredMessages.map((message) => (
-            <div key={message.id} className={`p-4 hover:bg-gray-50 transition-colors ${message.status === 'Unread' ? 'bg-blue-50' : ''}`}>
-              <div className="flex items-start gap-4">
-                <button 
-                  onClick={() => toggleStar(message.id)}
-                  className={`p-1 transition-colors ${message.isStarred ? 'text-yellow-500' : 'text-gray-300 hover:text-gray-400'}`}
-                >
-                  <Star size={16} fill={message.isStarred ? 'currentColor' : 'none'} />
-                </button>
+            <div
+              key={message.id}
+              className={`relative p-4 transition-colors hover:bg-gray-50 md:px-5 ${message.status === 'Unread' ? 'bg-primary-50/40 before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-primary-600' : ''}`}
+            >
+              <div className="flex items-start gap-3 md:gap-4">
+                <Tooltip title={message.isStarred ? 'Unstar' : 'Star'}>
+                  <button
+                    onClick={() => toggleStar(message.id)}
+                    aria-label="Toggle star"
+                    className={`mt-0.5 rounded-md p-1 transition-colors ${message.isStarred ? 'text-accent-400' : 'text-gray-300 hover:text-gray-500'}`}
+                  >
+                    <Star size={16} fill={message.isStarred ? 'currentColor' : 'none'} />
+                  </button>
+                </Tooltip>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className={`font-medium ${message.status === 'Unread' ? 'text-gray-900 font-semibold' : 'text-gray-700'}`}>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                        <h3 className={`m-0 text-sm ${message.status === 'Unread' ? 'font-semibold text-gray-900' : 'font-medium text-gray-700'}`}>
                           {message.name}
                         </h3>
-                        <span className="text-sm text-gray-500">{message.email}</span>
+                        <span className="truncate text-xs text-gray-500">{message.email}</span>
                       </div>
-                      <p className={`text-sm mb-1 ${message.status === 'Unread' ? 'font-medium text-gray-900' : 'text-gray-600'}`}>
+                      <p className={`m-0 mb-1 text-sm ${message.status === 'Unread' ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
                         {message.subject}
                       </p>
-                      <p className="text-sm text-gray-500 line-clamp-2">{message.message}</p>
+                      <p className="m-0 line-clamp-2 text-sm text-gray-500">{message.message}</p>
                     </div>
-                    
-                    <div className="flex flex-col items-end gap-2 ml-4 shrink-0">
+
+                    <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-end">
                       <div className="flex items-center gap-2">
                         <span className={getStatusBadge(message.status)}>{message.status}</span>
                         <span className={getPriorityBadge(message.priority)}>{message.priority}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs tabular-nums text-gray-500">
                         <Clock size={12} />
                         {formatDate(message.receivedDate)}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
-                        <Phone size={14} />
+                        <Phone size={13} />
                         {message.phone}
                       </span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                      <span className={pillClass('neutral')}>
                         {message.category}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => viewMessage(message)}
-                        className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
-                      >
-                        <Eye size={16} />
-                      </button>
-                      <button 
-                        onClick={() => replyToMessage(message)}
-                        className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
-                      >
-                        <Reply size={16} />
-                      </button>
-                      <button 
-                        onClick={() => updateStatus(message.id, 'Archived')}
-                        className="p-2 text-gray-400 hover:text-primary-600 transition-colors"
-                      >
-                        <Archive size={16} />
-                      </button>
-                      <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
-                        <Trash2 size={16} />
-                      </button>
+                    <div className="flex items-center gap-0.5">
+                      <Tooltip title="View message">
+                        <Button type="text" size="small" aria-label="View message" icon={<Eye size={16} />} onClick={() => viewMessage(message)} />
+                      </Tooltip>
+                      <Tooltip title="Reply">
+                        <Button type="text" size="small" aria-label="Reply" icon={<Reply size={16} />} onClick={() => replyToMessage(message)} />
+                      </Tooltip>
+                      <Tooltip title="Archive">
+                        <Button type="text" size="small" aria-label="Archive" icon={<Archive size={16} />} onClick={() => updateStatus(message.id, 'Archived')} />
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <Button type="text" size="small" danger aria-label="Delete" icon={<Trash2 size={16} />} />
+                      </Tooltip>
                     </div>
                   </div>
                 </div>
@@ -274,141 +265,128 @@ export default function ContactMessages() {
         </div>
       </div>
 
-      {/* Message Details Modal */}
-      {showDetailsModal && selectedMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-start justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">{selectedMessage.subject}</h3>
-                <div className="flex items-center gap-2">
-                  <span className={getStatusBadge(selectedMessage.status)}>{selectedMessage.status}</span>
-                  <span className={getPriorityBadge(selectedMessage.priority)}>{selectedMessage.priority}</span>
-                </div>
+      {/* Message details modal */}
+      <Modal
+        open={Boolean(showDetailsModal && selectedMessage)}
+        onCancel={() => setShowDetailsModal(false)}
+        width={680}
+        centered
+        destroyOnHidden
+        title={
+          selectedMessage && (
+            <div className="pr-8">
+              <h3 className="m-0 font-serif text-2xl leading-tight text-gray-900">{selectedMessage.subject}</h3>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className={getStatusBadge(selectedMessage.status)}>{selectedMessage.status}</span>
+                <span className={getPriorityBadge(selectedMessage.priority)}>{selectedMessage.priority}</span>
               </div>
             </div>
-            
-            <div className="p-6 space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                  <span className="text-primary-800 font-medium">
-                    {selectedMessage.name.split(' ').map(n => n[0]).join('')}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900">{selectedMessage.name}</h4>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p className="flex items-center gap-2">
-                      <Mail size={14} />
-                      {selectedMessage.email}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Phone size={14} />
-                      {selectedMessage.phone}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Clock size={14} />
-                      Received {formatDate(selectedMessage.receivedDate)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Message</h4>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-gray-700 leading-relaxed">{selectedMessage.message}</p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Category</h4>
-                <span className="px-3 py-1 bg-primary-100 text-primary-800 text-sm rounded-full">
-                  {selectedMessage.category}
-                </span>
-              </div>
-            </div>
-            
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button 
-                onClick={() => setShowDetailsModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Close
-              </button>
-              <button 
-                onClick={() => updateStatus(selectedMessage.id, 'Archived')}
-                className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              >
+          )
+        }
+        footer={
+          selectedMessage && (
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button onClick={() => setShowDetailsModal(false)}>Close</Button>
+              <Button icon={<Archive size={15} />} onClick={() => updateStatus(selectedMessage.id, 'Archived')}>
                 Archive
-              </button>
-              <button 
+              </Button>
+              <Button
+                type="primary"
+                icon={<Reply size={15} />}
                 onClick={() => {
                   setShowDetailsModal(false);
                   replyToMessage(selectedMessage);
                 }}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
               >
                 Reply
-              </button>
+              </Button>
             </div>
-          </div>
-        </div>
-      )}
+          )
+        }
+      >
+        {selectedMessage && (
+          <div className="space-y-6 py-2">
+            <div className="flex items-start gap-4 border-b border-gray-100 pb-5">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary-50 font-semibold text-primary-700">
+                {selectedMessage.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="m-0 text-[15px] font-semibold text-gray-900">{selectedMessage.name}</h4>
+                <div className="mt-1.5 space-y-1 text-sm text-gray-500">
+                  <p className="m-0 flex items-center gap-2">
+                    <Mail size={14} />
+                    {selectedMessage.email}
+                  </p>
+                  <p className="m-0 flex items-center gap-2">
+                    <Phone size={14} />
+                    {selectedMessage.phone}
+                  </p>
+                  <p className="m-0 flex items-center gap-2">
+                    <Clock size={14} />
+                    Received {formatDate(selectedMessage.receivedDate)}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-      {/* Reply Modal */}
-      {showReplyModal && selectedMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Reply to {selectedMessage.name}</h3>
-              <p className="text-sm text-gray-600">Re: {selectedMessage.subject}</p>
+            <section className="space-y-3">
+              <SectionLabel>Message</SectionLabel>
+              <p className="m-0 rounded-xl bg-gray-50 p-4 text-[15px] leading-relaxed text-gray-700">{selectedMessage.message}</p>
+            </section>
+
+            <section className="space-y-3">
+              <SectionLabel>Category</SectionLabel>
+              <span className={pillClass('success')}>
+                {selectedMessage.category}
+              </span>
+            </section>
+          </div>
+        )}
+      </Modal>
+
+      {/* Reply modal */}
+      <Modal
+        open={Boolean(showReplyModal && selectedMessage)}
+        onCancel={() => setShowReplyModal(false)}
+        width={680}
+        centered
+        destroyOnHidden
+        title={
+          selectedMessage && (
+            <div className="pr-8">
+              <h3 className="m-0 font-serif text-2xl leading-tight text-gray-900">Reply to {selectedMessage.name}</h3>
+              <p className="m-0 mt-1 text-[13px] font-normal text-gray-500">Re: {selectedMessage.subject}</p>
             </div>
-            
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">To</label>
-                <input 
-                  type="email" 
-                  value={selectedMessage.email}
-                  readOnly
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-                <input 
-                  type="text" 
-                  defaultValue={`Re: ${selectedMessage.subject}`}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                <textarea 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500" 
-                  rows="8"
-                  placeholder="Type your reply here..."
-                ></textarea>
-              </div>
+          )
+        }
+        footer={
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button onClick={() => setShowReplyModal(false)}>Cancel</Button>
+            <Button type="primary" icon={<Send size={15} />}>
+              Send reply
+            </Button>
+          </div>
+        }
+      >
+        {selectedMessage && (
+          <div className="space-y-4 py-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">To</label>
+              <Input size="large" type="email" value={selectedMessage.email} readOnly className="!bg-gray-50 !text-gray-500" />
             </div>
-            
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button 
-                onClick={() => setShowReplyModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-                Send Reply
-              </button>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">Subject</label>
+              <Input size="large" type="text" defaultValue={`Re: ${selectedMessage.subject}`} />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">Message</label>
+              <Input.TextArea rows={8} placeholder="Type your reply here..." />
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }

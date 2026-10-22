@@ -1,17 +1,17 @@
 const variantStyles = {
-  default: 'bg-gray-100 text-gray-700',
-  success: 'bg-green-50 text-green-700',
-  warning: 'bg-orange-50 text-orange-600',
-  error: 'bg-red-50 text-red-700',
-  info: 'bg-blue-50 text-blue-700',
-  primary: 'bg-primary-50 text-primary-600',
-  accent: 'bg-accent-50 text-accent-600',
+  default: 'bg-gray-100 text-gray-700 ring-gray-200',
+  success: 'bg-primary-50 text-primary-700 ring-primary-200',
+  warning: 'bg-accent-50 text-accent-700 ring-accent-200',
+  error: 'bg-red-50 text-red-700 ring-red-200',
+  info: 'bg-sky-50 text-sky-800 ring-sky-200',
+  primary: 'bg-primary-50 text-primary-700 ring-primary-200',
+  accent: 'bg-accent-50 text-accent-700 ring-accent-200',
 };
 
-const sizeStyles = { sm: 'px-2 py-0.5 text-[0.65rem]', md: 'px-3 py-1 text-xs', lg: 'px-4 py-2 text-sm' };
+const sizeStyles = { sm: 'px-2 py-0.5 text-[0.68rem]', md: 'px-2.5 py-1 text-xs', lg: 'px-4 py-1.5 text-sm' };
 
 export default function Badge({ children, variant = 'default', size = 'md', className = '' }) {
-  return <span className={`inline-flex items-center gap-1 font-semibold capitalize rounded-full whitespace-nowrap ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}>{children}</span>;
+  return <span className={`inline-flex items-center gap-1.5 font-semibold capitalize rounded-full whitespace-nowrap ring-1 ring-inset ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}>{children}</span>;
 }
 
 Badge.Status = function StatusBadge({ status }) {

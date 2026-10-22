@@ -7,14 +7,15 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  EllipsisVerticalIcon,
   CheckCircleIcon,
   XCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Drawer, ConfirmDialog } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
-import { Button, Input, Tag } from 'antd';
+import { Button, Input, Select, Tooltip } from 'antd';
+import { Activity, Clock3, MapPinned, UserCheck } from 'lucide-react';
+import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
 import { Toaster, toast } from 'sonner';
 import { VolunteerForm } from '../../../components/forms';
 import { getStatusBadge } from './utilsVolunteer';
@@ -115,142 +116,94 @@ const VolunteerManagement = () => {
   //   }
   // };
 
-  const VolunteerActions = ({ volunteer }) => {
-    const [open, setOpen] = useState(false);
-
-    return (
-      <div className="relative">
-        <button
-          onClick={() => setOpen(!open)}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 transition-colors hover:border-[#427456] hover:bg-[#f0f7f2] hover:text-[#427456] focus:outline-none focus:ring-2 focus:ring-[#427456]/20"
-        >
-          <EllipsisVerticalIcon className="h-4 w-4" />
-        </button>
-        {open && (
-          <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-            <button onClick={() => { handleVolunteerDetails(volunteer); setOpen(false); }}
-              className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg transition-colors flex items-center gap-2"
-            >
-              <EyeIcon className="h-4 w-4" /> View Details
-            </button>
-            <button onClick={() => { handleVolunteerEdit(volunteer); setOpen(false); }}
-              className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              <PencilIcon className="h-4 w-4" /> Edit volunteer
-            </button>
-            <button
-              onClick={() => {
-                setSelectedVolunteer(volunteer);
-                setShowDeleteDialog(true);
-                setOpen(false);
-              }}
-              className="block w-full px-4 py-2 text-left text-sm text-red-700 hover:bg-red-50 last:rounded-b-lg transition-colors flex items-center gap-2"
-            >
-              <TrashIcon className="h-4 w-4" /> Delete volunteer
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
+  const VolunteerActions = ({ volunteer }) => (
+    <div className="flex items-center gap-0.5">
+      <Tooltip title="View details">
+        <Button type="text" size="small" aria-label="View details" icon={<EyeIcon className="h-4 w-4" />} onClick={() => handleVolunteerDetails(volunteer)} />
+      </Tooltip>
+      <Tooltip title="Edit volunteer">
+        <Button type="text" size="small" aria-label="Edit volunteer" icon={<PencilIcon className="h-4 w-4" />} onClick={() => handleVolunteerEdit(volunteer)} />
+      </Tooltip>
+      <Tooltip title="Delete volunteer">
+        <Button
+          type="text"
+          size="small"
+          danger
+          aria-label="Delete volunteer"
+          icon={<TrashIcon className="h-4 w-4" />}
+          onClick={() => {
+            setSelectedVolunteer(volunteer);
+            setShowDeleteDialog(true);
+          }}
+        />
+      </Tooltip>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
       <Toaster position='top-right' />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h2 className="text-2xl font-bold text-gray-900">Volunteer Management</h2>
-          <p className="text-gray-600">Manage BFCN volunteers and applications</p>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.1 }}>
+      <PageIntro
+        title="Volunteer management"
+        description="Manage BFCN volunteers and applications"
+        actions={
           <Button type="primary" size="large" icon={<PlusIcon className="h-5 w-5" />} onClick={openAddVolunteer}>
-            Add Volunteer
+            Add volunteer
           </Button>
-        </motion.div>
-      </div>
+        }
+      />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-6"
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         {[
-          { label: 'Total Volunteers', value: totalVolunteers, change: 'registered', color: 'bg-blue-500' },
-          { label: 'Active', value: activeCount, change: 'currently active', color: 'bg-green-500' },
-          { label: 'Pending Review', value: pendingCount, change: 'applications', color: 'bg-orange-500' },
-          { label: 'Communities', value: communityCount, change: 'unique', color: 'bg-purple-500' },
+          { label: 'Total volunteers', value: totalVolunteers, change: 'Registered', icon: UserCheck },
+          { label: 'Active', value: activeCount, change: 'Currently active', icon: Activity },
+          { label: 'Pending review', value: pendingCount, change: 'Applications', icon: Clock3, tone: 'accent' },
+          { label: 'Communities', value: communityCount, change: 'Unique', icon: MapPinned, tone: 'accent' },
         ].map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value.toLocaleString()}</p>
-                <p className="text-sm text-green-600 font-medium">{stat.change}</p>
-              </div>
-              <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-            </div>
-          </div>
+          <StatCard key={index} label={stat.label} value={stat.value.toLocaleString()} hint={stat.change} icon={stat.icon} tone={stat.tone} />
         ))}
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-        className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm"
-      >
-        <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <Input
             allowClear
             size="large"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search volunteers by name, email, community, or skills"
-            prefix={<MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />}
-            className="flex-1"
+            prefix={<MagnifyingGlassIcon className="h-[18px] w-[18px] text-gray-400" />}
+            className="min-w-0 flex-1"
           />
-          <div className="flex gap-2 flex-wrap">
-            <div className="relative">
-              <button
-                onClick={() => setStatusOpen(!statusOpen)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
-              >
-                {statusFilter === 'All' ? 'All statuses' : statusFilter}
-              </button>
-              {statusOpen && (
-                <div className="absolute top-full mt-1 left-0 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50">
-                  {['All', 'Pending', 'Approved', 'Rejected'].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setStatusFilter(option);
-                        setStatusOpen(false);
-                      }}
-                      className={`block w-full px-4 py-2 text-left text-sm transition-colors ${statusFilter === option
-                          ? 'bg-[#427456] text-white font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
-                        } first:rounded-t-lg last:rounded-b-lg`}
-                    >
-                      {option === 'All' ? 'All statuses' : option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <Button size="large" icon={<FunnelIcon className="h-5 w-5" />}>More filters</Button>
+          <div className="flex flex-wrap gap-3">
+            <Select
+              size="large"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              open={statusOpen}
+              onOpenChange={setStatusOpen}
+              className="min-w-40"
+              aria-label="Status"
+              options={['All', 'Pending', 'Approved', 'Rejected'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
+            />
+            <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
             <Button
               size="large"
-              icon={<ArrowDownTrayIcon className="h-5 w-5" />}
+              icon={<ArrowDownTrayIcon className="h-[18px] w-[18px]" />}
               onClick={() => toast.success('Volunteers exported as CSV')}
             >
               Export
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }} className="shadow-sm">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
         <SimpleTable
           data={filteredVolunteers}
           loading={volunteersLoading}
@@ -265,12 +218,12 @@ const VolunteerManagement = () => {
                 const v = info.row?.original;
                 return (
                   <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-full bg-[#d9ece0] text-sm font-semibold text-[#427456]">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary-50 text-xs font-semibold text-primary-700">
                       {v?.fullName?.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '??'}
                     </div>
                     <div>
-                      <p className="font-medium text-[#17231d]">{v?.fullName}</p>
-                      <p className="text-xs text-[#708078]">
+                      <p className="m-0 font-semibold text-gray-900">{v?.fullName}</p>
+                      <p className="m-0 text-xs text-gray-500">
                         Applied: {v?.createdAt ? new Date(v.createdAt).toLocaleDateString() : '—'}
                       </p>
                     </div>
@@ -283,7 +236,7 @@ const VolunteerManagement = () => {
               header: 'Contact',
               cell: (info) => {
                 const v = info.row?.original;
-                return <div><p className="text-sm text-[#34443a]">{v?.email}</p><p className="text-xs text-[#708078]">{v?.phone}</p></div>;
+                return <div><p className="m-0 text-[13px] text-gray-700">{v?.email}</p><p className="m-0 text-xs text-gray-500">{v?.phone}</p></div>;
               }
             },
             {
@@ -293,8 +246,8 @@ const VolunteerManagement = () => {
                 const v = info.row?.original;
                 return (
                   <div>
-                    <p className="text-sm text-[#34443a]">{v?.community || '—'}</p>
-                    <p className="text-xs text-[#708078]">Availability: {v?.availability || '—'}</p>
+                    <p className="m-0 text-[13px] text-gray-700">{v?.community || '—'}</p>
+                    <p className="m-0 text-xs text-gray-500">Availability: {v?.availability || '—'}</p>
                   </div>
                 );
               },
@@ -308,9 +261,9 @@ const VolunteerManagement = () => {
                   <div className="flex flex-wrap gap-1 max-w-[240px]">
                     {Array.isArray(skills) && skills.length > 0
                       ? skills.slice(0, 3).map((s, i) => (
-                        <Tag key={i} color="green" style={{ margin: 2 }}>{s}</Tag>
+                        <span key={i} className={pillClass('success')}>{s}</span>
                       ))
-                      : <span className="text-xs text-[#708078]">—</span>}
+                      : <span className="text-xs text-gray-400">—</span>}
                   </div>
                 );
               },
@@ -335,7 +288,7 @@ const VolunteerManagement = () => {
       <Drawer
         isOpen={showVolunteerDrawer}
         onClose={closeVolunteerDrawer}
-        title="Volunteer Registration"
+        title={<h2 className="m-0 font-serif text-xl text-gray-900">Volunteer registration</h2>}
         position="right"
         width={600}
       >
@@ -351,10 +304,10 @@ const VolunteerManagement = () => {
         onClose={handleCloseVolunteerDetailsDrawer}
         title={
           <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              Volunteer Details
+            <h2 className="m-0 font-serif text-xl text-gray-900">
+              Volunteer details
             </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
+            <p className="mt-1 mb-0 text-[13px] leading-relaxed text-gray-500">
               Full profile for {selectedVolunteer?.fullName || 'this volunteer'}
             </p>
           </div>
@@ -376,7 +329,7 @@ const VolunteerManagement = () => {
           setSelectedVolunteer(null);
         }}
         onConfirm={handleVolunteerDelete}
-        title="Remove Volunteer"
+        title="Remove volunteer"
         message={`Are you sure you want to remove ${selectedVolunteer?.fullName}? This action cannot be undone.`}
         type="danger"
         confirmText="Remove"

@@ -1,4 +1,4 @@
-import { Users, BookOpen, Briefcase, Calendar, ArrowRight, MapPin, Clock, ChevronRight, Star } from 'lucide-react';
+import { Users, BookOpen, Briefcase, Calendar, ArrowRight, ArrowUpRight, MapPin, Clock, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button, SectionHeader, Card, ScrollReveal, Badge, Drawer } from '../../components/ui';
 import { events, impactQuotes, news, programmes, projects, stats } from './dummy';
@@ -6,109 +6,117 @@ import { JoinForm } from '../../components/forms';
 import { useState } from 'react';
 import heroVideo from '../../assets/video.mp4';
 
+const MediaImage = ({ src, alt, Fallback }) => (
+  <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100">
+    {src ? (
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-[1.04]"
+        loading="lazy"
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+          e.currentTarget.nextSibling.style.display = 'flex';
+        }}
+      />
+    ) : null}
+    <div className={`${src ? 'hidden' : 'flex'} absolute inset-0 items-center justify-center text-primary-300`}><Fallback size={40} strokeWidth={1.5} /></div>
+  </div>
+);
+
 const Home = () => {
-  const [showJoinDrawer, setShowJoinDrawer] = useState(false)
+  const [showJoinDrawer, setShowJoinDrawer] = useState(false);
+
   return (
     <div>
-      <section className="relative min-h-[92vh] flex items-center overflow-hidden -mt-[72px] pt-[72px]">
-        <div className="absolute inset-0 z-0 overflow-hidden">
+      {/* Hero */}
+      <section className="relative min-h-[88vh] flex items-end overflow-hidden -mt-[72px] pt-[72px] bg-primary-900">
+        <div className="absolute inset-0 z-0">
           <video
-            className="absolute left-0 w-full h-full object-cover opacity-50"
-            style={{
-              objectPosition: 'center 20%',
-              height: 'calc(100% + 60px)',
-              minWidth: '100%',
-              minHeight: '100%'
-            }}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: 'center 20%' }}
             autoPlay
             muted
             loop
             playsInline
             preload="auto"
+            aria-hidden="true"
           >
             <source src={heroVideo} type="video/mp4" />
-            Your browser does not support the video tag.
           </video>
-          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-900 via-primary-900/70 to-primary-900/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-900/80 via-primary-900/30 to-transparent" />
         </div>
-        <div className="absolute inset-0  z-[1]" />
-        <div className="absolute inset-0 z-[1]" />
-        <div className="absolute inset-0 z-[1]" />
-        <div className="container-main relative z-10 py-16 pb-24">
-          <div className="absolute inset-0" />
-          <ScrollReveal className="text-center max-w-[800px] mx-auto relative z-10">
-            <div className="inline-flex items-center justify-center mb-8">
-              <img src="/images/bfcn-logo.png" alt="BFCN Logo" className="w-[120px] h-[120px] md:w-[140px] md:h-[140px] rounded-full object-contain border-4 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.2)] bg-white" />
-            </div>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-[1.1]">
-              Bright Future <span className="text-accent-300">Community</span> Network
+
+        <div className="container-main relative z-10 pb-16 md:pb-24 pt-24">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-8 bg-accent-300" />Ogbomoso · Oyo State · Nigeria</span>
+            <h1 className="font-serif text-[2.75rem] sm:text-6xl lg:text-[5.25rem] text-white leading-[1.02] mb-7">
+              Building a brighter future, <em className="italic text-accent-300 font-normal">together.</em>
             </h1>
-            <p className="inline-block text-lg font-bold uppercase tracking-[0.1em] text-accent-400 mb-6 px-6 py-2 border-2 border-accent-400/40 rounded-full">Forward Together</p>
-            <p className="text-base md:text-lg text-white/85 max-w-[600px] mx-auto mb-8 leading-relaxed">
-              Empowering communities through sustainable development, youth empowerment, education, and grassroots leadership in Ogbomoso and across Oyo State, Nigeria.
+            <p className="text-lg md:text-xl text-white/80 max-w-[580px] mb-10 leading-relaxed">
+              Bright Future Community Network empowers communities through education, youth development, enterprise and grassroots leadership.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button onClick={() => setShowJoinDrawer(true)} variant="white" size="lg" iconRight={ArrowRight}>Join BFCN</Button>
-              <Button to="/programmes" variant="white-outline" size="lg">Our Programmes</Button>
-              <Button to="/volunteer" variant="ghost" size="lg" className="!text-white/90 hover:!bg-white/10">Get Involved</Button>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => setShowJoinDrawer(true)} variant="accent" size="lg" iconRight={ArrowRight}>Join BFCN</Button>
+              <Button to="/programmes" variant="white-outline" size="lg">Explore our programmes</Button>
             </div>
           </ScrollReveal>
         </div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="white" /></svg>
-        </div>
       </section>
-      <section className="py-12 md:py-16">
+
+      {/* Impact numbers */}
+      <section className="bg-white border-b border-gray-100">
         <div className="container-main">
-          <ScrollReveal animation="stagger-children" className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {stats.map((s) => (
-              <div key={s.label} className="flex flex-col items-center text-center p-6 rounded-xl bg-white border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 text-primary-600 mb-4"><s.icon size={28} /></div>
-                <span className="font-serif text-3xl font-bold text-primary-600 leading-none mb-2">{s.value}</span>
-                <span className="text-sm text-gray-600 font-medium">{s.label}</span>
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-100">
+            {stats.map((s, i) => (
+              <div key={s.label} className={`py-10 md:py-14 px-4 md:px-8 ${i % 2 === 0 ? 'pl-0' : ''} lg:pl-8 lg:first:pl-0 ${i >= 2 ? 'border-t lg:border-t-0 border-gray-100' : ''}`}>
+                <span className="block font-serif text-4xl md:text-5xl text-primary-800 leading-none mb-3">{s.value}</span>
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-gray-600"><s.icon size={16} className="text-accent-500" />{s.label}</span>
               </div>
             ))}
           </ScrollReveal>
         </div>
       </section>
-      <section className="py-16 md:py-20 bg-gray-50">
+
+      {/* Programmes */}
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="container-main">
-          <ScrollReveal><SectionHeader label="What We Do" title="Our Programmes" subtitle="We drive meaningful change through structured programmes that address community needs and empower people for a brighter future." /></ScrollReveal>
-          <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {programmes.map((p) => (
-              <div key={p.title} className="p-6 bg-white rounded-xl border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center justify-center w-14 h-14 rounded-xl mb-4" style={{ backgroundColor: `${p.color}15`, color: p.color }}><p.icon size={28} /></div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">{p.title}</h3>
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">{p.description}</p>
-                <Link to="/programmes" className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 no-underline hover:gap-2 transition-all">Learn More <ChevronRight size={16} /></Link>
-              </div>
-            ))}
-          </ScrollReveal>
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.4fr] lg:gap-20">
+            <ScrollReveal className="lg:sticky lg:top-28 self-start">
+              <SectionHeader align="left" label="What we do" title="Six programmes, one shared purpose." subtitle="Structured, long-term initiatives that respond to what our communities need most — and equip people to lead change themselves." className="!mb-8" />
+              <Button to="/programmes" variant="secondary" iconRight={ArrowRight}>All programmes</Button>
+            </ScrollReveal>
+            <ScrollReveal animation="stagger-children" className="grid sm:grid-cols-2 gap-px bg-gray-200 rounded-[20px] overflow-hidden border border-gray-200">
+              {programmes.map((p, i) => (
+                <Link key={p.title} to="/programmes" className="group flex flex-col p-7 md:p-8 bg-white no-underline hover:bg-primary-50/50 transition-colors">
+                  <div className="flex items-center justify-between mb-8">
+                    <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 group-hover:bg-primary-700 group-hover:text-white transition-colors"><p.icon size={22} strokeWidth={1.75} /></span>
+                    <span className="font-serif text-sm text-gray-400">0{i + 1}</span>
+                  </div>
+                  <h3 className="font-serif text-[1.4rem] text-gray-900 mb-3">{p.title}</h3>
+                  <p className="text-[15px] text-gray-600 leading-relaxed mb-6 flex-1">{p.description}</p>
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700">Learn more <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+                </Link>
+              ))}
+            </ScrollReveal>
+          </div>
         </div>
       </section>
-      <section className="py-16 md:py-20">
+
+      {/* Projects */}
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <ScrollReveal><SectionHeader label="Our Impact" title="Latest Projects" subtitle="From community libraries to clean water, our projects create lasting change." /></ScrollReveal>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <SectionHeader align="left" label="Our impact" title="Latest projects" subtitle="From community libraries to clean water — work that creates lasting change." className="!mb-0" />
+            <Button to="/projects" variant="secondary" iconRight={ArrowRight} className="shrink-0">View all projects</Button>
+          </div>
           <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((p) => (
               <Card key={p.id} variant="elevated">
-                <div className="h-[200px] overflow-hidden rounded-t-xl bg-gradient-to-br from-primary-50 to-primary-100">
-                  {p.image ? (
-                    <img
-                      src={p.image}
-                      alt={p.title}
-                      className="w-full h-full object-cover rounded-t-xl transition-transform duration-500 hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div className={`${p.image ? 'hidden' : 'flex'} items-center justify-center h-full text-primary-300`}><Briefcase size={40} /></div>
-                </div>
+                <MediaImage src={p.image} alt={p.title} Fallback={Briefcase} />
                 <Card.Body>
-                  <div className="mb-3"><Badge.Status status={p.status} /></div>
+                  <div className="mb-4"><Badge.Status status={p.status} /></div>
                   <Card.Title>{p.title}</Card.Title>
                   <Card.Text>{p.description}</Card.Text>
                   <Card.Meta><Card.MetaItem icon={Users}>{p.beneficiaries}</Card.MetaItem></Card.Meta>
@@ -116,52 +124,46 @@ const Home = () => {
               </Card>
             ))}
           </ScrollReveal>
-          <div className="text-center mt-8"><Button to="/projects" variant="secondary" iconRight={ArrowRight}>View All Projects</Button></div>
         </div>
       </section>
-      <section className="py-16 md:py-20 bg-gray-50">
+
+      {/* Events */}
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="container-main">
-          <ScrollReveal><SectionHeader label="Join Us" title="Upcoming Events" subtitle="Be part of our community events, workshops, and activities." /></ScrollReveal>
-          <ScrollReveal className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <SectionHeader align="left" label="Join us" title="Upcoming events" subtitle="Workshops, outreaches and gatherings across our communities." className="!mb-0" />
+            <Button to="/events" variant="secondary" iconRight={ArrowRight} className="shrink-0">All events</Button>
+          </div>
+          <ScrollReveal className="flex flex-col bg-white rounded-[20px] border border-gray-200 divide-y divide-gray-100 overflow-hidden">
             {events.map((e) => (
-              <div key={e.id} className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-5 p-5 bg-white border border-gray-200 rounded-xl hover:translate-x-1 hover:shadow-md transition-all duration-300">
-                <div className="flex md:flex-col items-center justify-center gap-2 md:gap-0 min-w-[60px] md:h-16 px-3 py-2 bg-gradient-to-br from-primary-600 to-primary-700 text-white rounded-lg shrink-0">
-                  <span className="text-xl font-bold leading-none">{e.date.split(' ')[1]?.replace(',', '')}</span>
-                  <span className="text-xs font-semibold uppercase tracking-wider">{e.date.split(' ')[0]?.slice(0, 3)}</span>
+              <Link key={e.id} to="/events" className="group grid grid-cols-[64px_1fr] md:grid-cols-[88px_1fr_auto] items-center gap-5 md:gap-8 p-5 md:p-7 no-underline hover:bg-gray-50 transition-colors">
+                <div className="flex flex-col items-center justify-center aspect-square rounded-2xl bg-primary-50 text-primary-800">
+                  <span className="font-serif text-2xl md:text-3xl leading-none">{e.date.split(' ')[1]?.replace(',', '')}</span>
+                  <span className="mt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600">{e.date.split(' ')[0]?.slice(0, 3)}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">{e.title}</h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{e.description}</p>
-                  <div className="flex gap-4 text-xs text-gray-500"><span className="inline-flex items-center gap-1"><Clock size={14} /> {e.time}</span><span className="inline-flex items-center gap-1"><MapPin size={14} /> {e.venue}</span></div>
+                <div className="min-w-0">
+                  <h3 className="font-serif text-xl text-gray-900 mb-1.5 group-hover:text-primary-700 transition-colors">{e.title}</h3>
+                  <p className="text-[15px] text-gray-600 mb-3 line-clamp-2">{e.description}</p>
+                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] font-medium text-gray-500"><span className="inline-flex items-center gap-1.5"><Clock size={14} /> {e.time}</span><span className="inline-flex items-center gap-1.5"><MapPin size={14} /> {e.venue}</span></div>
                 </div>
-                <Button to="/events" variant="ghost" size="sm" iconRight={ChevronRight}>Details</Button>
-              </div>
+                <span className="hidden md:grid place-items-center w-11 h-11 rounded-full border border-gray-200 text-gray-500 group-hover:bg-primary-700 group-hover:border-primary-700 group-hover:text-white transition-colors"><ArrowUpRight size={18} /></span>
+              </Link>
             ))}
           </ScrollReveal>
-          <div className="text-center mt-8"><Button to="/events" variant="secondary" iconRight={ArrowRight}>View All Events</Button></div>
         </div>
       </section>
-      <section className="py-16 md:py-20">
+
+      {/* News */}
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <ScrollReveal><SectionHeader label="Stay Informed" title="Latest News" subtitle="Updates from BFCN programmes, projects, and community activities." /></ScrollReveal>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <SectionHeader align="left" label="Stay informed" title="News & stories" subtitle="Updates from BFCN programmes, projects and community life." className="!mb-0" />
+            <Button to="/news" variant="secondary" iconRight={ArrowRight} className="shrink-0">Read the newsroom</Button>
+          </div>
           <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {news.map((a) => (
               <Card key={a.id} variant="elevated" to="/news">
-                <div className="h-[200px] overflow-hidden rounded-t-xl bg-gradient-to-br from-primary-50 to-primary-100">
-                  {a.image ? (
-                    <img
-                      src={a.image}
-                      alt={a.title}
-                      className="w-full h-full object-cover rounded-t-xl transition-transform duration-500 hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div className={`${a.image ? 'hidden' : 'flex'} items-center justify-center h-full text-primary-300`}><BookOpen size={36} /></div>
-                </div>
+                <MediaImage src={a.image} alt={a.title} Fallback={BookOpen} />
                 <Card.Body>
                   <Card.Tag>{a.category}</Card.Tag>
                   <Card.Title>{a.title}</Card.Title>
@@ -173,40 +175,46 @@ const Home = () => {
           </ScrollReveal>
         </div>
       </section>
-      <section className="py-16 md:py-20 bg-primary-600">
-        <div className="container-main">
-          <ScrollReveal><SectionHeader light label="Real Stories" title="Community Impact" subtitle="Hear from the people whose lives have been transformed through BFCN programmes." /></ScrollReveal>
+
+      {/* Testimonials */}
+      <section className="py-20 md:py-28 bg-primary-800 relative overflow-hidden">
+        <div className="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative">
+          <ScrollReveal><SectionHeader light label="Real stories" title="In their own words" subtitle="People whose lives have been changed through BFCN programmes." /></ScrollReveal>
           <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {impactQuotes.map((item, i) => (
-              <div key={i} className="p-8 bg-white/10 backdrop-blur-lg border border-white/15 rounded-xl">
-                <div className="flex gap-1 text-accent-400 mb-4">{[...Array(5)].map((_, j) => <Star key={j} size={16} fill="currentColor" />)}</div>
-                <blockquote className="text-base text-white/90 leading-relaxed italic mb-6">&ldquo;{item.quote}&rdquo;</blockquote>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-11 h-11 rounded-full bg-accent-400 text-white font-bold text-lg">{item.name.charAt(0)}</div>
+            {impactQuotes.map((item) => (
+              <figure key={item.name} className="m-0 flex flex-col p-8 md:p-10 rounded-[20px] bg-white/[0.06] border border-white/10">
+                <Quote size={32} className="text-accent-300 mb-6" strokeWidth={1.5} />
+                <blockquote className="m-0 font-serif text-xl md:text-[1.4rem] text-white leading-snug mb-8 flex-1">{item.quote}</blockquote>
+                <figcaption className="flex items-center gap-3">
+                  <div className="grid place-items-center w-11 h-11 rounded-full bg-accent-400 text-primary-900 font-bold">{item.name.charAt(0)}</div>
                   <div>
                     <strong className="block text-white text-sm font-semibold">{item.name}</strong>
-                    <span className="block text-white/60 text-xs">{item.role}</span>
+                    <span className="block text-white/55 text-[13px]">{item.role}</span>
                   </div>
-                </div>
-              </div>
+                </figcaption>
+              </figure>
             ))}
           </ScrollReveal>
         </div>
       </section>
-      <section className="py-16 md:py-20 bg-gradient-to-br from-gray-50 via-white to-primary-50">
+
+      {/* CTA */}
+      <section className="py-20 md:py-28">
         <div className="container-main">
-          <ScrollReveal className="text-center max-w-[700px] mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl text-gray-900 mb-4">Be Part of the Change</h2>
-            <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed">Whether you want to join, volunteer, or support our programmes, your contribution makes a real difference. Let&apos;s build a brighter future together.</p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button to="/join" variant="primary" size="xl" iconRight={ArrowRight}>Join BFCN Today</Button>
-              <Button to="/volunteer" variant="secondary" size="xl">Volunteer With Us</Button>
-              <Button to="/support" variant="accent" size="xl">Support Our Work</Button>
+          <ScrollReveal className="relative overflow-hidden rounded-[28px] bg-accent-50 border border-accent-100 px-6 py-14 md:px-16 md:py-20 text-center">
+            <span className="eyebrow text-accent-700 mb-5"><span className="h-px w-6 bg-accent-400" />Get involved<span className="h-px w-6 bg-accent-400" /></span>
+            <h2 className="font-serif text-4xl md:text-[3.25rem] leading-[1.05] text-gray-900 mb-5 max-w-[720px] mx-auto">Be part of the change.</h2>
+            <p className="text-base md:text-lg text-gray-600 mb-10 leading-relaxed max-w-[560px] mx-auto">Join, volunteer, or support our programmes — every contribution builds a stronger community.</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button to="/join" variant="primary" size="lg" iconRight={ArrowRight}>Join BFCN today</Button>
+              <Button to="/volunteer" variant="secondary" size="lg">Volunteer with us</Button>
+              <Button to="/support" variant="ghost" size="lg">Support our work</Button>
             </div>
           </ScrollReveal>
         </div>
       </section>
-      {/* Join Form Drawer */}
+
       <Drawer
         title="Join Bright Future Community Network"
         placement="right"
@@ -218,6 +226,6 @@ const Home = () => {
       </Drawer>
     </div>
   );
-}
+};
 
 export default Home;

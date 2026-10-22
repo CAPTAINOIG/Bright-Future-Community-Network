@@ -24,7 +24,10 @@ export default function Dropdown({
       theme={{
         components: {
           Dropdown: {
-            controlItemBgHover: '#f7faf6',
+            controlItemBgHover: '#f7f8f6',
+            borderRadiusLG: 14,
+            borderRadiusSM: 8,
+            paddingBlock: 8,
           },
         },
       }}
@@ -43,7 +46,7 @@ export default function Dropdown({
             if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
           }}
           onClick={(e) => e.stopPropagation()}
-          className="inline-flex cursor-pointer select-none"
+          className="inline-flex cursor-pointer select-none rounded-full focus-visible:outline-2 focus-visible:outline-primary-500"
         >
           {trigger}
         </span>

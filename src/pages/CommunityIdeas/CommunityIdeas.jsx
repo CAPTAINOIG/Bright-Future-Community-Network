@@ -11,6 +11,8 @@ import {
   Rocket,
   Eye,
   MessageSquare,
+  Check,
+  MapPin,
 } from 'lucide-react';
 import { Button, ScrollReveal, Badge, SectionHeader } from '../../components/ui';
 import Drawer from '../../components/ui/Drawer';
@@ -53,28 +55,24 @@ const impactStats = [
     value: '127',
     hint: 'since launch',
     icon: Lightbulb,
-    tone: 'bg-yellow-50 text-yellow-700 border-yellow-200',
   },
   {
     label: 'Communities Reached',
     value: '18',
     hint: 'across Oyo & beyond',
     icon: Users,
-    tone: 'bg-primary-50 text-primary-700 border-primary-200',
   },
   {
     label: 'Ideas Implemented',
     value: '43',
     hint: 'delivering real change',
     icon: CheckCircle2,
-    tone: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   },
   {
     label: 'Avg. Review Time',
     value: '48h',
     hint: 'fast turnaround',
     icon: Clock,
-    tone: 'bg-blue-50 text-blue-700 border-blue-200',
   },
 ];
 
@@ -108,6 +106,11 @@ const ideaBenefits = [
   'Direct line to project and programme leads',
 ];
 
+const tabClass = (active) =>
+  `inline-flex items-center justify-center gap-2 flex-1 sm:flex-none h-11 px-5 sm:px-6 rounded-full border-none text-sm font-semibold cursor-pointer transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-100 ${
+    active ? 'bg-white text-primary-800 shadow-[var(--shadow-soft)]' : 'bg-transparent text-gray-600 hover:text-primary-700'
+  }`;
+
 const CommunityIdeasManagement = () => {
   const [showTracker, setShowTracker] = useState(false);
   const [showIdeaDrawer, setShowIdeaDrawer] = useState(false);
@@ -117,101 +120,77 @@ const CommunityIdeasManagement = () => {
 
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-
-        <div className="container-main relative z-10">
-          <ScrollReveal className="text-center max-w-[760px] mx-auto">
-            <span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">
-              Your Voice Matters
-            </span>
-
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-32 -top-32 w-[460px] h-[460px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-6 bg-accent-300" />Your Voice Matters</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">
               Community Ideas
             </h1>
-
-            <p className="text-base text-white/85 max-w-[600px] mx-auto mb-8">
+            <p className="text-lg text-white/70 max-w-[620px] leading-relaxed mb-10">
               See a problem? Have a solution? BFCN listens, reviews every submission,
               and turns community ideas into real, measurable action.
             </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
-                variant="primary"
+                variant="accent"
                 size="lg"
                 onClick={openDrawer}
                 icon={Sparkles}
-                className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold"
               >
                 Share Your Idea
               </Button>
               <Button
-                variant="outline"
+                variant="white-outline"
                 size="lg"
                 onClick={() => setShowTracker(true)}
                 icon={Eye}
-                className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
               >
                 Browse Idea Tracker
               </Button>
             </div>
           </ScrollReveal>
         </div>
-
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path
-              d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z"
-              fill="white"
-            />
-          </svg>
-        </div>
       </section>
 
-      <section className="py-14 md:py-18">
+      {/* Impact numbers */}
+      <section className="bg-white border-b border-gray-100">
         <div className="container-main">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {impactStats.map((stat, index) => (
-              <ScrollReveal key={stat.label} animation="reveal-up" delay={index * 60}>
-                <div className={`rounded-2xl border p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow ${stat.tone}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.1em] opacity-80 mb-2">
-                        {stat.label}
-                      </p>
-                      <p className="text-3xl md:text-4xl font-bold mb-1">{stat.value}</p>
-                      <p className="text-xs opacity-80">{stat.hint}</p>
-                    </div>
-                    <stat.icon size={22} className="opacity-80 shrink-0" />
-                  </div>
-                </div>
-              </ScrollReveal>
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-100">
+            {impactStats.map((stat, i) => (
+              <div key={stat.label} className={`py-10 md:py-14 px-4 md:px-8 ${i % 2 === 0 ? 'pl-0' : ''} lg:pl-8 lg:first:pl-0 ${i >= 2 ? 'border-t lg:border-t-0 border-gray-100' : ''}`}>
+                <span className="block font-serif text-4xl md:text-5xl text-primary-800 leading-none mb-3">{stat.value}</span>
+                <span className="flex items-center gap-2 text-sm font-semibold text-gray-800"><stat.icon size={16} className="text-accent-500 shrink-0" />{stat.label}</span>
+                <span className="block mt-1 text-[13px] text-gray-500">{stat.hint}</span>
+              </div>
             ))}
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28 bg-gray-50">
         <div className="container-main">
-          <div className="flex gap-2 mb-8 border-b border-gray-200">
+          <div className="flex sm:inline-flex gap-1 p-1 mb-12 rounded-full bg-gray-100 border border-gray-200" role="tablist" aria-label="Community ideas views">
             <button
-              className={`px-6 py-3 text-sm font-semibold border-b-[3px] -mb-px transition-all cursor-pointer bg-transparent ${!showTracker
-                  ? 'text-primary-600 border-primary-600'
-                  : 'text-gray-500 border-transparent hover:text-primary-600'
-                }`}
+              type="button"
+              role="tab"
+              aria-selected={!showTracker}
+              className={tabClass(!showTracker)}
               onClick={() => setShowTracker(false)}
             >
-              Submit an Idea
+              <Send size={15} /> Submit an Idea
             </button>
 
             <button
-              className={`px-6 py-3 text-sm font-semibold border-b-[3px] -mb-px transition-all cursor-pointer bg-transparent ${showTracker
-                  ? 'text-primary-600 border-primary-600'
-                  : 'text-gray-500 border-transparent hover:text-primary-600'
-                }`}
+              type="button"
+              role="tab"
+              aria-selected={showTracker}
+              className={tabClass(showTracker)}
               onClick={() => setShowTracker(true)}
             >
-              Idea Tracker
+              <Eye size={15} /> Idea Tracker
             </button>
           </div>
 
@@ -219,43 +198,47 @@ const CommunityIdeasManagement = () => {
             <div className="max-w-[900px]">
               <SectionHeader
                 align="left"
+                label="Idea tracker"
                 title="Submitted Ideas"
                 subtitle="Track the progress of community ideas. Every submission is reviewed and updated here."
               />
 
-              {sampleIdeas.map((idea) => (
-                <div
-                  key={idea.id}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-white border border-gray-200 rounded-xl mb-3 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
-                      <strong className="text-sm">{idea.name}</strong>
-                      <span className="text-sm text-primary-600 font-medium">
-                        {idea.community}
-                      </span>
+              <div className="flex flex-col bg-white rounded-[20px] border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+                {sampleIdeas.map((idea) => (
+                  <div
+                    key={idea.id}
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 md:p-7 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                      <div className="grid place-items-center w-11 h-11 rounded-full bg-primary-50 text-primary-800 font-serif text-lg shrink-0" aria-hidden="true">
+                        {idea.name.replace('Mrs. ', '').charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-serif text-lg md:text-xl text-gray-900 mb-1.5 leading-snug">
+                          {idea.problem}
+                        </h3>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13px] font-medium text-gray-500">
+                          <span>{idea.name}</span>
+                          <span className="inline-flex items-center gap-1"><MapPin size={13} />{idea.community}</span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed mb-0">
-                      {idea.problem}
-                    </p>
-                  </div>
 
-                  <Badge.Status status={idea.status} />
-                </div>
-              ))}
+                    <div className="pl-15 sm:pl-0 shrink-0"><Badge.Status status={idea.status} /></div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div>
-              <ScrollReveal className="max-w-5xl mx-auto mb-14">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
-                  <div className="md:col-span-2">
-                    <span className="inline-block text-xs font-semibold uppercase tracking-[0.12em] text-primary-700 bg-primary-50 border border-primary-100 px-3 py-1 rounded-full mb-5">
-                      How the process works
-                    </span>
-                    <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight mb-4">
+              <ScrollReveal className="mb-16 md:mb-20">
+                <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.2fr] gap-10 lg:gap-20 items-start">
+                  <div className="lg:sticky lg:top-28">
+                    <span className="eyebrow text-primary-600 mb-4"><span className="h-px w-6 bg-accent-400" />How the process works</span>
+                    <h2 className="font-serif text-[2rem] md:text-[2.75rem] leading-[1.08] text-gray-900 mb-5">
                       From a single idea to community-wide change.
                     </h2>
-                    <p className="text-gray-600 mb-6 leading-relaxed">
+                    <p className="text-base md:text-lg text-gray-600 mb-8 leading-relaxed">
                       Every submission is read by a real person on the BFCN team. Within
                       48 hours you&apos;ll get acknowledgement, and when your idea
                       moves forward, the whole community can follow its progress on the
@@ -265,60 +248,56 @@ const CommunityIdeasManagement = () => {
                       variant="primary"
                       size="lg"
                       onClick={openDrawer}
-                      icon={ArrowRight}
+                      iconRight={ArrowRight}
+                      className="w-full sm:w-auto"
                     >
                       Submit Your Idea Now
                     </Button>
                   </div>
-                  <div className="md:col-span-3">
-                    <ol className="space-y-4">
-                      {howItWorks.map((item, index) => (
-                        <li
-                          key={item.step}
-                          className="flex items-start gap-4 p-5 bg-white border border-gray-200 rounded-2xl shadow-sm"
-                        >
-                          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary-50 text-primary-700 border border-primary-100 font-bold">
-                            <item.icon size={20} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-1">
-                              <span className="text-xs font-bold tracking-widest text-primary-700">
-                                STEP {item.step}
-                              </span>
-                            </div>
-                            <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-                            <p className="text-gray-600 leading-relaxed text-sm mb-0">
-                              {item.body}
-                            </p>
-                          </div>
-                          {index < howItWorks.length - 1 ? null : null}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
+                  <ol className="flex flex-col bg-white rounded-[20px] border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+                    {howItWorks.map((item) => (
+                      <li
+                        key={item.step}
+                        className="flex items-start gap-5 p-6 md:p-8"
+                      >
+                        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary-50 text-primary-700">
+                          <item.icon size={22} strokeWidth={1.75} />
+                        </span>
+                        <div className="flex-1">
+                          <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600 mb-1.5">
+                            Step {item.step}
+                          </span>
+                          <h3 className="font-serif text-[1.35rem] text-gray-900 mb-2">{item.title}</h3>
+                          <p className="text-[15px] text-gray-600 leading-relaxed m-0">
+                            {item.body}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               </ScrollReveal>
 
               <ScrollReveal>
-                <div className="rounded-3xl bg-gradient-to-br from-primary-50 via-white to-yellow-50 border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                    <div className="p-8 md:p-12">
-                      <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">
+                <div className="rounded-[28px] bg-white border border-gray-200 overflow-hidden">
+                  <div className="grid grid-cols-1 lg:grid-cols-2">
+                    <div className="p-6 sm:p-10 md:p-14">
+                      <span className="eyebrow text-primary-600 mb-4"><span className="h-px w-6 bg-accent-400" />Why it matters</span>
+                      <h3 className="font-serif text-3xl md:text-4xl text-gray-900 leading-[1.1] mb-4">
                         Why BFCN listens to community ideas
                       </h3>
-                      <p className="text-gray-600 mb-6 leading-relaxed">
+                      <p className="text-[15px] md:text-base text-gray-600 mb-8 leading-relaxed">
                         Sustainable change starts with the people who live the reality
                         every day. Your perspective shapes every BFCN programme, project,
                         and intervention.
                       </p>
-                      <ul className="space-y-3 mb-8">
+                      <ul className="space-y-3.5 mb-10">
                         {ideaBenefits.map((benefit) => (
                           <li key={benefit} className="flex items-start gap-3">
-                            <CheckCircle2
-                              size={20}
-                              className="text-primary-600 shrink-0 mt-0.5"
-                            />
-                            <span className="text-gray-700 leading-relaxed">
+                            <span className="grid place-items-center w-6 h-6 rounded-full bg-primary-700 text-white shrink-0 mt-0.5" aria-hidden="true">
+                              <Check size={14} strokeWidth={2.5} />
+                            </span>
+                            <span className="text-[15px] text-gray-700 leading-relaxed">
                               {benefit}
                             </span>
                           </li>
@@ -334,7 +313,7 @@ const CommunityIdeasManagement = () => {
                           Share an Idea
                         </Button>
                         <Button
-                          variant="outline"
+                          variant="secondary"
                           size="lg"
                           onClick={() => setShowTracker(true)}
                           icon={Eye}
@@ -343,40 +322,39 @@ const CommunityIdeasManagement = () => {
                         </Button>
                       </div>
                     </div>
-                    <div className="relative hidden lg:block">
-                      <div className="absolute inset-0 p-10 flex flex-col justify-center">
-                        <div className="rounded-2xl bg-white border border-gray-200 p-6 shadow-md">
-                          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
-                            <div className="h-10 w-10 rounded-full bg-yellow-100 text-yellow-700 grid place-items-center">
-                              <Lightbulb size={20} />
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold mb-0.5">
-                                Recent spotlight
-                              </p>
-                              <p className="text-xs text-gray-500 mb-0">
-                                Oke-Elerin · 3 days ago
-                              </p>
-                            </div>
-                            <Badge.Status status="In Progress" className="ml-auto" />
+                    <div className="relative hidden lg:flex flex-col justify-center p-12 bg-primary-800 overflow-hidden">
+                      <div className="absolute -right-24 -top-24 w-[380px] h-[380px] rounded-full bg-primary-700/60 blur-3xl" aria-hidden="true" />
+                      <div className="relative rounded-[20px] bg-white p-7 shadow-[var(--shadow-lift)]">
+                        <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-100">
+                          <div className="h-11 w-11 rounded-full bg-accent-50 text-accent-600 grid place-items-center shrink-0">
+                            <Lightbulb size={20} strokeWidth={1.75} />
                           </div>
-                          <p className="text-sm font-semibold mb-1">
-                            Clean water for the primary school
-                          </p>
-                          <p className="text-sm text-gray-600 mb-5 leading-relaxed">
-                            &ldquo;The nearest borehole is 45 minutes away on foot.
-                            Pupils sometimes miss the first hour of class fetching
-                            water. A solar-powered borehole on the school premises
-                            would change everything.&rdquo;
-                          </p>
-                          <div className="flex items-center justify-between text-xs text-gray-500 pt-4 border-t border-gray-100">
-                            <span className="inline-flex items-center gap-1">
-                              <Users size={14} /> 240+ beneficiaries
-                            </span>
-                            <span className="inline-flex items-center gap-1">
-                              <Handshake size={14} /> Community + BFCN partnership
-                            </span>
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600 mb-0.5">
+                              Recent spotlight
+                            </p>
+                            <p className="text-[13px] text-gray-500 mb-0">
+                              Oke-Elerin · 3 days ago
+                            </p>
                           </div>
+                          <div className="ml-auto"><Badge.Status status="In Progress" /></div>
+                        </div>
+                        <p className="font-serif text-xl text-gray-900 mb-3 leading-snug">
+                          Clean water for the primary school
+                        </p>
+                        <p className="text-[15px] text-gray-600 mb-6 leading-relaxed">
+                          &ldquo;The nearest borehole is 45 minutes away on foot.
+                          Pupils sometimes miss the first hour of class fetching
+                          water. A solar-powered borehole on the school premises
+                          would change everything.&rdquo;
+                        </p>
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] font-medium text-gray-500 pt-4 border-t border-gray-100">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Users size={14} /> 240+ beneficiaries
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Handshake size={14} /> Community + BFCN partnership
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -388,19 +366,11 @@ const CommunityIdeasManagement = () => {
         </div>
       </section>
 
-        <Drawer
+      <Drawer
         isOpen={showIdeaDrawer}
         onClose={closeDrawer}
-        title={
-          <div className="pr-6">
-            <h2 className="text-lg font-serif font-bold m-0 text-[#17231d]">
-              Submit a Community Idea
-            </h2>
-            <p className="text-xs text-[#708078] mt-1 mb-0 leading-relaxed">
-              Your details are safe with us
-            </p>
-          </div>
-        }
+        title="Submit a Community Idea"
+        subtitle="Your details are safe with us"
         position="right"
       >
         <CommunityIdeasForm

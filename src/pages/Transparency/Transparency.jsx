@@ -24,41 +24,71 @@ const projectOutcomes = [
 const Transparency = () => {
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]"><div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" /><div className="container-main relative z-10"><ScrollReveal className="text-center max-w-[700px] mx-auto"><span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">Accountability</span><h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">Transparency</h1><p className="text-base text-white/85 max-w-[560px] mx-auto">See our impact, reports, and how resources are used.</p></ScrollReveal></div><div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="white" /></svg></div></section>
-      <section className="py-12 md:py-16"><div className="container-main">
-        <ScrollReveal animation="stagger-children" className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {impactStats.map((s) => (
-            <div key={s.label} className="flex flex-col items-center text-center p-6 rounded-xl bg-white border border-gray-200 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 text-primary-600 mb-4"><s.icon size={28} /></div>
-              <span className="font-serif text-3xl font-bold text-primary-600 leading-none mb-2">{s.value}</span>
-              <span className="text-sm text-gray-600 font-medium">{s.label}</span>
-            </div>
-          ))}
-        </ScrollReveal>
-      </div></section>
-      <section className="py-16 md:py-20 bg-gray-50"><div className="container-main">
-        <ScrollReveal><SectionHeader label="Reports" title="Programme & Impact Reports" subtitle="Download our reports to learn about our work and impact." /></ScrollReveal>
-        <ScrollReveal className="flex flex-col gap-3 max-w-[800px] mx-auto">
-          {reports.map((r, i) => (
-            <div key={i} className="flex items-center gap-4 p-5 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-50 text-primary-600 shrink-0"><FileText size={24} /></div>
-              <div className="flex-1"><span className="text-xs font-semibold text-accent-400 uppercase tracking-wider">{r.type}</span><h4 className="text-base font-bold my-1">{r.title}</h4><span className="text-xs text-gray-500">{r.date}</span></div>
-              <button className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 bg-white text-primary-600 cursor-pointer hover:bg-primary-600 hover:text-white hover:border-primary-600 transition-all"><Download size={18} /></button>
-            </div>
-          ))}
-        </ScrollReveal>
-      </div></section>
-      <section className="py-16 md:py-20"><div className="container-main">
-        <ScrollReveal><SectionHeader label="Results" title="Project Outcomes" subtitle="Measurable results from our completed projects." /></ScrollReveal>
-        <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projectOutcomes.map((item, i) => (
-            <div key={i} className="p-6 bg-white border border-gray-200 rounded-xl border-t-4 border-t-primary-600">
-              <h4 className="text-lg font-bold mb-4">{item.project}</h4>
-              <ul className="list-none p-0 flex flex-col gap-3">{item.outcomes.map((o, j) => <li key={j} className="flex items-center gap-2 text-sm text-gray-600"><CheckCircle size={16} className="text-green-700 shrink-0" />{o}</li>)}</ul>
-            </div>
-          ))}
-        </ScrollReveal>
-      </div></section>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-8 bg-accent-300" />Accountability</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">Transparency</h1>
+            <p className="text-lg text-white/70 leading-relaxed max-w-[620px] m-0">See our impact, reports, and how resources are used.</p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Impact numbers */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="container-main">
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-100">
+            {impactStats.map((s, i) => (
+              <div key={s.label} className={`py-10 md:py-14 px-4 md:px-8 ${i % 2 === 0 ? 'pl-0' : ''} lg:pl-8 lg:first:pl-0 ${i >= 2 ? 'border-t lg:border-t-0 border-gray-100' : ''}`}>
+                <span className="block font-serif text-4xl md:text-5xl text-primary-800 leading-none mb-3">{s.value}</span>
+                <span className="inline-flex items-center gap-2 text-sm font-medium text-gray-600"><s.icon size={16} className="text-accent-500" />{s.label}</span>
+              </div>
+            ))}
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Reports */}
+      <section className="py-20 md:py-28 bg-gray-50">
+        <div className="container-main">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.4fr] lg:gap-20">
+            <ScrollReveal className="lg:sticky lg:top-28 self-start">
+              <SectionHeader align="left" label="Reports" title="Programme & impact reports" subtitle="Download our reports to learn about our work and impact." className="!mb-0" />
+            </ScrollReveal>
+            <ScrollReveal className="flex flex-col bg-white rounded-[20px] border border-gray-200 divide-y divide-gray-100 overflow-hidden">
+              {reports.map((r, i) => (
+                <div key={i} className="group flex items-center gap-4 md:gap-5 p-5 md:p-6 hover:bg-gray-50/70 transition-colors">
+                  <span className="grid place-items-center w-12 h-12 rounded-full bg-primary-50 text-primary-700 shrink-0"><FileText size={20} strokeWidth={1.75} /></span>
+                  <div className="flex-1 min-w-0">
+                    <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600">{r.type}</span>
+                    <h3 className="font-serif text-lg md:text-xl text-gray-900 leading-snug my-1">{r.title}</h3>
+                    <span className="block text-[13px] font-medium text-gray-500">{r.date}</span>
+                  </div>
+                  <button type="button" aria-label={`Download ${r.title}`} className="grid place-items-center w-11 h-11 shrink-0 rounded-full border border-gray-200 bg-white text-gray-600 cursor-pointer hover:bg-primary-700 hover:text-white hover:border-primary-700 transition-colors"><Download size={18} /></button>
+                </div>
+              ))}
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Outcomes */}
+      <section className="py-20 md:py-28">
+        <div className="container-main">
+          <ScrollReveal><SectionHeader align="left" label="Results" title="Project outcomes" subtitle="Measurable results from our completed projects." /></ScrollReveal>
+          <ScrollReveal animation="stagger-children" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {projectOutcomes.map((item, i) => (
+              <div key={i} className="flex flex-col p-7 md:p-8 bg-white border border-gray-200 rounded-[20px] transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[var(--shadow-lift)]">
+                <span className="font-serif text-sm text-gray-400 mb-6">0{i + 1}</span>
+                <h3 className="font-serif text-[1.35rem] text-gray-900 mb-5">{item.project}</h3>
+                <ul className="list-none m-0 p-0 flex flex-col gap-3 pt-5 border-t border-gray-100">{item.outcomes.map((o, j) => <li key={j} className="flex items-start gap-2.5 text-[15px] text-gray-600 leading-snug"><CheckCircle size={16} className="mt-0.5 text-primary-600 shrink-0" />{o}</li>)}</ul>
+              </div>
+            ))}
+          </ScrollReveal>
+        </div>
+      </section>
     </div>
   );
 }

@@ -43,101 +43,96 @@ const social = [
 const Footer = () => {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  const headingCls = 'text-[11px] font-bold text-white/50 uppercase tracking-[0.18em] mb-5';
+  const linkCls = 'text-[15px] text-white/75 no-underline hover:text-accent-300 transition-colors';
+
   return (
-    <footer>
-      <div className="bg-gradient-to-br from-primary-800 to-primary-600 py-10">
-        <div className="container-main">
-          <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left justify-between">
-            <div>
-              <h3 className="font-serif text-2xl text-white mb-2">Stay Connected</h3>
-              <p className="text-sm text-white/80 m-0">Get updates on BFCN programmes, events, and community impact.</p>
-            </div>
-            <form className="flex flex-col sm:flex-row gap-3 w-full max-w-[440px]" onSubmit={(e) => e.preventDefault()}>
-              <div className="relative flex-1">
-                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input type="email" placeholder="Your email address" className="w-full py-3 px-4 pl-10 border-2 border-white/20 rounded-lg bg-white/10 text-white text-sm placeholder:text-white/50 focus:outline-none focus:border-accent-400 focus:shadow-[0_0_0_3px_rgba(212,160,23,0.2)]" aria-label="Email for newsletter" />
-              </div>
-              <button type="submit" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent-400 text-white font-semibold text-sm rounded-lg border-2 border-accent-400 hover:bg-accent-600 hover:border-accent-600 transition-all cursor-pointer"><Send size={16} />Subscribe</button>
-            </form>
+    <footer className="bg-primary-900 text-white">
+      {/* Newsletter */}
+      <div className="container-main pt-16 md:pt-20">
+        <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] items-end pb-14 border-b border-white/10">
+          <div>
+            <span className="eyebrow text-accent-300 mb-4"><span className="h-px w-6 bg-accent-300" />Stay connected</span>
+            <h3 className="font-serif text-3xl md:text-[2.5rem] leading-[1.1] text-white m-0 max-w-[520px]">Stories of change from Ogbomoso, in your inbox.</h3>
           </div>
+          <form className="flex flex-col sm:flex-row gap-3 w-full" onSubmit={(e) => e.preventDefault()}>
+            <label className="relative flex-1">
+              <span className="sr-only">Email address</span>
+              <Mail size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40" />
+              <input type="email" placeholder="you@example.com" className="w-full h-[52px] pl-12 pr-5 rounded-full border border-white/15 bg-white/[0.06] text-white text-[15px] placeholder:text-white/40 focus:outline-none focus:border-accent-300 focus:bg-white/10 transition-colors" />
+            </label>
+            <button type="submit" className="inline-flex h-[52px] items-center justify-center gap-2 px-7 rounded-full bg-accent-400 text-primary-900 font-semibold text-[15px] border-none hover:bg-accent-300 transition-colors cursor-pointer"><Send size={16} />Subscribe</button>
+          </form>
         </div>
       </div>
 
       {/* Main */}
-      <div className="bg-gray-900 py-16">
-        <div className="container-main">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1.2fr] gap-10 lg:gap-12">
-            {/* About */}
-            <div>
-              <Link to="/" className="flex items-center gap-3 no-underline mb-5">
-                <img src="/images/bfcn-logo.png" alt="BFCN Logo" className="w-12 h-12 rounded-full object-contain" />
-                <div>
-                  <span className="block font-serif text-base font-bold text-white leading-snug">Bright Future Community Network</span>
-                  <span className="block text-xs text-accent-400 uppercase tracking-[0.1em]">Forward Together</span>
-                </div>
-              </Link>
-              <p className="text-sm text-gray-400 leading-relaxed mb-5">Bright Future Community Network (BFCN) is a community-focused organization dedicated to community development, youth empowerment, education, and practical community transformation in Ogbomoso and beyond.</p>
-              <div className="flex gap-3">
-                {
-                  social.map((social, i) => (
-                    <a
-                      key={i}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/8 text-gray-400 hover:bg-primary-600 hover:text-white hover:-translate-y-0.5 transition-all no-underline"
-                      aria-label={social.name}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d={social.path} />
-                      </svg>
-                    </a>
-                  ))}
+      <div className="container-main py-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr] gap-12">
+          <div>
+            <Link to="/" className="flex items-center gap-3 no-underline mb-6">
+              <img src="/images/bfcn-logo.png" alt="" className="w-12 h-12 rounded-full object-contain bg-white" />
+              <div className="leading-none">
+                <span className="block font-serif text-lg text-white">Bright Future</span>
+                <span className="block mt-1.5 text-[10px] font-bold text-accent-300 uppercase tracking-[0.18em]">Community Network</span>
               </div>
+            </Link>
+            <p className="text-[15px] text-white/60 leading-relaxed mb-6 max-w-[360px]">A community-focused organisation advancing development, youth empowerment and education in Ogbomoso and beyond. Forward together.</p>
+            <div className="flex gap-2">
+              {social.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-10 h-10 rounded-full border border-white/15 text-white/70 hover:bg-accent-400 hover:border-accent-400 hover:text-primary-900 transition-colors no-underline"
+                  aria-label={item.name}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d={item.path} />
+                  </svg>
+                </a>
+              ))}
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-5 pb-3 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-[30px] after:h-0.5 after:bg-accent-400 after:rounded-full">Quick Links</h4>
-              <ul className="list-none p-0 m-0 flex flex-col gap-3">
-                {quickLinks.map(l => <li key={l.to}><Link to={l.to} className="text-sm text-gray-400 no-underline hover:text-white transition-colors">{l.label}</Link></li>)}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-5 pb-3 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-[30px] after:h-0.5 after:bg-accent-400 after:rounded-full">Get Involved</h4>
-              <ul className="list-none p-0 m-0 flex flex-col gap-3">
-                {getInvolved.map(l => <li key={l.to}><Link to={l.to} className="text-sm text-gray-400 no-underline hover:text-white transition-colors">{l.label}</Link></li>)}
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-5 pb-3 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-[30px] after:h-0.5 after:bg-accent-400 after:rounded-full">Contact Us</h4>
-              <ul className="list-none p-0 m-0 flex flex-col gap-4">
-                {[
-                  { Icon: MapPin, text: 'Ogbomoso, Oyo State, Nigeria' },
-                  { Icon: Phone, text: '+234 37 800 288', href: 'tel:+2348137800288' },
-                  { Icon: Mail, text: 'info@bfcn.org', href: 'mailto:info@bfcn.org' },
-                  { Icon: Clock, text: 'Mon–Fri: 9am–5pm' },
-                ].map(({ Icon, text, href }, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-gray-400">
-                    <Icon size={16} className="shrink-0 mt-0.5 text-accent-400" />
-                    {href ? <a href={href} className="text-gray-400 no-underline hover:text-white transition-colors">{text}</a> : <span>{text}</span>}
-                  </li>
-                ))}
-              </ul>
-            </div>
+          </div>
+          <div>
+            <h4 className={headingCls}>Organisation</h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-3">
+              {quickLinks.map(l => <li key={l.to}><Link to={l.to} className={linkCls}>{l.label}</Link></li>)}
+            </ul>
+          </div>
+          <div>
+            <h4 className={headingCls}>Get involved</h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-3">
+              {getInvolved.map(l => <li key={l.to}><Link to={l.to} className={linkCls}>{l.label}</Link></li>)}
+            </ul>
+          </div>
+          <div>
+            <h4 className={headingCls}>Contact</h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-4">
+              {[
+                { Icon: MapPin, text: 'Ogbomoso, Oyo State, Nigeria' },
+                { Icon: Phone, text: '+234 37 800 288', href: 'tel:+2348137800288' },
+                { Icon: Mail, text: 'info@bfcn.org', href: 'mailto:info@bfcn.org' },
+                { Icon: Clock, text: 'Mon–Fri, 9am–5pm WAT' },
+              ].map(({ Icon, text, href }) => (
+                <li key={text} className="flex items-start gap-3 text-[15px] text-white/75">
+                  <Icon size={16} className="shrink-0 mt-1 text-accent-300" />
+                  {href ? <a href={href} className={linkCls}>{text}</a> : <span>{text}</span>}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
-      <div className="bg-[#111] py-5">
-        <div className="container-main">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center">
-            <p className="text-xs text-gray-500 m-0">© {new Date().getFullYear()} Bright Future Community Network. All rights reserved.</p>
-            <div className="flex items-center gap-3">
-              <Link to="/transparency" className="text-xs text-gray-500 no-underline hover:text-white transition-colors">Transparency</Link>
-              <span className="text-gray-700">|</span>
-              <Link to="/contact" className="text-xs text-gray-500 no-underline hover:text-white transition-colors">Contact</Link>
-            </div>
-            <button className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/8 text-gray-400 hover:bg-primary-600 hover:text-white hover:-translate-y-0.5 transition-all cursor-pointer border-none" onClick={scrollToTop} aria-label="Scroll to top"><ArrowUp size={18} /></button>
+
+      <div className="border-t border-white/10">
+        <div className="container-main py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[13px] text-white/45 m-0">© {new Date().getFullYear()} Bright Future Community Network. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link to="/transparency" className="text-[13px] text-white/45 no-underline hover:text-white transition-colors">Transparency</Link>
+            <Link to="/contact" className="text-[13px] text-white/45 no-underline hover:text-white transition-colors">Contact</Link>
+            <button className="flex items-center justify-center w-9 h-9 rounded-full border border-white/15 bg-transparent text-white/60 hover:bg-white hover:text-primary-900 transition-colors cursor-pointer" onClick={scrollToTop} aria-label="Back to top"><ArrowUp size={16} /></button>
           </div>
         </div>
       </div>

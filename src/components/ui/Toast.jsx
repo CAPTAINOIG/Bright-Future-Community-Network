@@ -11,12 +11,12 @@ export function ToastProvider() {
       theme="light"
       toastOptions={{
         style: {
-          background: 'white',
-          border: '1px solid #e5e7eb',
-          borderRadius: '0.5rem',
+          background: '#ffffff',
+          border: '1px solid #e2e6e1',
+          borderRadius: '14px',
+          color: '#151a17',
           fontSize: '14px'
-        },
-        className: 'shadow-lg'
+        }
       }}
     />
   );

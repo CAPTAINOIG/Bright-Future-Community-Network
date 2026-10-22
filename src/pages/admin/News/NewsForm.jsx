@@ -57,24 +57,24 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
     <div>
       {submitted ? (
         <div className="py-8 text-center">
-          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 mb-5">
+          <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-full bg-primary-50 text-primary-600 ring-1 ring-inset ring-primary-100">
             <CheckCircle2 size={32} />
           </div>
-          <h3 className="font-serif text-2xl font-bold mb-2">
+          <h3 className="mb-2 font-serif text-2xl text-gray-900">
             {isEditing ? 'Article updated!' : 'Article created successfully!'}
           </h3>
-          <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+          <p className="mx-auto mb-8 max-w-md text-sm leading-relaxed text-gray-500">
             {isEditing
               ? `"${article?.title ?? 'This article'}" has been updated.`
               : `Great! Your article has been saved${'Draft' === 'Draft' && article?.status !== 'Published' ? ' as a draft' : ' and published'}.`}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button variant="outline" size="lg" onClick={handleCancel} icon={X}>
-              Back to Articles
+              Back to articles
             </Button>
             {!isEditing && (
               <Button variant="primary" size="lg" onClick={handleSubmitAnother} icon={FileText}>
-                Write Another Article
+                Write another article
               </Button>
             )}
           </div>
@@ -82,23 +82,23 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5 py-2">
           {isEditing && article && (
-            <div className="p-4 rounded-xl bg-[#f4f6f4] border border-[#e3e7e3] space-y-1.5 mb-1">
+            <div className="mb-1 space-y-1.5 rounded-2xl border border-gray-200 bg-gray-50 p-4">
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-[#d9ece0] text-sm font-semibold text-[#427456] shrink-0">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-50 text-sm font-semibold text-primary-700">
                   {(article?.title ?? '??').split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <h4 className="font-serif text-base font-bold text-[#17231d] m-0 leading-tight truncate">
+                  <h4 className="m-0 truncate text-[15px] font-semibold leading-tight text-gray-900">
                     {article.title}
                   </h4>
-                  <p className="text-xs text-[#708078] m-0">Editing article · {article.status ?? 'Draft'}</p>
+                  <p className="m-0 mt-0.5 text-xs text-gray-500">Editing article · {article.status ?? 'Draft'}</p>
                 </div>
               </div>
             </div>
           )}
 
           <FormField
-            label="Article Title"
+            label="Article title"
             required
             {...register('title', {
               required: 'Title is required',
@@ -124,7 +124,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
           />
 
           <FormField
-            label="Article Content"
+            label="Article content"
             type="textarea"
             required
             {...register('content', {
@@ -136,7 +136,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
             rows={7}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <FormField
               label="Category"
               type="select"
@@ -168,7 +168,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
             </FormField>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <FormField
               label="Author"
               required
@@ -179,7 +179,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
             />
 
             <FormField
-              label="Publish Date"
+              label="Publish date"
               type="date"
               required
               {...register('publishedDate', { required: 'Publish date is required' })}
@@ -189,14 +189,14 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
           </div>
 
           <FormField
-            label="Cover Image URL"
+            label="Cover image URL"
             {...register('coverImage')}
             error={errors.coverImage}
             placeholder="https://images.unsplash.com/..."
             icon={Image}
           />
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+          <div className="flex flex-col items-stretch gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center">
             <Button
               type="button"
               variant="outline"
@@ -214,10 +214,10 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               icon={FileText}
               fullWidth
             >
-              {isEditing ? 'Update Article' : 'Create Article'}
+              {isEditing ? 'Update article' : 'Create article'}
             </Button>
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-center leading-relaxed">
+          <p className="mt-2 text-center text-xs leading-relaxed text-gray-500">
             Published articles appear on the News page for the public.
           </p>
         </form>

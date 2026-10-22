@@ -132,26 +132,44 @@ const Gallery = () => {
 
   return (
     <div>
-      <section className="relative py-24 bg-gradient-to-br from-primary-800 to-primary-600 overflow-hidden -mt-[72px] pt-[calc(72px+4rem)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(212,160,23,0.12)_0%,transparent_50%)]" />
-        <div className="container-main relative z-10"><ScrollReveal className="text-center max-w-[700px] mx-auto"><span className="inline-block text-sm font-semibold uppercase tracking-[0.1em] text-accent-400 mb-4">Our Moments</span><h1 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">Gallery</h1><p className="text-base text-white/85 max-w-[560px] mx-auto">Photos from BFCN events, projects, and community activities.</p></ScrollReveal></div>
-        <div className="absolute bottom-[-1px] left-0 right-0 z-10 hero-wave"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="white" /></svg></div>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-primary-900">
+        <div className="absolute -right-40 -top-40 w-[520px] h-[520px] rounded-full bg-primary-700/50 blur-3xl" aria-hidden="true" />
+        <div className="container-main relative py-20 md:py-28">
+          <ScrollReveal className="max-w-[760px]">
+            <span className="eyebrow text-accent-300 mb-6"><span className="h-px w-8 bg-accent-300" />Our moments</span>
+            <h1 className="font-serif text-4xl md:text-6xl text-white leading-[1.05] mb-6">Gallery</h1>
+            <p className="text-lg text-white/70 leading-relaxed max-w-[620px] m-0">Photos from BFCN events, projects, and community activities.</p>
+          </ScrollReveal>
+        </div>
       </section>
 
-      <section className="py-16 md:py-20">
+      <section className="py-20 md:py-28">
         <div className="container-main">
           {!selectedAlbum ? (
             <>
-              <div className="flex gap-2 flex-wrap mb-8">{categories.map(c => <button key={c} className={`px-4 py-2 border rounded-full text-sm font-medium cursor-pointer transition-all ${filter === c ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-600 border-gray-200 hover:border-primary-600 hover:text-primary-600'}`} onClick={() => setFilter(c)}>{c}</button>)}</div>
+              <div className="flex gap-2 flex-wrap mb-12" role="group" aria-label="Filter albums by category">
+                {categories.map(c => (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-pressed={filter === c}
+                    className={`h-10 px-5 border rounded-full text-sm font-semibold cursor-pointer transition-colors ${filter === c ? 'bg-primary-800 text-white border-primary-800' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900'}`}
+                    onClick={() => setFilter(c)}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
               <ScrollReveal animation="stagger-children" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filtered.map((album) => (
-                  <div key={album.id} className="rounded-xl overflow-hidden border border-gray-200 cursor-pointer hover:-translate-y-1 hover:shadow-lg transition-all duration-300" onClick={() => setSelectedAlbum(album)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setSelectedAlbum(album)}>
-                    <div className="relative h-[200px] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100">
+                  <div key={album.id} className="group rounded-[20px] overflow-hidden border border-gray-200 bg-white cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[var(--shadow-lift)]" onClick={() => setSelectedAlbum(album)} role="button" tabIndex={0} aria-label={`Open album: ${album.title}`} onKeyDown={(e) => e.key === 'Enter' && setSelectedAlbum(album)}>
+                    <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary-50 to-primary-100">
                       {album.images?.[0]?.image ? (
                         <img
                           src={album.images[0].image}
                           alt={album.title}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                           loading="lazy"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
@@ -159,27 +177,33 @@ const Gallery = () => {
                           }}
                         />
                       ) : null}
-                      <div className={`${album.images?.[0]?.image ? 'hidden' : 'flex'} flex-col items-center justify-center gap-3 h-full text-primary-300`}><Image size={40} /><span className="text-sm font-medium">{album.images.length} photos</span></div>
-                      {album.images?.[0]?.image && <div className="absolute top-3 right-3 px-3 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold rounded-full">{album.images.length} photos</div>}
+                      <div className={`${album.images?.[0]?.image ? 'hidden' : 'flex'} absolute inset-0 flex-col items-center justify-center gap-3 text-primary-300`}><Image size={40} strokeWidth={1.5} /><span className="text-sm font-medium">{album.images.length} photos</span></div>
+                      {album.images?.[0]?.image && <div className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 bg-primary-900/70 backdrop-blur-sm text-white text-xs font-semibold rounded-full"><Image size={12} />{album.images.length} photos</div>}
                     </div>
-                    <div className="p-4"><span className="text-xs font-semibold text-accent-400 uppercase tracking-wider">{album.category}</span><h3 className="text-base font-bold mt-1">{album.title}</h3></div>
+                    <div className="p-6">
+                      <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent-600">{album.category}</span>
+                      <h3 className="font-serif text-[1.35rem] text-gray-900 leading-snug mt-2 mb-0">{album.title}</h3>
+                    </div>
                   </div>
                 ))}
               </ScrollReveal>
             </>
           ) : (
             <>
-              <button className="inline-flex items-center bg-transparent border-none cursor-pointer text-sm font-semibold text-primary-600 mb-6 p-0 hover:underline" onClick={() => setSelectedAlbum(null)}>← Back to Albums</button>
-              <h2 className="font-serif text-2xl mb-6">{selectedAlbum.title}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <button type="button" className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-gray-200 bg-white cursor-pointer text-sm font-semibold text-gray-700 mb-8 hover:border-gray-300 hover:text-primary-700 transition-colors" onClick={() => setSelectedAlbum(null)}><ChevronLeft size={16} /> Back to albums</button>
+              <div className="mb-10">
+                <span className="eyebrow text-primary-600 mb-4"><span className="h-px w-6 bg-accent-400" aria-hidden="true" />{selectedAlbum.category} · {selectedAlbum.images.length} photos</span>
+                <h2 className="font-serif text-[2rem] md:text-[2.75rem] leading-[1.08] text-gray-900 m-0">{selectedAlbum.title}</h2>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
                 {selectedAlbum.images.map((img, idx) => (
-                  <div key={img.id} className="cursor-pointer rounded-lg overflow-hidden hover:scale-[1.02] transition-transform" onClick={() => setLightbox({ album: selectedAlbum, index: idx })} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setLightbox({ album: selectedAlbum, index: idx })}>
-                    <div className="h-[180px] overflow-hidden bg-gray-100">
+                  <figure key={img.id} className="group m-0 cursor-pointer" onClick={() => setLightbox({ album: selectedAlbum, index: idx })} role="button" tabIndex={0} aria-label={`View photo: ${img.caption}`} onKeyDown={(e) => e.key === 'Enter' && setLightbox({ album: selectedAlbum, index: idx })}>
+                    <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
                       {img.image ? (
                         <img
                           src={img.image}
                           alt={img.caption}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                           loading="lazy"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
@@ -187,10 +211,10 @@ const Gallery = () => {
                           }}
                         />
                       ) : null}
-                      <div className={`${img.image ? 'hidden' : 'flex'} items-center justify-center h-full text-gray-300`}><Image size={32} /></div>
+                      <div className={`${img.image ? 'hidden' : 'flex'} absolute inset-0 items-center justify-center text-gray-300`}><Image size={32} strokeWidth={1.5} /></div>
                     </div>
-                    <span className="block px-3 py-2 text-xs text-gray-600 bg-gray-50">{img.caption}</span>
-                  </div>
+                    <figcaption className="pt-3 text-[13px] font-medium text-gray-600 leading-snug">{img.caption}</figcaption>
+                  </figure>
                 ))}
               </div>
             </>
@@ -199,23 +223,27 @@ const Gallery = () => {
       </section>
 
       {!selectedAlbum && (
-        <section className="border-t border-gray-100 bg-[#f8faf7] py-16 md:py-20">
+        <section className="bg-gray-50 py-20 md:py-28">
           <div className="container-main">
-            <div className="mb-8 max-w-2xl">
-              <span className="text-sm font-semibold uppercase tracking-[0.1em] text-accent-500">Stories in motion</span>
-              <h2 className="mt-2 font-serif text-3xl font-bold text-primary-800">Community work, on film</h2>
-              <p className="mt-3 text-sm leading-6 text-gray-600">Temporary stock videos are in place while BFCN&apos;s own footage is being prepared. Replace each link with your uploaded video when it is ready.</p>
+            <div className="mb-12 md:mb-14 max-w-[620px]">
+              <span className="eyebrow text-primary-600 mb-4"><span className="h-px w-6 bg-accent-400" aria-hidden="true" />Stories in motion</span>
+              <h2 className="font-serif text-[2rem] md:text-[2.75rem] leading-[1.08] text-gray-900 mb-4">Community work, on film</h2>
+              <p className="text-[15px] leading-relaxed text-gray-600 m-0">Temporary stock videos are in place while BFCN&apos;s own footage is being prepared. Replace each link with your uploaded video when it is ready.</p>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {videoStories.map((video) => (
-                <a key={video.title} href={video.link} target="_blank" rel="noreferrer" className="group overflow-hidden rounded-2xl border border-gray-200 bg-white no-underline shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <a key={video.title} href={video.link} target="_blank" rel="noreferrer" className="group flex flex-col overflow-hidden rounded-[20px] border border-gray-200 bg-white no-underline transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[var(--shadow-lift)]">
                   <div className="relative aspect-video overflow-hidden bg-primary-900">
-                    <img src={video.image} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                    <div className="absolute inset-0 bg-primary-900/25" />
-                    <span className="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-primary-700 shadow-lg transition-transform group-hover:scale-110"><Play size={22} fill="currentColor" /></span>
-                    <span className="absolute bottom-3 right-3 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Stock video</span>
+                    <img src={video.image} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 to-transparent" />
+                    <span className="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-primary-800 shadow-lg transition-transform group-hover:scale-110"><Play size={20} fill="currentColor" className="ml-0.5" /></span>
+                    <span className="absolute bottom-3 right-3 rounded-full bg-primary-900/70 backdrop-blur-sm px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Stock video</span>
                   </div>
-                  <div className="p-5"><h3 className="text-base font-bold text-gray-900">{video.title}</h3><p className="mt-2 text-sm leading-6 text-gray-600">{video.description}</p><span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600">Watch video <ExternalLink size={14} /></span></div>
+                  <div className="flex flex-col flex-1 p-6">
+                    <h3 className="font-serif text-[1.35rem] leading-snug text-gray-900 mb-2">{video.title}</h3>
+                    <p className="text-[15px] leading-relaxed text-gray-600 mb-5 flex-1">{video.description}</p>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700">Watch video <ExternalLink size={14} /></span>
+                  </div>
                 </a>
               ))}
             </div>
@@ -224,29 +252,29 @@ const Gallery = () => {
       )}
 
       {lightbox && (
-        <div className="fixed inset-0 z-50 bg-black/92 flex items-center justify-center lightbox-overlay" onClick={() => setLightbox(null)}>
-          <button className="absolute top-4 right-4 bg-transparent border-none text-white cursor-pointer p-2 hover:text-accent-400 z-10" onClick={() => setLightbox(null)}><X size={24} /></button>
-          <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 border-none text-white p-3 rounded-lg cursor-pointer hover:bg-white/20 transition-colors" onClick={(e) => { e.stopPropagation(); navigateLightbox(-1); }}><ChevronLeft size={32} /></button>
-          <div className="text-center max-w-[800px] p-4" onClick={(e) => e.stopPropagation()}>
-            <div className="w-full h-[400px] md:h-[500px] bg-white/5 rounded-lg overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-primary-900/95 backdrop-blur-sm flex items-center justify-center lightbox-overlay" onClick={() => setLightbox(null)} role="dialog" aria-modal="true" aria-label="Photo viewer">
+          <button type="button" aria-label="Close" className="absolute top-4 right-4 grid place-items-center w-11 h-11 rounded-full bg-white/10 border-none text-white cursor-pointer hover:bg-white/20 transition-colors z-10" onClick={() => setLightbox(null)}><X size={22} /></button>
+          <button type="button" aria-label="Previous photo" className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 grid place-items-center w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/10 border-none text-white cursor-pointer hover:bg-white/20 transition-colors z-10" onClick={(e) => { e.stopPropagation(); navigateLightbox(-1); }}><ChevronLeft size={24} /></button>
+          <div className="text-center w-full max-w-[900px] px-4 md:px-20" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full h-[60vh] md:h-[70vh] max-h-[640px] rounded-2xl overflow-hidden">
               {lightbox.album.images[lightbox.index]?.image ? (
                 <img
                   key={lightbox.index}
                   src={lightbox.album.images[lightbox.index].image}
                   alt={lightbox.album.images[lightbox.index]?.caption}
-                  className="w-full h-full object-contain rounded-lg"
+                  className="w-full h-full object-contain"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextSibling.style.display = 'flex';
                   }}
                 />
               ) : null}
-              <div className={`${lightbox.album.images[lightbox.index]?.image ? 'hidden' : 'flex'} items-center justify-center w-full h-full text-white/30`}><Image size={64} /></div>
+              <div className={`${lightbox.album.images[lightbox.index]?.image ? 'hidden' : 'flex'} items-center justify-center w-full h-full text-white/30`}><Image size={64} strokeWidth={1.5} /></div>
             </div>
-            <p className="text-white text-sm mt-4">{lightbox.album.images[lightbox.index]?.caption}</p>
-            <p className="text-white/50 text-xs mt-2">{lightbox.index + 1} / {lightbox.album.images.length}</p>
+            <p className="font-serif text-white text-lg mt-5 mb-0">{lightbox.album.images[lightbox.index]?.caption}</p>
+            <p className="text-white/50 text-xs font-semibold tracking-[0.14em] mt-2 mb-0">{lightbox.index + 1} / {lightbox.album.images.length}</p>
           </div>
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 border-none text-white p-3 rounded-lg cursor-pointer hover:bg-white/20 transition-colors" onClick={(e) => { e.stopPropagation(); navigateLightbox(1); }}><ChevronRight size={32} /></button>
+          <button type="button" aria-label="Next photo" className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 grid place-items-center w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/10 border-none text-white cursor-pointer hover:bg-white/20 transition-colors z-10" onClick={(e) => { e.stopPropagation(); navigateLightbox(1); }}><ChevronRight size={24} /></button>
         </div>
       )}
     </div>
