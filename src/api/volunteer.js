@@ -35,11 +35,11 @@ export const useGetVolunteerById = (id) => {
   });
 };
 
-export const useUpdateVolunteer = (id) => {
+export const useUpdateVolunteer = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationKey: ["volunteer", id],
-    mutationFn: async ({ ...data }) => {
+    mutationKey: ["volunteer"],
+    mutationFn: async ({ id, ...data }) => {
       const res = await axiosInstance.put(`/api/volunteers/${id}`, data);
       return res.data;
     },
@@ -49,11 +49,11 @@ export const useUpdateVolunteer = (id) => {
   });
 };
 
-export const useDeleteVolunteer = (id) => {
+export const useDeleteVolunteer = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationKey: ["volunteer", id],
-    mutationFn: async () => {
+    mutationKey: ["volunteer"],
+    mutationFn: async (id) => {
       const res = await axiosInstance.delete(`/api/volunteers/${id}`);
       return res.data;
     },

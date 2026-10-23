@@ -15,7 +15,6 @@ import { initialsOf } from './utilsVolunteer';
 import { DetailItem, SectionLabel, pillClass } from '../components/AdminUI';
 
 const VolunteerDetails = ({ volunteer, onEdit, onClose }) => {
-    console.log(volunteer)
   if (!volunteer) return null;
   
   const isActive = volunteer.isActive === true;
@@ -45,7 +44,6 @@ const VolunteerDetails = ({ volunteer, onEdit, onClose }) => {
           </div>
         </div>
       </div>
-
       <section className="space-y-4">
         <SectionLabel>Profile</SectionLabel>
         <dl className="m-0 grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
@@ -57,7 +55,6 @@ const VolunteerDetails = ({ volunteer, onEdit, onClose }) => {
           <DetailItem icon={CalendarDays} label="Joined" value={joined} />
         </dl>
       </section>
-
       <section className="space-y-3">
         <SectionLabel>Areas of interest</SectionLabel>
         {skills.length ? (
@@ -72,14 +69,12 @@ const VolunteerDetails = ({ volunteer, onEdit, onClose }) => {
           <p className="m-0 text-sm text-gray-400">—</p>
         )}
       </section>
-
       <section className="space-y-3">
         <SectionLabel className="flex items-center gap-2"><Quote size={13} /> Why they volunteer</SectionLabel>
         <p className={`m-0 rounded-xl bg-gray-50 px-4 py-3 text-[15px] leading-relaxed ${volunteer.reason ? 'text-gray-700' : 'text-gray-400'}`}>
           {volunteer.reason || 'Motivation not provided yet.'}
         </p>
       </section>
-
       <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row">
         <Button type="button" variant="outline" size="lg" onClick={onClose} icon={X} fullWidth>
           Close

@@ -166,7 +166,6 @@ const EnhancedMember = () => {
       </Tooltip>
     </div>
   );
-
   const tableColumns = [
     {
       accessorKey: 'fullName',
@@ -260,9 +259,7 @@ const EnhancedMember = () => {
       cell: (info) => <ActionMenu member={info.row.original} />,
     },
   ];
-
   const pageSize = 10;
-
   return (
     <div className="space-y-6">
       <Toaster position='top-right'/>
@@ -275,7 +272,6 @@ const EnhancedMember = () => {
           </Button>
         }
       />
-
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -312,6 +308,8 @@ const EnhancedMember = () => {
               onOpenChange={setStatusOpen}
               className="min-w-40"
               aria-label="Status"
+              optionLabelProp="label"
+              labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
               options={['All', 'Active', 'Inactive'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
             />
             <Popover
@@ -328,6 +326,8 @@ const EnhancedMember = () => {
                       onChange={setCommunityFilter}
                       className="w-full"
                       showSearch
+                      optionLabelProp="label"
+                      labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
                       options={[{ value: 'All', label: 'All communities' }, ...communityOptions.map((option) => ({ value: option, label: option }))]}
                     />
                   </div>
@@ -338,11 +338,13 @@ const EnhancedMember = () => {
                       onChange={setInterestFilter}
                       className="w-full"
                       showSearch
+                      optionLabelProp="label"
+                      labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
                       options={[{ value: 'All', label: 'All interests' }, ...interestOptions.map((option) => ({ value: option, label: option }))]}
                     />
                   </div>
                   <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                    <Button type="text" size="small" onClick={resetMoreFilters}>Reset</Button>
+                    <Button type="variant" size="small" className='p-2' onClick={resetMoreFilters}>Reset</Button>
                     <Button type="primary" size="small" onClick={() => setFiltersOpen(false)}>Done</Button>
                   </div>
                 </div>

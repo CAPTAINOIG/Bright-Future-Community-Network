@@ -7,38 +7,40 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  CheckCircleIcon,
-  XCircleIcon,
 } from '@heroicons/react/24/outline';
-import { Drawer, ConfirmDialog } from '../../../components/ui';
+import { Drawer, ConfirmDialog, Dropdown } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
 import { Button, Input, Select, Tooltip } from 'antd';
-import { Activity, Clock3, MapPinned, UserCheck } from 'lucide-react';
+import { Activity, CheckCircle2, Clock3, MapPinned, UserCheck, XCircle } from 'lucide-react';
 import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
 import { Toaster, toast } from 'sonner';
 import { VolunteerForm } from '../../../components/forms';
 import { getStatusBadge } from './utilsVolunteer';
-import {
-  useGetVolunteers,
-  useUpdateVolunteer,
-  useDeleteVolunteer,
-} from '../../../api/volunteer';
+import { useGetVolunteers, useDeleteVolunteer, useUpdateVolunteer } from '../../../api/volunteer';
 import VolunteerDetails from './VolunteerDetails';
+import EditVolunteerForm from '../../../components/forms/EditVolunteerForm';
+
+const statusOptions = [
+  { value: 'Approved', label: 'Approve', icon: CheckCircle2 },
+  { value: 'Pending', label: 'Mark as pending', icon: Clock3 },
+  { value: 'Rejected', label: 'Reject', icon: XCircle },
+];
 
 const VolunteerManagement = () => {
   const { data: response, isPending: volunteersLoading } = useGetVolunteers({ limit: 1000 });
   const rawVolunteers = Array.isArray(response?.data?.volunteers) ? response.data.volunteers : [];
   const total = response?.data?.pagination?.total;
 
-  const { mutateAsync: updateVolunteer } = useUpdateVolunteer();
   const { mutateAsync: deleteVolunteer, isPending: isDeleting } = useDeleteVolunteer();
+  const { mutateAsync: updateVolunteer } = useUpdateVolunteer();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showVolunteerDrawer, setShowVolunteerDrawer] = useState(false);
   const [showVolunteerDetailsDrawer, setShowVolunteerDetailsDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
   const [statusOpen, setStatusOpen] = useState(false);
 
@@ -69,7 +71,7 @@ const VolunteerManagement = () => {
     setSelectedVolunteer(null);
     setShowVolunteerDrawer(true);
   };
-  
+
   const closeVolunteerDrawer = () => {
     setShowVolunteerDrawer(false);
     setTimeout(() => setSelectedVolunteer(null), 300);
@@ -78,7 +80,7 @@ const VolunteerManagement = () => {
   const handleVolunteerDetails = (volunteer) => {
     setSelectedVolunteer(volunteer);
     setShowVolunteerDetailsDrawer(true);
-  };  
+  };
 
   const handleCloseVolunteerDetailsDrawer = () => {
     setShowVolunteerDetailsDrawer(false);
@@ -87,12 +89,13 @@ const VolunteerManagement = () => {
 
   const handleVolunteerEdit = (volunteer) => {
     setSelectedVolunteer(volunteer);
-    setShowVolunteerDrawer(true);
+    setShowVolunteerDetailsDrawer(false);
+    setShowEditDrawer(true);
   };
 
-
-  const handleFormSubmitted = () => {
-    closeVolunteerDrawer();
+  const handleCloseEditDrawer = () => {
+    setShowEditDrawer(false);
+    setTimeout(() => setSelectedVolunteer(null), 300);
   };
 
   const handleVolunteerDelete = async () => {
@@ -107,14 +110,15 @@ const VolunteerManagement = () => {
     }
   };
 
-  // const changeStatus = async (volunteer, status) => {
-  //   try {
-  //     const res = await updateVolunteer({ id: volunteer._id, status });
-  //     toast.success(res?.message || `Volunteer ${status.toLowerCase()}`);
-  //   } catch (error) {
-  //     toast.error(error.response?.data?.message || 'Failed to update volunteer.');
-  //   }
-  // };
+  const handleChangeStatus = async (volunteer, status) => {
+    if (!volunteer?._id) return;
+    try {
+      const res = await updateVolunteer({ id: volunteer._id, status });
+      toast.success(res?.message || `Volunteer marked as ${status.toLowerCase()}.`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update volunteer.');
+    }
+  };
 
   const VolunteerActions = ({ volunteer }) => (
     <div className="flex items-center gap-0.5">
@@ -139,6 +143,117 @@ const VolunteerManagement = () => {
       </Tooltip>
     </div>
   );
+
+  const tableColumns = [
+    {
+      accessorKey: 'fullName',
+      header: 'Volunteer',
+      cell: (info) => {
+        const v = info.row?.original;
+        return (
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary-50 text-xs font-semibold text-primary-700">
+              {v?.fullName?.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '??'}
+            </div>
+            <div>
+              <p className="m-0 font-semibold text-gray-900">{v?.fullName}</p>
+              <p className="m-0 text-xs tabular-nums text-gray-500">ID: #{(v?._id ?? '').toString().slice(-6).toUpperCase()}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'email',
+      header: 'Contact',
+      cell: (info) => {
+        const v = info.row?.original;
+        return (
+          <div>
+            <p className="m-0 text-[13px] text-gray-700">{v?.email || '—'}</p>
+            <p className="m-0 text-xs text-gray-500">{v?.phone || '—'}</p>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'community',
+      header: 'Community',
+      cell: (info) => {
+        const v = info.row?.original;
+        return (
+          <div>
+            <p className="m-0 text-[13px] capitalize text-gray-700">{v?.community || '—'}</p>
+            <p className="m-0 text-xs capitalize text-gray-500">Availability: {v?.availability || '—'}</p>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'skills',
+      header: 'Skills',
+      cell: (info) => {
+        const skills = info.row?.original?.skills;
+        return (
+          <div className="flex max-w-[240px] flex-wrap gap-1">
+            {Array.isArray(skills) && skills.length > 0
+              ? skills.slice(0, 3).map((s, i) => (
+                  <span key={i} className={pillClass('success')}>{s}</span>
+                ))
+              : <span className="text-xs text-gray-400">—</span>}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'experience',
+      header: 'Experience',
+      cell: (info) => {
+        const experience = info.row?.original?.experience;
+        return experience
+          ? <span className={`${pillClass('neutral')} capitalize`}>{experience}</span>
+          : <span className="text-xs text-gray-400">—</span>;
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Applied',
+      enableSorting: true,
+      cell: (info) => {
+        const date = info.row?.original?.createdAt || info.getValue?.();
+        return date ? new Date(date).toLocaleDateString() : '—';
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: (info) => {
+        const v = info.row?.original;
+        return (
+          <Dropdown
+            items={statusOptions
+              .filter((option) => option.value !== v?.status)
+              .map((option) => ({
+                key: option.value,
+                label: option.label,
+                icon: option.icon,
+                onClick: () => handleChangeStatus(v, option.value),
+              }))}
+            trigger={
+              <span title="Change status" className={getStatusBadge(v?.status)}>
+                {v?.status}
+              </span>
+            }
+          />
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: (info) => <VolunteerActions volunteer={info.row?.original} />,
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -189,6 +304,8 @@ const VolunteerManagement = () => {
               onOpenChange={setStatusOpen}
               className="min-w-40"
               aria-label="Status"
+              optionLabelProp="label"
+              labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
               options={['All', 'Pending', 'Approved', 'Rejected'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
             />
             <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
@@ -203,85 +320,19 @@ const VolunteerManagement = () => {
         </div>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
         <SimpleTable
           data={filteredVolunteers}
+          columns={tableColumns}
           loading={volunteersLoading}
-          keyField="_id"
+          pageSize={10}
           emptyTitle="No volunteers found"
           emptyDescription="Try adjusting your search or status filter."
-          columns={[
-            {
-              accessorKey: 'fullName',
-              header: 'Volunteer',
-              cell: (info) => {
-                const v = info.row?.original;
-                return (
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary-50 text-xs font-semibold text-primary-700">
-                      {v?.fullName?.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() || '??'}
-                    </div>
-                    <div>
-                      <p className="m-0 font-semibold text-gray-900">{v?.fullName}</p>
-                      <p className="m-0 text-xs text-gray-500">
-                        Applied: {v?.createdAt ? new Date(v.createdAt).toLocaleDateString() : '—'}
-                      </p>
-                    </div>
-                  </div>
-                );
-              },
-            },
-            {
-              accessorKey: 'email',
-              header: 'Contact',
-              cell: (info) => {
-                const v = info.row?.original;
-                return <div><p className="m-0 text-[13px] text-gray-700">{v?.email}</p><p className="m-0 text-xs text-gray-500">{v?.phone}</p></div>;
-              }
-            },
-            {
-              accessorKey: 'community',
-              header: 'Community',
-              cell: (info) => {
-                const v = info.row?.original;
-                return (
-                  <div>
-                    <p className="m-0 text-[13px] text-gray-700">{v?.community || '—'}</p>
-                    <p className="m-0 text-xs text-gray-500">Availability: {v?.availability || '—'}</p>
-                  </div>
-                );
-              },
-            },
-            {
-              accessorKey: 'skills',
-              header: 'Skills',
-              cell: (info) => {
-                const skills = info.row?.original?.skills;
-                return (
-                  <div className="flex flex-wrap gap-1 max-w-[240px]">
-                    {Array.isArray(skills) && skills.length > 0
-                      ? skills.slice(0, 3).map((s, i) => (
-                        <span key={i} className={pillClass('success')}>{s}</span>
-                      ))
-                      : <span className="text-xs text-gray-400">—</span>}
-                  </div>
-                );
-              },
-            },
-            {
-              accessorKey: 'status',
-              header: 'Status',
-              cell: (info) => {
-                const status = info.row?.original?.status;
-                return <span className={getStatusBadge(status)}>{status}</span>;
-              }
-            },
-            {
-              id: 'actions',
-              header: 'Actions',
-              cell: (info) => <VolunteerActions volunteer={info.row?.original} />,
-            },
-          ]}
+          keyField="_id"
         />
       </motion.div>
 
@@ -295,7 +346,7 @@ const VolunteerManagement = () => {
         <VolunteerForm
           volunteer={selectedVolunteer}
           onClose={closeVolunteerDrawer}
-          onSubmitted={handleFormSubmitted}
+          onSubmitted={closeVolunteerDrawer}
         />
       </Drawer>
 
@@ -322,6 +373,29 @@ const VolunteerManagement = () => {
         />
       </Drawer>
 
+      <Drawer
+        isOpen={showEditDrawer}
+        onClose={handleCloseEditDrawer}
+        title={
+          <div className="pr-6">
+            <h2 className="m-0 font-serif text-xl text-gray-900">
+              Edit volunteer
+            </h2>
+            <p className="mt-1 mb-0 text-[13px] leading-relaxed text-gray-500">
+              Update volunteer details in the directory
+            </p>
+          </div>
+        }
+        position="right"
+        width={600}
+      >
+        <EditVolunteerForm
+          volunteer={selectedVolunteer}
+          onClose={handleCloseEditDrawer}
+          onSubmitted={handleCloseEditDrawer}
+        />
+      </Drawer>
+
       <ConfirmDialog
         isOpen={showDeleteDialog}
         onClose={() => {
@@ -337,6 +411,6 @@ const VolunteerManagement = () => {
       />
     </div>
   );
-}
+};
 
 export default VolunteerManagement;

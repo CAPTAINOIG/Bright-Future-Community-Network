@@ -49,6 +49,8 @@ const VolunteerForm = ({ onClose }) => {
       skills: [],
       availability: '',
       experience: '',
+      status: '',
+      phone: '',
     },
   });
 
