@@ -42,8 +42,6 @@ export default function EventManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [statusOpen, setStatusOpen] = useState(false);
 
   const filteredEvents = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -176,8 +174,6 @@ export default function EventManagement() {
               size="large"
               value={categoryFilter}
               onChange={setCategoryFilter}
-              open={categoryOpen}
-              onOpenChange={setCategoryOpen}
               className="min-w-44"
               aria-label="Categories"
               options={['All', 'Community', 'Training', 'Workshop', 'Meeting', 'Celebration', 'Fundraiser', 'Outreach'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option }))}
@@ -186,8 +182,6 @@ export default function EventManagement() {
               size="large"
               value={statusFilter}
               onChange={setStatusFilter}
-              open={statusOpen}
-              onOpenChange={setStatusOpen}
               className="min-w-44"
               aria-label="Statuses"
               options={['All', 'Upcoming', 'Ongoing', 'Completed', 'Cancelled'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}

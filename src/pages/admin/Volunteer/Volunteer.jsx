@@ -28,24 +28,28 @@ const statusOptions = [
 ];
 
 const VolunteerManagement = () => {
-  const { data: response, isPending: volunteersLoading } = useGetVolunteers({ limit: 1000 });
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 10,
+    search: '',
+    status: undefined,
+  });
+  const { data: response, isPending: volunteersLoading } = useGetVolunteers(filters);
   const rawVolunteers = Array.isArray(response?.data?.volunteers) ? response.data.volunteers : [];
   const total = response?.data?.pagination?.total;
 
   const { mutateAsync: deleteVolunteer, isPending: isDeleting } = useDeleteVolunteer();
   const { mutateAsync: updateVolunteer } = useUpdateVolunteer();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
   const [showVolunteerDrawer, setShowVolunteerDrawer] = useState(false);
   const [showVolunteerDetailsDrawer, setShowVolunteerDetailsDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
-  const [statusOpen, setStatusOpen] = useState(false);
 
   const filteredVolunteers = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const { page, limit, search, status } = filters;
+    const term = search.trim().toLowerCase();
     return rawVolunteers.filter((v) => {
       const skills = Array.isArray(v?.skills) ? v.skills.join(' ') : '';
       const matchesSearch =
@@ -53,11 +57,12 @@ const VolunteerManagement = () => {
         v?.fullName?.toLowerCase()?.includes(term) ||
         v?.email?.toLowerCase()?.includes(term) ||
         v?.community?.toLowerCase()?.includes(term) ||
+        v?.reason?.toLowerCase()?.includes(term) ||
         skills.toLowerCase().includes(term);
-      const matchesStatus = statusFilter === 'All' || v?.status === statusFilter;
+      const matchesStatus = status === undefined || v?.status === status;
       return matchesSearch && matchesStatus;
     });
-  }, [rawVolunteers, searchTerm, statusFilter]);
+  }, [rawVolunteers, filters]);
 
   const totalVolunteers = total ?? rawVolunteers.length;
   const activeCount = useMemo(() => rawVolunteers.filter((v) => v?.isActive === true).length, [rawVolunteers]);
@@ -206,6 +211,16 @@ const VolunteerManagement = () => {
       },
     },
     {
+      accessorKey: 'reason',
+      header: 'Reason',
+      cell: (info) => {
+        const reason = info.row?.original?.reason;
+        return reason
+          ? <span className={`${pillClass('neutral')} capitalize`}>{reason}</span>
+          : <span className="text-xs text-gray-400">—</span>;
+      },
+    },
+    {
       accessorKey: 'experience',
       header: 'Experience',
       cell: (info) => {
@@ -289,8 +304,8 @@ const VolunteerManagement = () => {
           <Input
             allowClear
             size="large"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            value={filters.search}
+            onChange={(event) => setFilters({ ...filters, search: event.target.value })}
             placeholder="Search volunteers by name, email, community, or skills"
             prefix={<MagnifyingGlassIcon className="h-[18px] w-[18px] text-gray-400" />}
             className="min-w-0 flex-1"
@@ -298,14 +313,10 @@ const VolunteerManagement = () => {
           <div className="flex flex-wrap gap-3">
             <Select
               size="large"
-              value={statusFilter}
-              onChange={setStatusFilter}
-              open={statusOpen}
-              onOpenChange={setStatusOpen}
+              value={filters.status ?? 'All'}
+              onChange={(value) => setFilters({ ...filters, page: 1, status: value === 'All' ? undefined : value })}
               className="min-w-40"
               aria-label="Status"
-              optionLabelProp="label"
-              labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
               options={['All', 'Pending', 'Approved', 'Rejected'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
             />
             <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
@@ -326,10 +337,10 @@ const VolunteerManagement = () => {
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <SimpleTable
-          data={filteredVolunteers}
+          data={rawVolunteers}
           columns={tableColumns}
           loading={volunteersLoading}
-          pageSize={10}
+          pageSize={filters.limit}
           emptyTitle="No volunteers found"
           emptyDescription="Try adjusting your search or status filter."
           keyField="_id"
@@ -339,6 +350,7 @@ const VolunteerManagement = () => {
       <Drawer
         isOpen={showVolunteerDrawer}
         onClose={closeVolunteerDrawer}
+        destroyOnClose
         title={<h2 className="m-0 font-serif text-xl text-gray-900">Volunteer registration</h2>}
         position="right"
         width={600}
@@ -353,6 +365,7 @@ const VolunteerManagement = () => {
       <Drawer
         isOpen={showVolunteerDetailsDrawer}
         onClose={handleCloseVolunteerDetailsDrawer}
+        destroyOnClose
         title={
           <div className="pr-6">
             <h2 className="m-0 font-serif text-xl text-gray-900">
@@ -376,6 +389,7 @@ const VolunteerManagement = () => {
       <Drawer
         isOpen={showEditDrawer}
         onClose={handleCloseEditDrawer}
+        destroyOnClose
         title={
           <div className="pr-6">
             <h2 className="m-0 font-serif text-xl text-gray-900">

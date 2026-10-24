@@ -11,6 +11,7 @@ export { default as SectionHeader } from './SectionHeader';
 export { default as Modal } from './Modal';
 export { default as Drawer } from './Drawer';
 export { default as FormField } from './FormField';
+export { default as SelectField } from './SelectField';
 export { default as Dropdown } from './Dropdown';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ConfirmDialog } from './ConfirmDialog';

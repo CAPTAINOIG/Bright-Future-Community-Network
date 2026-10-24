@@ -11,9 +11,10 @@ import {
 import { Drawer, ConfirmDialog, toast } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
-import { Button, Input, Popover, Select, Tooltip } from 'antd';
+import { Button, Input, Select, Tooltip } from 'antd';
 import { Activity, CalendarPlus, MapPinned, Users as UsersIcon } from 'lucide-react';
 import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
+import { MoreFiltersDrawer } from '../components/MoreFiltersDrawer';
 import { exportCsv } from '../../../utils/exportCsv';
 import { useGetMember, useDeleteMember } from '../../../api/member';
 import { JoinForm, EditMemberForm } from '../../../components/forms';
@@ -22,52 +23,39 @@ import { getStatusBadge, softColor } from './utilsMember';
 import { Toaster } from 'sonner';
 
 const EnhancedMember = () => {
-  const { data: response = { members: [], pagination: {} }, isPending: membersLoading } = useGetMember({ limit: 1000 });
+  const [filters, setFilters] = useState({
+  page: 1,
+  limit: 10,
+  search: "",
+  status: "",
+});
+  const { data: response = { members: [], pagination: {} }, isPending: membersLoading } = useGetMember(filters);
   const rawMembers = Array.isArray(response?.data?.members) ? response.data?.members : [];
   const apiPagination = response?.data?.pagination;
   const total = apiPagination?.total;
 
-  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showMemberDrawer, setShowMemberDrawer] = useState(false);
   const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
-  const [statusOpen, setStatusOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [communityFilter, setCommunityFilter] = useState('All');
   const [interestFilter, setInterestFilter] = useState('All');
 
   const { mutateAsync: deleteMember, isPending: isDeleteMemberLoading, isError: isDeleteMemberError } = useDeleteMember();
 
-  const filteredMembers = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    return rawMembers.filter((member) => {
-      const matchesSearch =
-        !term ||
-        member?.fullName?.toLowerCase()?.includes(term) ||
-        member?.email?.toLowerCase()?.includes(term) ||
-        String(member?.phone ?? '').includes(term) ||
-        member?.location?.toLowerCase()?.includes(term) ||
-        member?.community?.toLowerCase()?.includes(term) ||
-        (Array.isArray(member?.interests) && member.interests.some((i) => String(i).toLowerCase().includes(term)));
-
-      const matchesStatus =
-        statusFilter === 'All' ||
-        (statusFilter === 'Active' && member?.isActive === true) ||
-        (statusFilter === 'Inactive' && member?.isActive === false);
-
-      const matchesCommunity =
-        communityFilter === 'All' || member?.community === communityFilter;
-
-      const matchesInterest =
-        interestFilter === 'All' ||
-        (Array.isArray(member?.interests) && member.interests.includes(interestFilter));
-
-      return matchesSearch && matchesStatus && matchesCommunity && matchesInterest;
-    });
-  }, [rawMembers, searchTerm, statusFilter, communityFilter, interestFilter]);
+  const filteredMembers = useMemo(
+    () => rawMembers.filter((member) => {
+      if (statusFilter === 'Active') return member?.isActive === true;
+      if (statusFilter === 'Inactive') return member?.isActive === false;
+      if (communityFilter !== 'All') return member?.community === communityFilter;
+      if (interestFilter !== 'All') return member?.interests?.includes(interestFilter);
+      return true;
+    }),
+    [rawMembers, communityFilter, interestFilter, statusFilter]
+  );
 
   const totalMembers = total ?? rawMembers.length;
   const activeCount = useMemo(() => rawMembers.filter((m) => m?.isActive === true).length, [rawMembers]);
@@ -88,7 +76,7 @@ const EnhancedMember = () => {
   );
 
   const activeFilterCount = [communityFilter !== 'All', interestFilter !== 'All'].filter(Boolean).length;
-
+  
   const resetMoreFilters = () => {
     setCommunityFilter('All');
     setInterestFilter('All');
@@ -259,7 +247,7 @@ const EnhancedMember = () => {
       cell: (info) => <ActionMenu member={info.row.original} />,
     },
   ];
-  const pageSize = 10;
+  
   return (
     <div className="space-y-6">
       <Toaster position='top-right'/>
@@ -293,8 +281,8 @@ const EnhancedMember = () => {
           <Input
             allowClear
             size="large"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            value={filters.search}
+            onChange={(event) => setFilters({ ...filters, search: event.target.value })}
             placeholder="Search members by name, email, phone, location, community, or interest"
             prefix={<MagnifyingGlassIcon className="h-[18px] w-[18px] text-gray-400" />}
             className="min-w-0 flex-1"
@@ -304,56 +292,17 @@ const EnhancedMember = () => {
               size="large"
               value={statusFilter}
               onChange={setStatusFilter}
-              open={statusOpen}
-              onOpenChange={setStatusOpen}
               className="min-w-40"
               aria-label="Status"
-              optionLabelProp="label"
-              labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
               options={['All', 'Active', 'Inactive'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
             />
-            <Popover
-              trigger="click"
-              placement="bottomRight"
-              open={filtersOpen}
-              onOpenChange={setFiltersOpen}
-              content={
-                <div className="w-72 space-y-4 p-1">
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-gray-700">Community</label>
-                    <Select
-                      value={communityFilter}
-                      onChange={setCommunityFilter}
-                      className="w-full"
-                      showSearch
-                      optionLabelProp="label"
-                      labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
-                      options={[{ value: 'All', label: 'All communities' }, ...communityOptions.map((option) => ({ value: option, label: option }))]}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-gray-700">Area of interest</label>
-                    <Select
-                      value={interestFilter}
-                      onChange={setInterestFilter}
-                      className="w-full"
-                      showSearch
-                      optionLabelProp="label"
-                      labelRender={({ label }) => <span style={{ color: '#17231d', fontWeight: 500 }}>{label}</span>}
-                      options={[{ value: 'All', label: 'All interests' }, ...interestOptions.map((option) => ({ value: option, label: option }))]}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                    <Button type="variant" size="small" className='p-2' onClick={resetMoreFilters}>Reset</Button>
-                    <Button type="primary" size="small" onClick={() => setFiltersOpen(false)}>Done</Button>
-                  </div>
-                </div>
-              }
+            <Button 
+              size="large" 
+              icon={<FunnelIcon className="h-[18px] w-[18px]" />}
+              onClick={() => setFiltersOpen(true)}
             >
-              <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>
-                More filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-              </Button>
-            </Popover>
+              More filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            </Button>
             <Button
               size="large"
               icon={<ArrowDownTrayIcon className="h-[18px] w-[18px]" />}
@@ -377,7 +326,7 @@ const EnhancedMember = () => {
           data={filteredMembers}
           columns={tableColumns}
           loading={membersLoading}
-          pageSize={pageSize}
+          pageSize={filters.limit}
           emptyTitle="No members found"
           emptyDescription="Try adjusting your search or status filter."
           keyField="_id"
@@ -387,6 +336,7 @@ const EnhancedMember = () => {
       <Drawer
         isOpen={showMemberDrawer}
         onClose={handleCloseMemberDrawer}
+        destroyOnClose
         title={
           <div className="pr-6">
             <h2 className="m-0 font-serif text-xl text-gray-900">
@@ -406,6 +356,7 @@ const EnhancedMember = () => {
       <Drawer
         isOpen={showDetailsDrawer}
         onClose={handleCloseDetailsDrawer}
+        destroyOnClose
         title={
           <div className="pr-6">
             <h2 className="m-0 font-serif text-xl text-gray-900">
@@ -429,6 +380,7 @@ const EnhancedMember = () => {
       <Drawer
         isOpen={showEditDrawer}
         onClose={handleCloseEditDrawer}
+        destroyOnClose
         title={
           <div className="pr-6">
             <h2 className="m-0 font-serif text-xl text-gray-900">
@@ -461,6 +413,41 @@ const EnhancedMember = () => {
         type="danger"
         confirmText="Delete"
         loading={isDeleteMemberLoading}
+      />
+
+      <MoreFiltersDrawer
+        isOpen={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        filters={[
+          {
+            key: 'community',
+            label: 'Community',
+            placeholder: 'All communities',
+            options: communityOptions,
+            description: 'Filter by member community',
+          },
+          {
+            key: 'interest',
+            label: 'Area of interest',
+            placeholder: 'All interests',
+            options: interestOptions,
+            description: 'Filter by member interests',
+          },
+        ]}
+        filterValues={{
+          community: communityFilter,
+          interest: interestFilter,
+        }}
+        onFilterChange={(key, value) => {
+          if (key === 'community') setCommunityFilter(value);
+          if (key === 'interest') setInterestFilter(value);
+        }}
+        onReset={resetMoreFilters}
+        title="Member Filters"
+        subtitle="Refine your member search with these filters"
+        activeFilterCount={activeFilterCount}
+        resultCount={filteredMembers.length}
+        resultLabel="members"
       />
     </div>
   );

@@ -41,8 +41,6 @@ export default function GalleryManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [typeOpen, setTypeOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
 
   const filteredMedia = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -176,8 +174,6 @@ export default function GalleryManagement() {
               size="large"
               value={typeFilter}
               onChange={setTypeFilter}
-              open={typeOpen}
-              onOpenChange={setTypeOpen}
               className="min-w-44"
               aria-label="Types"
               options={['All', 'Image', 'Video', 'Document', 'Audio'].map((option) => ({ value: option, label: option === 'All' ? 'All types' : option }))}
@@ -186,8 +182,6 @@ export default function GalleryManagement() {
               size="large"
               value={categoryFilter}
               onChange={setCategoryFilter}
-              open={categoryOpen}
-              onOpenChange={setCategoryOpen}
               className="min-w-44"
               aria-label="Categories"
               options={['All', 'Events', 'Programmes', 'Projects', 'Community', 'Outreach', 'Training'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option }))}

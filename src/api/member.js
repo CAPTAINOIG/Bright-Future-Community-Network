@@ -16,8 +16,15 @@ export const useCreateMember = () => {
 };
 
 export const useGetMember = (params = {}) => {
+  const { page = 1, limit = 10, search = '', status = undefined } = params;
   return useQuery({
-    queryKey: ["member", params],
+    queryKey: ["member", page, limit, search, status],
+     params: {
+      page,
+      limit,
+      search,
+      status,
+    },
     queryFn: async () => {
       const res = await axiosInstance.get("/api/members", { params });
       return res.data;

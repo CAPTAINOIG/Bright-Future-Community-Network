@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Check, HandHelping, X } from 'lucide-react';
-import { Button } from '../ui';
+import { Button, FormField } from '../ui';
 import { toast, Toaster } from 'sonner';
 import { useCreateVolunteer } from '../../api/volunteer';
 
@@ -47,9 +47,9 @@ const VolunteerForm = ({ onClose }) => {
       email: '',
       community: '',
       skills: [],
+      reason : '',
       availability: '',
       experience: '',
-      status: '',
       phone: '',
     },
   });
@@ -136,6 +136,23 @@ const VolunteerForm = ({ onClose }) => {
               {errors.phone && (
                 <span className={errorClass} role="alert">
                   {errors.phone.message}
+                </span>
+              )}
+            </div>
+            <div>
+              <label htmlFor="vol-experience" className={labelClass}>Experience <Req /></label>
+              <input
+                id="vol-experience"
+                type="tel"
+                {...register('experience', { required: 'Required' })}
+                placeholder="E.g. Teaching, Programming"
+                autoComplete="tel"
+                aria-invalid={!!errors.experience}
+                className={inputClass('experience')}
+              />
+              {errors.experience && (
+                <span className={errorClass} role="alert">
+                  {errors.experience.message}
                 </span>
               )}
             </div>
@@ -231,29 +248,27 @@ const VolunteerForm = ({ onClose }) => {
             )}
           </fieldset>
 
-          <div>
-            <label htmlFor="vol-availability" className={labelClass}>Availability</label>
-            <select
-              id="vol-availability"
-              {...register('availability')}
-              className={`${inputClass('availability')} cursor-pointer`}
-            >
-              <option value="">Select availability</option>
+          <FormField
+            label="Availability"
+            type="select"
+            placeholder="Select availability"
+            {...register('availability')}
+            error={errors.availability}
+          >
               <option value="weekdays">Weekdays</option>
               <option value="weekends">Weekends</option>
               <option value="both">Both</option>
               <option value="flexible">Flexible</option>
-            </select>
-          </div>
+          </FormField>
 
           <div>
-            <label htmlFor="vol-experience" className={labelClass}>Relevant Experience</label>
+            <label htmlFor="reason" className={labelClass}>Why Volunteering?</label>
             <textarea
-              id="vol-experience"
-              {...register('experience')}
-              placeholder="Tell us about relevant experience..."
+              id="reason"
+              {...register('reason')}
+              placeholder="Tell us why you are volunteering?..."
               rows={4}
-              className={textareaClass('experience')}
+              className={textareaClass('reason')}
             />
           </div>
         </FormSection>

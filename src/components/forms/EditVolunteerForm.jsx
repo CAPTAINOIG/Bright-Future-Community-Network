@@ -1,12 +1,13 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { BadgeCheck, Check, Save, UserCog, X } from 'lucide-react';
-import { Button, toast } from '../ui';
+import { Button, FormField, toast } from '../ui';
 import { useUpdateVolunteer } from '../../api/volunteer';
 
 const skillOptions = [
   'Education',
   'Youth Development',
-  'Skill Training',
+  'Skills Training',
   'Leadership',
   'Community Outreach',
   'Welfare',
@@ -15,6 +16,7 @@ const skillOptions = [
 ];
 
 const EditVolunteerForm = ({ volunteer, onClose, onSubmitted }) => {
+  if (!volunteer) return null;
   const volunteerId = volunteer?._id
   const { mutateAsync: editVolunteer, isPending: isEditVolunteerLoading, isError: isEditVolunteerError } = useUpdateVolunteer();
 
@@ -23,6 +25,7 @@ const EditVolunteerForm = ({ volunteer, onClose, onSubmitted }) => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -37,6 +40,22 @@ const EditVolunteerForm = ({ volunteer, onClose, onSubmitted }) => {
       isActive: volunteer?.isActive ?? true,
     },
   });
+
+  useEffect(() => {
+    if (volunteer) {
+      reset({
+        fullName: volunteer?.fullName ?? '',
+        phone: volunteer?.phone ?? '',
+        email: volunteer?.email ?? '',
+        availability: volunteer?.availability ?? '',
+        community: volunteer?.community ?? '',
+        skills: Array.isArray(volunteer?.skills) ? volunteer.skills : [],
+        experience: volunteer?.experience ?? '',
+        reason: volunteer?.reason ?? '',
+        isActive: volunteer?.isActive ?? true,
+      });
+    }
+  }, [volunteer, reset]);
 
   const skills = watch('skills') || [];
   const isActive = watch('isActive');
@@ -134,7 +153,7 @@ const EditVolunteerForm = ({ volunteer, onClose, onSubmitted }) => {
           )}
         </div>
 
-        <div>
+        {/* <div>
           <label htmlFor="edit-volunteer-availability" className="mb-2 block text-sm font-semibold text-gray-800">Availability <span className="text-red-600" aria-hidden="true">*</span></label>
           <input
             id="edit-volunteer-availability"
@@ -145,12 +164,26 @@ const EditVolunteerForm = ({ volunteer, onClose, onSubmitted }) => {
           {errors.availability && (
             <span className="mt-1.5 block text-[13px] text-red-600" role="alert">{errors.availability.message}</span>
           )}
-        </div>
+        </div> */}
+
+          <FormField
+            label="Availability"
+            type="select"
+            required
+            placeholder="Select availability"
+            {...register('availability')}
+            error={errors.availability}
+          >
+              <option value="weekdays">Weekdays</option>
+              <option value="weekends">Weekends</option>
+              <option value="both">Both</option>
+              <option value="flexible">Flexible</option>
+          </FormField>
 
         <div>
-          <label htmlFor="edit-member-community" className="mb-2 block text-sm font-semibold text-gray-800">Community</label>
+          <label htmlFor="edit-volunteer-community" className="mb-2 block text-sm font-semibold text-gray-800">Community</label>
           <input
-            id="edit-member-community"
+            id="edit-volunteer-community"
             {...register('community')}
             placeholder="Community"
             className={field('community')}
@@ -206,7 +239,7 @@ const EditVolunteerForm = ({ volunteer, onClose, onSubmitted }) => {
       </div>
 
         <div>
-        <label htmlFor="edit-volunteer-reason" className="mb-2 block text-sm font-semibold text-gray-800">Why join BFCN? <span className="text-red-600" aria-hidden="true">*</span></label>
+        <label htmlFor="edit-volunteer-reason" className="mb-2 block text-sm font-semibold text-gray-800">Why Volunteering? <span className="text-red-600" aria-hidden="true">*</span></label>
         <textarea
           id="edit-volunteer-reason"
             {...register('reason', { required: 'Required' })}

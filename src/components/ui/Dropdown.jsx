@@ -37,7 +37,7 @@ export default function Dropdown({
         placement={placement}
         trigger={['click']}
         overlayClassName={className}
-        destroyPopupOnHide
+        destroyOnHidden
       >
         <span
           role="button"

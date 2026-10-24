@@ -43,8 +43,6 @@ export default function ProgrammeManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedProgramme, setSelectedProgramme] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [typeOpen, setTypeOpen] = useState(false);
-  const [statusOpen, setStatusOpen] = useState(false);
 
   const filteredProgrammes = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -178,8 +176,6 @@ export default function ProgrammeManagement() {
               size="large"
               value={typeFilter}
               onChange={setTypeFilter}
-              open={typeOpen}
-              onOpenChange={setTypeOpen}
               className="min-w-44"
               aria-label="Types"
               options={['All', 'Training', 'Workshop', 'Seminar', 'Conference', 'Outreach', 'Mentorship'].map((option) => ({ value: option, label: option === 'All' ? 'All types' : option }))}
@@ -188,8 +184,6 @@ export default function ProgrammeManagement() {
               size="large"
               value={statusFilter}
               onChange={setStatusFilter}
-              open={statusOpen}
-              onOpenChange={setStatusOpen}
               className="min-w-44"
               aria-label="Statuses"
               options={['All', 'Upcoming', 'Ongoing', 'Completed', 'Cancelled'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}

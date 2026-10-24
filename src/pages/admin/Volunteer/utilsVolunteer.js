@@ -15,3 +15,23 @@ export const initialsOf = (name) =>
     .slice(0, 2)
     .join('')
     .toUpperCase() || '??';
+
+export const inputClass = (field) =>
+    `w-full h-12 px-4 rounded-xl border ${
+      errors[field] ? 'border-red-400' : 'border-gray-300'
+    } bg-white text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition`;
+
+export const textareaClass = (field) =>
+    `w-full min-h-[120px] px-4 py-3 rounded-xl border ${
+      errors[field] ? 'border-red-400' : 'border-gray-300'
+    } bg-white text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition resize-y`;
+
+// export const field = (name) =>
+//     `w-full h-12 px-4 rounded-xl border ${
+//       errors[name] ? 'border-red-400' : 'border-gray-300'
+//     } bg-white text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition`;
+
+// export const area = (name) =>
+//     `w-full min-h-[120px] px-4 py-3 rounded-xl border ${
+//       errors[name] ? 'border-red-400' : 'border-gray-300'
+//     } bg-white text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-600 focus:shadow-[0_0_0_4px_rgba(23,96,63,0.12)] transition resize-y`;

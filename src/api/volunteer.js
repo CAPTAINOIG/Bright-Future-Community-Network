@@ -16,10 +16,16 @@ export const useCreateVolunteer = () => {
 };
 
 export const useGetVolunteers = (params = {}) => {
+  const { page = 1, limit = 10, search = '', status } = params;
+  // "All" is a UI option, not a volunteer status understood by the API.
+  const normalizedStatus = status && status !== 'All' ? status : undefined;
+  const requestParams = { page, limit, search };
+  if (normalizedStatus) requestParams.status = normalizedStatus;
+
   return useQuery({
-    queryKey: ["volunteers", params],
+    queryKey: ["volunteers", page, limit, search, normalizedStatus],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/volunteers", { params });
+      const res = await axiosInstance.get("/api/volunteers", { params: requestParams });
       return res.data;
     },
   });

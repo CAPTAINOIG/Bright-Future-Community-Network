@@ -43,8 +43,6 @@ export default function NewsManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [statusOpen, setStatusOpen] = useState(false);
 
   const filteredArticles = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -177,8 +175,6 @@ export default function NewsManagement() {
               size="large"
               value={categoryFilter}
               onChange={setCategoryFilter}
-              open={categoryOpen}
-              onOpenChange={setCategoryOpen}
               className="min-w-44"
               aria-label="Categories"
               options={['All', 'Community News', 'Announcement', 'Event Recap', 'Success Story', 'Press Release', 'Opinion', 'Partnership'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option }))}
@@ -187,8 +183,6 @@ export default function NewsManagement() {
               size="large"
               value={statusFilter}
               onChange={setStatusFilter}
-              open={statusOpen}
-              onOpenChange={setStatusOpen}
               className="min-w-44"
               aria-label="Statuses"
               options={['All', 'Published', 'Draft', 'Archived'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}

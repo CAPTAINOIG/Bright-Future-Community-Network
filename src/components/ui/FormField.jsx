@@ -1,6 +1,45 @@
-import { forwardRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { DatePicker, Form, Input, Select, TimePicker } from 'antd';
+
+const toSelectValue = (value) => (value === '' || value === null ? undefined : value);
+
+/**
+ * Antd Select that also works with react-hook-form's `register()`.
+ * register() never passes `value`; it writes `ref.value` on mount and on reset(),
+ * so the ref exposes a `value` setter that drives the selected option.
+ */
+const RegisteredSelect = forwardRef(({ value, defaultValue, onChange, ...props }, ref) => {
+  const selectRef = useRef(null);
+  const [innerValue, setInnerValue] = useState(toSelectValue(defaultValue));
+  const innerValueRef = useRef(innerValue);
+  innerValueRef.current = innerValue;
+
+  useImperativeHandle(ref, () => ({
+    focus: () => selectRef.current?.focus(),
+    blur: () => selectRef.current?.blur(),
+    get value() {
+      return innerValueRef.current;
+    },
+    set value(next) {
+      setInnerValue(toSelectValue(next));
+    },
+  }), []);
+
+  return (
+    <Select
+      ref={selectRef}
+      {...props}
+      value={value !== undefined ? toSelectValue(value) : innerValue}
+      onChange={(next, option) => {
+        setInnerValue(next);
+        onChange?.(next, option);
+      }}
+    />
+  );
+});
+
+RegisteredSelect.displayName = 'RegisteredSelect';
 
 const FormField = forwardRef(({
   label,
@@ -54,7 +93,7 @@ const FormField = forwardRef(({
         </label>
       )}
       {type === 'textarea' ? <Input.TextArea ref={ref} className={baseClasses} placeholder={placeholder} {...inputProps} onChange={onChange} />
-        : type === 'select' ? <Select ref={ref} size={controlProps.size || 'large'} className={baseClasses} options={options} placeholder={placeholder} value={value} defaultValue={defaultValue} onChange={handleValueChange} onBlur={onBlur} status={error ? 'error' : undefined} />
+        : type === 'select' ? <RegisteredSelect ref={ref} size={controlProps.size || 'large'} className={baseClasses} options={options} placeholder={placeholder || 'Select an option'} value={value} defaultValue={defaultValue} onChange={handleValueChange} onBlur={onBlur} status={error ? 'error' : undefined} />
           : type === 'date' ? <DatePicker ref={ref} className={baseClasses} placeholder={placeholder} {...inputProps} onChange={(date) => handleValueChange(date?.format('YYYY-MM-DD') || '')} />
             : type === 'time' ? <TimePicker ref={ref} className={baseClasses} placeholder={placeholder} {...inputProps} onChange={(time) => handleValueChange(time?.format('HH:mm') || '')} />
               : <Input ref={ref} className={baseClasses} type={type} placeholder={placeholder} {...inputProps} onChange={onChange} />}

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { BadgeCheck, Check, Save, UserCog, X } from 'lucide-react';
 import { Button, toast } from '../ui';
@@ -23,6 +24,7 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -37,6 +39,22 @@ const EditMemberForm = ({ member, onClose, onSubmitted }) => {
       isActive: member?.isActive ?? true,
     },
   });
+
+  useEffect(() => {
+    if (member) {
+      reset({
+        fullName: member?.fullName ?? '',
+        phone: member?.phone ?? '',
+        email: member?.email ?? '',
+        location: member?.location ?? '',
+        community: member?.community ?? '',
+        interests: Array.isArray(member?.interests) ? member.interests : [],
+        skill: member?.skill ?? '',
+        reason: member?.reason ?? '',
+        isActive: member?.isActive ?? true,
+      });
+    }
+  }, [member, reset]);
 
   const interests = watch('interests') || [];
   const isActive = watch('isActive');
