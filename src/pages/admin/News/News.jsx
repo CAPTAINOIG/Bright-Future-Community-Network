@@ -9,59 +9,58 @@ import {
   TrashIcon,
   CalendarIcon,
 } from '@heroicons/react/24/outline';
-import { Drawer, ConfirmDialog, toast } from '../../../components/ui';
+import { Drawer, ConfirmDialog } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
 import { Avatar, Button, Input, Select, Tooltip } from 'antd';
 import { Eye as EyeStatIcon, FilePen as FilePenIcon, Globe as GlobeIcon, Newspaper as NewspaperIcon } from 'lucide-react';
 import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
-import NewsForm from './NewsForm';
-
-const articles = [
-  { id: 1, title: 'BFCN Receives $100k Grant for Youth Education Program', category: 'Community News', author: 'Amina Garba', publishedDate: '2025-10-05', views: 1284, comments: 18, status: 'Published' },
-  { id: 2, title: 'Community Health Outreach Serves 500+ Residents in Lagos', category: 'Event Recap', author: 'Dr. Joy Nwosu', publishedDate: '2025-09-28', views: 2150, comments: 34, status: 'Published' },
-  { id: 3, title: 'Introducing Our New Leadership Team for 2026', category: 'Announcement', author: 'Board of Trustees', publishedDate: '2025-09-15', views: 3820, comments: 56, status: 'Published' },
-  { id: 4, title: 'How Donor Funds Are Being Used — Q3 Transparency Report', category: 'Press Release', author: 'Chinedu Okoro', publishedDate: '2025-10-01', views: 980, comments: 12, status: 'Published' },
-  { id: 5, title: 'Women in Agribusiness Graduation Ceremony Coming Soon', category: 'Announcement', author: 'Halima Bello', publishedDate: '2025-05-15', views: 412, comments: 4, status: 'Draft' },
-  { id: 6, title: 'A Day in the Life of Our Volunteer Coordinators', category: 'Success Story', author: 'Fatima Hassan', publishedDate: '2025-08-20', views: 1670, comments: 22, status: 'Published' },
-];
+import { useGetAllNews, useGetNewsStats, useDeleteNews } from '../../../api/news';
+import { Toaster, toast } from 'sonner';
+import NewsForm from '../../../components/forms/NewsForm';
+import NewsDetails from './NewsDetails';
 
 const getStatusBadge = (status) => {
   const map = {
+    published: { className: 'bg-primary-50 text-primary-700 ring-primary-200' },
     Published: { className: 'bg-primary-50 text-primary-700 ring-primary-200' },
+    pending: { className: 'bg-yellow-50 text-yellow-700 ring-yellow-200' },
     Draft: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
+    draft: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
+    rejected: { className: 'bg-red-50 text-red-600 ring-red-200' },
+    archived: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
     Archived: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
   };
-  return `inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full ring-1 ring-inset whitespace-nowrap ${map[status]?.className ?? 'bg-gray-100 text-gray-600 ring-gray-200'}`;
+  return `inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full ring-1 ring-inset whitespace-nowrap capitalize ${map[status]?.className ?? 'bg-gray-100 text-gray-600 ring-gray-200'}`;
 };
 
 export default function NewsManagement() {
-  const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const { data: response, isPending: isNewsLoading } = useGetAllNews({
+    page, limit: 20, search: searchTerm,
+    status: statusFilter !== 'All' ? statusFilter : undefined,
+    category: categoryFilter !== 'All' ? categoryFilter : undefined,
+  });
+  const { data: statsResponse } = useGetNewsStats();
+  const { mutateAsync: deleteNews, isPending: isDeleting } = useDeleteNews();
+
   const [showNewsDrawer, setShowNewsDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
 
-  const filteredArticles = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    return articles.filter((a) => {
-      const matchesSearch =
-        !term ||
-        a.title.toLowerCase().includes(term) ||
-        a.author.toLowerCase().includes(term) ||
-        a.category.toLowerCase().includes(term);
-      const matchesCategory = categoryFilter === 'All' || a.category === categoryFilter;
-      const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
-      return matchesSearch && matchesCategory && matchesStatus;
-    });
-  }, [searchTerm, categoryFilter, statusFilter]);
+  const articles = response?.data?.news ?? [];
+  const pagination = response?.data?.pagination ?? {};
+  const stats = statsResponse?.data?.articles ?? {};
 
-  const totalArticles = articles.length;
-  const publishedCount = articles.filter((a) => a.status === 'Published').length;
-  const draftCount = articles.filter((a) => a.status === 'Draft').length;
-  const totalViews = articles.reduce((sum, a) => sum + a.views, 0);
+  const totalArticles = stats.total ?? articles.length;
+  const publishedCount = stats.published ?? 0;
+  const pendingCount = stats.pending ?? 0;
+  const featuredCount = stats.featured ?? 0;
 
   const openAddArticle = () => {
     setSelectedArticle(null);
@@ -73,8 +72,18 @@ export default function NewsManagement() {
     setShowNewsDrawer(true);
   };
 
+  const handleNewDetails = (article) => {
+    setSelectedArticle(article);
+    setShowDetailsDrawer(true);
+  }
+
   const closeNewsDrawer = () => {
     setShowNewsDrawer(false);
+    setTimeout(() => setSelectedArticle(null), 300);
+  };
+  
+  const closeDetailsDrawer = () => {
+    setShowDetailsDrawer(false);
     setTimeout(() => setSelectedArticle(null), 300);
   };
 
@@ -83,21 +92,19 @@ export default function NewsManagement() {
   };
 
   const handleDelete = async () => {
-    setIsDeleting(true);
+    if (!selectedArticle?._id) return;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await deleteNews(selectedArticle._id);
       toast.success('Article deleted successfully!');
       setShowDeleteDialog(false);
       setSelectedArticle(null);
-    } catch {
-      toast.error('Failed to delete article.');
-    } finally {
-      setIsDeleting(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete article.');
     }
   };
 
   const newsActions = (article) => [
-    { label: 'Preview article', icon: EyeIcon, onClick: () => toast.info(`Previewing: ${article.title}`) },
+    { label: 'Preview article', icon: EyeIcon, onClick: () => handleNewDetails(article) },
     { label: 'Edit article', icon: PencilIcon, onClick: () => handleEdit(article) },
     {
       label: 'Delete article',
@@ -128,6 +135,7 @@ export default function NewsManagement() {
 
   return (
     <div className="space-y-6">
+      <Toaster position='top-right' />
       <PageIntro
         title="News management"
         description="Publish and manage BFCN news articles"
@@ -146,9 +154,9 @@ export default function NewsManagement() {
       >
         {[
           { label: 'Total articles', value: totalArticles.toLocaleString(), change: 'Total posts', icon: NewspaperIcon },
-          { label: 'Published', value: publishedCount, change: 'Public articles', icon: GlobeIcon },
-          { label: 'Drafts', value: draftCount, change: 'In progress', icon: FilePenIcon, tone: 'accent' },
-          { label: 'Total views', value: totalViews.toLocaleString(), change: 'All time reads', icon: EyeStatIcon, tone: 'accent' },
+          { label: 'Published', value: publishedCount.toLocaleString(), change: 'Public articles', icon: GlobeIcon },
+          { label: 'Pending', value: pendingCount.toLocaleString(), change: 'Awaiting review', icon: FilePenIcon, tone: 'accent' },
+          { label: 'Featured', value: featuredCount.toLocaleString(), change: 'Highlighted articles', icon: EyeStatIcon, tone: 'accent' },
         ].map((stat, index) => (
           <StatCard key={index} label={stat.label} value={stat.value.toLocaleString()} hint={stat.change} icon={stat.icon} tone={stat.tone} />
         ))}
@@ -165,7 +173,10 @@ export default function NewsManagement() {
             allowClear
             size="large"
             value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            onChange={(event) => {
+              setSearchTerm(event.target.value);
+              setPage(1);
+            }}
             placeholder="Search articles by title, author, or category..."
             prefix={<MagnifyingGlassIcon className="h-[18px] w-[18px] text-gray-400" />}
             className="min-w-0 flex-1"
@@ -174,18 +185,24 @@ export default function NewsManagement() {
             <Select
               size="large"
               value={categoryFilter}
-              onChange={setCategoryFilter}
+              onChange={(val) => {
+                setCategoryFilter(val);
+                setPage(1);
+              }}
               className="min-w-44"
               aria-label="Categories"
-              options={['All', 'Community News', 'Announcement', 'Event Recap', 'Success Story', 'Press Release', 'Opinion', 'Partnership'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option }))}
+              options={['All', 'general', 'politics', 'education', 'community', 'youth', 'health', 'sports', 'technology', 'business', 'entertainment', 'security', 'environment', 'agriculture', 'infrastructure', 'religion', 'opinion'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option.charAt(0).toUpperCase() + option.slice(1) }))}
             />
             <Select
               size="large"
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={(val) => {
+                setStatusFilter(val);
+                setPage(1);
+              }}
               className="min-w-44"
               aria-label="Statuses"
-              options={['All', 'Published', 'Draft', 'Archived'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
+              options={['All', 'published', 'pending', 'rejected', 'archived'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option.charAt(0).toUpperCase() + option.slice(1) }))}
             />
             <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
             <Button
@@ -201,11 +218,13 @@ export default function NewsManagement() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
         <SimpleTable
-          data={filteredArticles}
-          keyField="id"
+          data={articles}
+          keyField="_id"
+          loading={isNewsLoading}
           emptyTitle="No articles found"
           emptyDescription="Try adjusting your search or filter criteria."
           columns={[
+            { accessorKey: 'imageUrl', header: 'Image Preview', cell: (info) => <img src={info.row?.original?.imageUrl} className="w-[100px] h-[100px] object-cover rounded-md" alt="Preview" /> },
             {
               accessorKey: 'title',
               header: 'Article',
@@ -218,7 +237,7 @@ export default function NewsManagement() {
                       <span className={pillClass('neutral')}>{a?.category}</span>
                       <p className="m-0 inline-flex items-center gap-1 text-xs text-gray-500">
                         <CalendarIcon className="h-3 w-3" />
-                        {new Date(a?.publishedDate).toLocaleDateString()}
+                        {a?.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : a?.createdAt ? new Date(a.createdAt).toLocaleDateString() : '—'}
                       </p>
                     </div>
                   </div>
@@ -227,25 +246,26 @@ export default function NewsManagement() {
             },
             {
               accessorKey: 'author',
-              header: 'Author',
+              header: 'Author / Source',
               cell: (info) => {
                 const a = info.row?.original;
+                const displayName = a?.author || a?.sourceName || 'Unknown';
                 return (
                   <div className="flex items-center gap-2">
                     <Avatar size={32} className="!bg-primary-50 !text-xs !font-semibold !text-primary-700">
-                      {a?.author.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+                      {displayName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
                     </Avatar>
-                    <span className="text-[13px] text-gray-700">{a?.author}</span>
+                    <span className="text-[13px] text-gray-700">{displayName}</span>
                   </div>
                 );
               },
             },
-            { accessorKey: 'views', header: 'Views', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.views.toLocaleString()}</p> },
-            { accessorKey: 'comments', header: 'Comments', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.comments}</p> },
-            { 
-              accessorKey: 'status', 
-              header: 'Status', 
-              cell: (info) => <span className={getStatusBadge(info.row?.original?.status)}>{info.row?.original?.status}</span> 
+            { accessorKey: 'views', header: 'Views', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{(info.row?.original?.views ?? 0).toLocaleString()}</p> },
+            { accessorKey: 'likes', header: 'Likes', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.likes ?? 0}</p> },
+            {
+              accessorKey: 'status',
+              header: 'Status',
+              cell: (info) => <span className={getStatusBadge(info.row?.original?.status)}>{info.row?.original?.status}</span>
             },
             {
               id: 'actions',
@@ -259,6 +279,7 @@ export default function NewsManagement() {
       <Drawer
         isOpen={showNewsDrawer}
         onClose={closeNewsDrawer}
+        destroyOnClose
         title={
           <div className="pr-6">
             <h2 className="m-0 font-serif text-xl text-gray-900">
@@ -276,6 +297,29 @@ export default function NewsManagement() {
           article={selectedArticle}
           onClose={closeNewsDrawer}
           onSubmitted={handleFormSubmitted}
+        />
+      </Drawer>
+
+      <Drawer
+        isOpen={showDetailsDrawer}
+        onClose={closeDetailsDrawer}
+        destroyOnClose
+        title={
+          <div className="pr-6">
+            <h2 className="m-0 font-serif text-xl text-gray-900">
+              News details
+            </h2>
+            <p className="mt-1 mb-0 text-[13px] leading-relaxed text-gray-500">
+              Full profile for {selectedArticle?.title || 'this article'}
+            </p>
+          </div>
+        }
+        position="right"
+        width={600}
+      >
+        <NewsDetails
+          news={selectedArticle}
+          onClose={closeDetailsDrawer}
         />
       </Drawer>
 

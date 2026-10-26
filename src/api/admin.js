@@ -5,7 +5,7 @@ export const useAdminLogin = () => {
   return useMutation({
     mutationKey: ["admin"],
     mutationFn: async (data) => {
-      const res = await axiosInstance.post("/api/auth/adminLogin", data);
+      const res = await axiosInstance.post("/auth/adminLogin", data);
       return res.data
     },
   });

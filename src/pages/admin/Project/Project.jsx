@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 import { Button, Input, Progress, Select, Tooltip } from 'antd';
 import { Activity as ActivityIcon, FolderKanban as FolderKanbanIcon, HeartHandshake as HeartHandshakeIcon, Wallet as WalletIcon } from 'lucide-react';
 import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
-import ProjectForm from './ProjectForm';
+import ProjectForm from '../../../components/forms/ProjectForm';
 
 const projects = [
   { id: 1, title: 'Back-to-School Support Initiative', category: 'Education', startDate: '2025-09-01', endDate: '2025-12-20', budget: 500000, raised: 450000, targetBeneficiaries: 200, beneficiaries: 180, lead: 'Musa Ibrahim', status: 'Active', progress: 75 },

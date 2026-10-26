@@ -6,7 +6,7 @@ export const useGetOverview = ( ) => {
   return useQuery({
     queryKey: ["overview"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/dashboard/overview");
+      const res = await axiosInstance.get("/dashboard/overview");
       return res.data;
     },
      onSuccess: () =>{

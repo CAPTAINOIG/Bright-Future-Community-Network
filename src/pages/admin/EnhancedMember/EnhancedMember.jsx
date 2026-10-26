@@ -24,38 +24,26 @@ import { Toaster } from 'sonner';
 
 const EnhancedMember = () => {
   const [filters, setFilters] = useState({
-  page: 1,
-  limit: 10,
-  search: "",
-  status: "",
-});
+    page: 1,
+    limit: 10,
+    search: "",
+    isActive: undefined,
+    communityFilter: undefined,
+    interestFilter: undefined,
+  });
   const { data: response = { members: [], pagination: {} }, isPending: membersLoading } = useGetMember(filters);
   const rawMembers = Array.isArray(response?.data?.members) ? response.data?.members : [];
   const apiPagination = response?.data?.pagination;
   const total = apiPagination?.total;
 
-  const [statusFilter, setStatusFilter] = useState('All');
   const [showMemberDrawer, setShowMemberDrawer] = useState(false);
   const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [communityFilter, setCommunityFilter] = useState('All');
-  const [interestFilter, setInterestFilter] = useState('All');
 
   const { mutateAsync: deleteMember, isPending: isDeleteMemberLoading, isError: isDeleteMemberError } = useDeleteMember();
-
-  const filteredMembers = useMemo(
-    () => rawMembers.filter((member) => {
-      if (statusFilter === 'Active') return member?.isActive === true;
-      if (statusFilter === 'Inactive') return member?.isActive === false;
-      if (communityFilter !== 'All') return member?.community === communityFilter;
-      if (interestFilter !== 'All') return member?.interests?.includes(interestFilter);
-      return true;
-    }),
-    [rawMembers, communityFilter, interestFilter, statusFilter]
-  );
 
   const totalMembers = total ?? rawMembers.length;
   const activeCount = useMemo(() => rawMembers.filter((m) => m?.isActive === true).length, [rawMembers]);
@@ -75,12 +63,7 @@ const EnhancedMember = () => {
     [rawMembers]
   );
 
-  const activeFilterCount = [communityFilter !== 'All', interestFilter !== 'All'].filter(Boolean).length;
-  
-  const resetMoreFilters = () => {
-    setCommunityFilter('All');
-    setInterestFilter('All');
-  };
+  const activeFilterCount = [filters.communityFilter !== 'All', filters.interestFilter !== 'All'].filter(Boolean).length;
 
   const chip = (value) => {
     if (!value) return <span className="text-xs text-gray-400">—</span>;
@@ -247,10 +230,10 @@ const EnhancedMember = () => {
       cell: (info) => <ActionMenu member={info.row.original} />,
     },
   ];
-  
+
   return (
     <div className="space-y-6">
-      <Toaster position='top-right'/>
+      <Toaster position='top-right' />
       <PageIntro
         title="Member management"
         description="Manage BFCN community members"
@@ -290,24 +273,43 @@ const EnhancedMember = () => {
           <div className="flex flex-wrap gap-3">
             <Select
               size="large"
-              value={statusFilter}
-              onChange={setStatusFilter}
+              value={
+                filters.isActive === undefined
+                  ? 'All'
+                  : filters.isActive
+                    ? 'Active'
+                    : 'Inactive'
+              }
+              onChange={(value) => {
+                setFilters((prev) => ({
+                  ...prev,
+                  page: 1,
+                  isActive:
+                    value === 'All'
+                      ? undefined
+                      : value === 'Active',
+                }));
+              }}
               className="min-w-40"
               aria-label="Status"
-              options={['All', 'Active', 'Inactive'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
+              options={[
+                { value: 'All', label: 'All statuses' },
+                { value: 'Active', label: 'Active' },
+                { value: 'Inactive', label: 'Inactive' },
+              ]}
             />
-            <Button 
-              size="large" 
+            <Button
+              size="large"
               icon={<FunnelIcon className="h-[18px] w-[18px]" />}
               onClick={() => setFiltersOpen(true)}
             >
-              More filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+              More filters
             </Button>
             <Button
               size="large"
               icon={<ArrowDownTrayIcon className="h-[18px] w-[18px]" />}
               onClick={() => {
-                exportCsv('bfcn-members.csv', filteredMembers);
+                exportCsv('bfcn-members.csv', rawMembers);
                 toast.success('Members exported as CSV');
               }}
             >
@@ -323,7 +325,7 @@ const EnhancedMember = () => {
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <SimpleTable
-          data={filteredMembers}
+          data={rawMembers}
           columns={tableColumns}
           loading={membersLoading}
           pageSize={filters.limit}
@@ -420,14 +422,14 @@ const EnhancedMember = () => {
         onClose={() => setFiltersOpen(false)}
         filters={[
           {
-            key: 'community',
+            key: 'communityFilter',
             label: 'Community',
             placeholder: 'All communities',
             options: communityOptions,
             description: 'Filter by member community',
           },
           {
-            key: 'interest',
+            key: 'interestFilter',
             label: 'Area of interest',
             placeholder: 'All interests',
             options: interestOptions,
@@ -435,18 +437,31 @@ const EnhancedMember = () => {
           },
         ]}
         filterValues={{
-          community: communityFilter,
-          interest: interestFilter,
+          communityFilter: filters.communityFilter ?? 'All',
+          interestFilter: filters.interestFilter ?? 'All',
         }}
         onFilterChange={(key, value) => {
-          if (key === 'community') setCommunityFilter(value);
-          if (key === 'interest') setInterestFilter(value);
+          setFilters((prev) => ({
+            ...prev,
+            page: 1,
+            [key]: value === 'All' ? undefined : value,
+          }));
         }}
-        onReset={resetMoreFilters}
+        onReset={() => {
+          setFilters((prev) => ({
+            ...prev,
+            page: 1,
+            communityFilter: undefined,
+            interestFilter: undefined,
+          }));
+        }}
         title="Member Filters"
         subtitle="Refine your member search with these filters"
-        activeFilterCount={activeFilterCount}
-        resultCount={filteredMembers.length}
+        activeFilterCount={[
+          filters.communityFilter !== undefined,
+          filters.interestFilter !== undefined,
+        ].filter(Boolean).length}
+        resultCount={rawMembers.length}
         resultLabel="members"
       />
     </div>

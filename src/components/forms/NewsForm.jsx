@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CheckCircle2, X, Plus, FileText, Calendar, Image, User, Tag, Bookmark } from 'lucide-react';
-import { FormField, toast, Button } from '../../../components/ui';
+import { CheckCircle2, X, FileText, Calendar, Image, User, Tag, Bookmark } from 'lucide-react';
+import { Toaster, toast } from 'sonner';
+import { Button, FormField } from '../ui';
+import { useCreateNews, useUpdateNews } from '../../api/news';
 
 const NewsForm = ({ article, onClose, onSubmitted }) => {
   const [submitted, setSubmitted] = useState(false);
   const isEditing = Boolean(article);
+
+  const { mutateAsync: createNews, isPending: isCreating } = useCreateNews();
+  const { mutateAsync: updateNews, isPending: isUpdating } = useUpdateNews();
 
   const {
     register,
@@ -15,36 +20,58 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
   } = useForm({
     defaultValues: {
       title: article?.title ?? '',
-      excerpt: article?.excerpt ?? '',
+      summary: article?.summary ?? '',
       content: article?.content ?? '',
-      category: article?.category ?? 'Community News',
+      category: article?.category ?? 'general',
       author: article?.author ?? '',
-      coverImage: article?.coverImage ?? '',
-      status: article?.status ?? 'Draft',
-      publishedDate: article?.publishedDate ?? new Date().toISOString().slice(0, 10),
+      imageUrl: article?.imageUrl ?? '',
+      status: article?.status ?? 'pending',
+      publishedAt: article?.publishedAt ? new Date(article.publishedAt).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
     },
   });
 
   const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
       if (isEditing) {
+        await updateNews({
+          id: article._id,
+          data: {
+            status: data.status,
+            category: data.category,
+            imageUrl: data.imageUrl,
+            author: data.author,
+            // Backend handles title, summary, content differently for admin
+          },
+        });
         toast.success('Article updated successfully!');
       } else {
+        await createNews({
+          title: data.title,
+          summary: data.summary,
+          content: data.content,
+          category: data.category,
+          author: data.author,
+          imageUrl: data.imageUrl,
+          status: data.status,
+          publishedAt: new Date(data.publishedAt).toISOString(),
+        });
         toast.success('Article created successfully!');
       }
       setSubmitted(true);
-      onSubmitted?.({ article, ...data });
+      setTimeout(() => {
+        onSubmitted?.();
+      }, 500);
     } catch (error) {
-      toast.error(error?.message || 'Something went wrong. Please try again.');
+      console.error('Form submission error:', error);
+      toast.error(error.response?.data?.message || error?.message || 'Something went wrong. Please try again.');
     }
   };
 
   const handleSubmitAnother = () => {
     setSubmitted(false);
     reset({
-      title: '', excerpt: '', content: '', category: 'Community News',
-      author: '', coverImage: '', status: 'Draft', publishedDate: new Date().toISOString().slice(0, 10),
+      title: '', summary: '', content: '', category: 'general',
+      author: '', imageUrl: '', status: 'pending', publishedAt: new Date().toISOString().slice(0, 10),
     });
   };
 
@@ -55,6 +82,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
 
   return (
     <div>
+      <Toaster position="top-right" />
       {submitted ? (
         <div className="py-8 text-center">
           <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-full bg-primary-50 text-primary-600 ring-1 ring-inset ring-primary-100">
@@ -66,7 +94,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
           <p className="mx-auto mb-8 max-w-md text-sm leading-relaxed text-gray-500">
             {isEditing
               ? `"${article?.title ?? 'This article'}" has been updated.`
-              : `Great! Your article has been saved${'Draft' === 'Draft' && article?.status !== 'Published' ? ' as a draft' : ' and published'}.`}
+              : `Great! Your article has been saved${'pending' === 'pending' ? ' and is pending review' : ' and published'}.`}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button variant="outline" size="lg" onClick={handleCancel} icon={X}>
@@ -91,7 +119,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
                   <h4 className="m-0 truncate text-[15px] font-semibold leading-tight text-gray-900">
                     {article.title}
                   </h4>
-                  <p className="m-0 mt-0.5 text-xs text-gray-500">Editing article · {article.status ?? 'Draft'}</p>
+                  <p className="m-0 mt-0.5 text-xs text-gray-500">Editing article · {article.status ?? 'pending'}</p>
                 </div>
               </div>
             </div>
@@ -106,21 +134,19 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
             })}
             error={errors.title}
             placeholder="Write a compelling headline"
-            icon={FileText}
           />
 
           <FormField
-            label="Excerpt"
+            label="Summary"
             type="textarea"
             required
-            {...register('excerpt', {
-              required: 'Excerpt is required',
-              maxLength: { value: 220, message: 'Keep it under 220 characters' },
+            {...register('summary', {
+              required: 'Summary is required',
+              maxLength: { value: 300, message: 'Keep it under 300 characters' },
             })}
-            error={errors.excerpt}
+            error={errors.summary}
             placeholder="Short summary shown on cards (1-2 sentences)"
             rows={2}
-            help="Max 220 characters"
           />
 
           <FormField
@@ -143,15 +169,23 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               required
               {...register('category', { required: 'Category is required' })}
               error={errors.category}
-              icon={Tag}
             >
-              <option value="Community News">Community News</option>
-              <option value="Announcement">Announcement</option>
-              <option value="Event Recap">Event Recap</option>
-              <option value="Success Story">Success Story</option>
-              <option value="Press Release">Press Release</option>
-              <option value="Opinion">Opinion / Editorial</option>
-              <option value="Partnership">Partnership</option>
+              <option value="general">General</option>
+              <option value="politics">Politics</option>
+              <option value="education">Education</option>
+              <option value="community">Community</option>
+              <option value="youth">Youth</option>
+              <option value="health">Health</option>
+              <option value="sports">Sports</option>
+              <option value="technology">Technology</option>
+              <option value="business">Business</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="security">Security</option>
+              <option value="environment">Environment</option>
+              <option value="agriculture">Agriculture</option>
+              <option value="infrastructure">Infrastructure</option>
+              <option value="religion">Religion</option>
+              <option value="opinion">Opinion</option>
             </FormField>
 
             <FormField
@@ -160,11 +194,11 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               required
               {...register('status', { required: 'Status is required' })}
               error={errors.status}
-              icon={Bookmark}
             >
-              <option value="Draft">Draft</option>
-              <option value="Published">Published</option>
-              <option value="Archived">Archived</option>
+              <option value="pending">Pending</option>
+              <option value="published">Published</option>
+              <option value="rejected">Rejected</option>
+              <option value="archived">Archived</option>
             </FormField>
           </div>
 
@@ -175,25 +209,22 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               {...register('author', { required: 'Author name is required' })}
               error={errors.author}
               placeholder="Author name"
-              icon={User}
             />
 
             <FormField
               label="Publish date"
               type="date"
               required
-              {...register('publishedDate', { required: 'Publish date is required' })}
-              error={errors.publishedDate}
-              icon={Calendar}
+              {...register('publishedAt', { required: 'Publish date is required' })}
+              error={errors.publishedAt}
             />
           </div>
 
           <FormField
             label="Cover image URL"
-            {...register('coverImage')}
-            error={errors.coverImage}
+            {...register('imageUrl')}
+            error={errors.imageUrl}
             placeholder="https://images.unsplash.com/..."
-            icon={Image}
           />
 
           <div className="flex flex-col items-stretch gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center">
@@ -203,7 +234,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               size="lg"
               onClick={handleCancel}
               icon={X}
-              fullWidth
+              disabled={isCreating || isUpdating}
             >
               Cancel
             </Button>
@@ -212,7 +243,8 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               variant="primary"
               size="lg"
               icon={FileText}
-              fullWidth
+              loading={isCreating || isUpdating}
+              disabled={isCreating || isUpdating}
             >
               {isEditing ? 'Update article' : 'Create article'}
             </Button>

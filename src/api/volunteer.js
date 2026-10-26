@@ -6,26 +6,28 @@ export const useCreateVolunteer = () => {
   return useMutation({
     mutationKey: ["volunteer"],
     mutationFn: async (data) => {
-      const res = await axiosInstance.post("/api/volunteers", data);
+      const res = await axiosInstance.post("/volunteers", data);
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['volunteers'] })
+      queryClient.invalidateQueries({ queryKey: ['volunteer'] })
     }
   });
 };
 
 export const useGetVolunteers = (params = {}) => {
-  const { page = 1, limit = 10, search = '', status } = params;
-  // "All" is a UI option, not a volunteer status understood by the API.
+  const { page = 1, limit = 10, search = '', status, skills = undefined, community = undefined } = params;
   const normalizedStatus = status && status !== 'All' ? status : undefined;
   const requestParams = { page, limit, search };
+  
   if (normalizedStatus) requestParams.status = normalizedStatus;
+  if (skills) requestParams.skills = skills;
+  if (community) requestParams.community = community;
 
   return useQuery({
-    queryKey: ["volunteers", page, limit, search, normalizedStatus],
+    queryKey: ["volunteer", page, limit, search, normalizedStatus, skills, community],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/volunteers", { params: requestParams });
+      const res = await axiosInstance.get("/volunteers", { params: requestParams });
       return res.data;
     },
   });
@@ -35,7 +37,7 @@ export const useGetVolunteerById = (id) => {
   return useQuery({
     queryKey: ["volunteer", id],
     queryFn: async () => {
-      const res = await axiosInstance.get(`/api/volunteers/${id}`);
+      const res = await axiosInstance.get(`/volunteers/${id}`);
       return res.data;
     },
   });
@@ -45,12 +47,12 @@ export const useUpdateVolunteer = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ["volunteer"],
-    mutationFn: async ({ id, ...data }) => {
-      const res = await axiosInstance.put(`/api/volunteers/${id}`, data);
+    mutationFn: async ({ id, status }) => {
+      const res = await axiosInstance.put(`/volunteers/${id}`, { status });
       return res.data;
     },
     onSuccess: () =>{
-      queryClient.invalidateQueries({queryKey : ['volunteers']})
+      queryClient.invalidateQueries({queryKey : ['volunteer']})
     }
   });
 };
@@ -60,11 +62,11 @@ export const useDeleteVolunteer = () => {
   return useMutation({
     mutationKey: ["volunteer"],
     mutationFn: async (id) => {
-      const res = await axiosInstance.delete(`/api/volunteers/${id}`);
+      const res = await axiosInstance.delete(`/volunteers/${id}`);
       return res.data;
     },
     onSuccess: () =>{
-      queryClient.invalidateQueries({queryKey : ['volunteers']})
+      queryClient.invalidateQueries({queryKey : ['volunteer']})
     }
   });
 };

@@ -20,6 +20,8 @@ import { getStatusBadge } from './utilsVolunteer';
 import { useGetVolunteers, useDeleteVolunteer, useUpdateVolunteer } from '../../../api/volunteer';
 import VolunteerDetails from './VolunteerDetails';
 import EditVolunteerForm from '../../../components/forms/EditVolunteerForm';
+import { exportCsv } from '../../../utils/exportCsv';
+import MoreFiltersDrawer from '../components/MoreFiltersDrawer';
 
 const statusOptions = [
   { value: 'Approved', label: 'Approve', icon: CheckCircle2 },
@@ -33,6 +35,8 @@ const VolunteerManagement = () => {
     limit: 10,
     search: '',
     status: undefined,
+    skills: undefined,
+    community: undefined,
   });
   const { data: response, isPending: volunteersLoading } = useGetVolunteers(filters);
   const rawVolunteers = Array.isArray(response?.data?.volunteers) ? response.data.volunteers : [];
@@ -46,29 +50,41 @@ const VolunteerManagement = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const filteredVolunteers = useMemo(() => {
-    const { page, limit, search, status } = filters;
-    const term = search.trim().toLowerCase();
-    return rawVolunteers.filter((v) => {
-      const skills = Array.isArray(v?.skills) ? v.skills.join(' ') : '';
-      const matchesSearch =
-        !term ||
-        v?.fullName?.toLowerCase()?.includes(term) ||
-        v?.email?.toLowerCase()?.includes(term) ||
-        v?.community?.toLowerCase()?.includes(term) ||
-        v?.reason?.toLowerCase()?.includes(term) ||
-        skills.toLowerCase().includes(term);
-      const matchesStatus = status === undefined || v?.status === status;
-      return matchesSearch && matchesStatus;
-    });
-  }, [rawVolunteers, filters]);
+  // const filteredVolunteers = useMemo(() => {
+  //   const { page, limit, search, status } = filters;
+  //   const term = search.trim().toLowerCase();
+  //   return rawVolunteers.filter((v) => {
+  //     const skills = Array.isArray(v?.skills) ? v.skills.join(' ') : '';
+  //     const matchesSearch =
+  //       !term ||
+  //       v?.fullName?.toLowerCase()?.includes(term) ||
+  //       v?.email?.toLowerCase()?.includes(term) ||
+  //       v?.community?.toLowerCase()?.includes(term) ||
+  //       v?.reason?.toLowerCase()?.includes(term) ||
+  //       skills.toLowerCase().includes(term);
+  //     const matchesStatus = status === undefined || v?.status === status;
+  //     return matchesSearch && matchesStatus;
+  //   });
+  // }, [rawVolunteers, filters]);
 
   const totalVolunteers = total ?? rawVolunteers.length;
   const activeCount = useMemo(() => rawVolunteers.filter((v) => v?.isActive === true).length, [rawVolunteers]);
   const pendingCount = useMemo(() => rawVolunteers.filter((v) => v?.status === 'Pending').length, [rawVolunteers]);
   const communityCount = useMemo(
     () => new Set(rawVolunteers.map((v) => v?.community).filter(Boolean)).size,
+    [rawVolunteers]
+  );
+
+
+  const skillOptions = useMemo(
+    () => [...new Set(rawVolunteers.flatMap((v) => (Array.isArray(v?.skills) ? v.skills : [])).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
+    [rawVolunteers]
+  );
+
+  const communityOptions = useMemo(
+    () => [...new Set(rawVolunteers.map((v) => v?.community).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
     [rawVolunteers]
   );
 
@@ -203,8 +219,8 @@ const VolunteerManagement = () => {
           <div className="flex max-w-[240px] flex-wrap gap-1">
             {Array.isArray(skills) && skills.length > 0
               ? skills.slice(0, 3).map((s, i) => (
-                  <span key={i} className={pillClass('success')}>{s}</span>
-                ))
+                <span key={i} className={pillClass('success')}>{s}</span>
+              ))
               : <span className="text-xs text-gray-400">—</span>}
           </div>
         );
@@ -319,11 +335,14 @@ const VolunteerManagement = () => {
               aria-label="Status"
               options={['All', 'Pending', 'Approved', 'Rejected'].map((option) => ({ value: option, label: option === 'All' ? 'All statuses' : option }))}
             />
-            <Button size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
+            <Button onClick={() => setFiltersOpen(true)} size="large" icon={<FunnelIcon className="h-[18px] w-[18px]" />}>More filters</Button>
             <Button
               size="large"
               icon={<ArrowDownTrayIcon className="h-[18px] w-[18px]" />}
-              onClick={() => toast.success('Volunteers exported as CSV')}
+              onClick={() => {
+                exportCsv('bfcn-volunteers.csv', rawVolunteers);
+                toast.success('Volunteers exported as CSV');
+              }}
             >
               Export
             </Button>
@@ -422,6 +441,54 @@ const VolunteerManagement = () => {
         type="danger"
         confirmText="Remove"
         loading={isDeleting}
+      />
+
+      <MoreFiltersDrawer
+        isOpen={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        filters={[
+          {
+            key: 'skills',
+            label: 'Skills',
+            placeholder: 'All skills',
+            options: skillOptions,
+            description: 'Filter by volunteer skills',
+          },
+          {
+            key: 'community',
+            label: 'Community',
+            placeholder: 'All communities',
+            options: communityOptions,
+            description: 'Filter by volunteer community',
+          },
+        ]}
+        filterValues={{
+          skills: filters.skills ?? 'All',
+          community: filters.community ?? 'All',
+        }}
+        onFilterChange={(key, value) => {
+          setFilters((prev) => ({
+            ...prev,
+            page: 1,
+            [key]: value === 'All' ? undefined : value,
+          }));
+        }}
+        onReset={() => {
+          setFilters((prev) => ({
+            ...prev,
+            page: 1,
+            skills: undefined,
+            community: undefined,
+          }));
+        }}
+        title="Volunteer Filters"
+        subtitle="Refine your volunteer search with these filters"
+        activeFilterCount={[
+          filters.skills !== undefined,
+          filters.community !== undefined,
+        ].filter(Boolean).length}
+        resultCount={rawVolunteers.length}
+        resultLabel="volunteers"
       />
     </div>
   );
