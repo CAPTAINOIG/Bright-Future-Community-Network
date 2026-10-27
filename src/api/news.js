@@ -1,9 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../utils/AxiosInstance";
 
-// ─── Public Hooks ──────────────────────────────────────────
-
 export const useGetPublishedNews = (params = {}) => {
+  const queryClient = useQueryClient()
   const {
     page = 1,
     limit = 10,
@@ -31,6 +30,9 @@ export const useGetPublishedNews = (params = {}) => {
       const res = await axiosInstance.get("/news", { params: requestParams });
       return res.data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["publishedNews"] });
+    },
   });
 };
 
@@ -44,8 +46,6 @@ export const useGetNewsBySlug = (slug) => {
     enabled: !!slug,
   });
 };
-
-// ─── Admin Hooks ───────────────────────────────────────────
 
 export const useGetAllNews = (params = {}) => {
   const {

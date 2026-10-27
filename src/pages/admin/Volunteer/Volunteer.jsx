@@ -16,18 +16,12 @@ import { Activity, CheckCircle2, Clock3, MapPinned, UserCheck, XCircle } from 'l
 import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
 import { Toaster, toast } from 'sonner';
 import { VolunteerForm } from '../../../components/forms';
-import { getStatusBadge } from './utilsVolunteer';
+import { getStatusBadge, statusOptions } from './utilsVolunteer';
 import { useGetVolunteers, useDeleteVolunteer, useUpdateVolunteer } from '../../../api/volunteer';
 import VolunteerDetails from './VolunteerDetails';
 import EditVolunteerForm from '../../../components/forms/EditVolunteerForm';
 import { exportCsv } from '../../../utils/exportCsv';
 import MoreFiltersDrawer from '../components/MoreFiltersDrawer';
-
-const statusOptions = [
-  { value: 'Approved', label: 'Approve', icon: CheckCircle2 },
-  { value: 'Pending', label: 'Mark as pending', icon: Clock3 },
-  { value: 'Rejected', label: 'Reject', icon: XCircle },
-];
 
 const VolunteerManagement = () => {
   const [filters, setFilters] = useState({
@@ -43,7 +37,7 @@ const VolunteerManagement = () => {
   const total = response?.data?.pagination?.total;
 
   const { mutateAsync: deleteVolunteer, isPending: isDeleting } = useDeleteVolunteer();
-  const { mutateAsync: updateVolunteer } = useUpdateVolunteer();
+  const { mutateAsync: updateVolunteer, isPending: isUpdateVolunteerLoading } = useUpdateVolunteer();
 
   const [showVolunteerDrawer, setShowVolunteerDrawer] = useState(false);
   const [showVolunteerDetailsDrawer, setShowVolunteerDetailsDrawer] = useState(false);

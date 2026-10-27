@@ -4,13 +4,14 @@ import { CheckCircle2, X, FileText, Calendar, Image, User, Tag, Bookmark } from 
 import { Toaster, toast } from 'sonner';
 import { Button, FormField } from '../ui';
 import { useCreateNews, useUpdateNews } from '../../api/news';
+import { statusOptions } from '../../pages/admin/News/UtilsNews';
 
 const NewsForm = ({ article, onClose, onSubmitted }) => {
   const [submitted, setSubmitted] = useState(false);
   const isEditing = Boolean(article);
 
-  const { mutateAsync: createNews, isPending: isCreating } = useCreateNews();
-  const { mutateAsync: updateNews, isPending: isUpdating } = useUpdateNews();
+  const { mutateAsync: createNews, isPending: isCreatingNewsLoading } = useCreateNews();
+  const { mutateAsync: updateNews, isPending: isUpdatingNewsLoading } = useUpdateNews();
 
   const {
     register,
@@ -170,22 +171,11 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               {...register('category', { required: 'Category is required' })}
               error={errors.category}
             >
-              <option value="general">General</option>
-              <option value="politics">Politics</option>
-              <option value="education">Education</option>
-              <option value="community">Community</option>
-              <option value="youth">Youth</option>
-              <option value="health">Health</option>
-              <option value="sports">Sports</option>
-              <option value="technology">Technology</option>
-              <option value="business">Business</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="security">Security</option>
-              <option value="environment">Environment</option>
-              <option value="agriculture">Agriculture</option>
-              <option value="infrastructure">Infrastructure</option>
-              <option value="religion">Religion</option>
-              <option value="opinion">Opinion</option>
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </FormField>
 
             <FormField
@@ -195,10 +185,11 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               {...register('status', { required: 'Status is required' })}
               error={errors.status}
             >
-              <option value="pending">Pending</option>
-              <option value="published">Published</option>
-              <option value="rejected">Rejected</option>
-              <option value="archived">Archived</option>
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </FormField>
           </div>
 
@@ -234,7 +225,7 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               size="lg"
               onClick={handleCancel}
               icon={X}
-              disabled={isCreating || isUpdating}
+              disabled={isCreatingNewsLoading || isUpdatingNewsLoading}
             >
               Cancel
             </Button>
@@ -243,8 +234,8 @@ const NewsForm = ({ article, onClose, onSubmitted }) => {
               variant="primary"
               size="lg"
               icon={FileText}
-              loading={isCreating || isUpdating}
-              disabled={isCreating || isUpdating}
+              loading={isCreatingNewsLoading || isUpdatingNewsLoading}
+              disabled={isCreatingNewsLoading || isUpdatingNewsLoading}
             >
               {isEditing ? 'Update article' : 'Create article'}
             </Button>

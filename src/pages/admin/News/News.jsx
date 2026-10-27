@@ -9,30 +9,17 @@ import {
   TrashIcon,
   CalendarIcon,
 } from '@heroicons/react/24/outline';
-import { Drawer, ConfirmDialog } from '../../../components/ui';
+import { Drawer, ConfirmDialog, Dropdown } from '../../../components/ui';
 import SimpleTable from '../../../components/admin/SimpleTable';
 import { motion } from 'framer-motion';
 import { Avatar, Button, Input, Select, Tooltip } from 'antd';
 import { Eye as EyeStatIcon, FilePen as FilePenIcon, Globe as GlobeIcon, Newspaper as NewspaperIcon } from 'lucide-react';
 import { PageIntro, StatCard, pillClass } from '../components/AdminUI';
-import { useGetAllNews, useGetNewsStats, useDeleteNews } from '../../../api/news';
+import { useGetAllNews, useGetNewsStats, useDeleteNews, useUpdateNews } from '../../../api/news';
 import { Toaster, toast } from 'sonner';
 import NewsForm from '../../../components/forms/NewsForm';
 import NewsDetails from './NewsDetails';
-
-const getStatusBadge = (status) => {
-  const map = {
-    published: { className: 'bg-primary-50 text-primary-700 ring-primary-200' },
-    Published: { className: 'bg-primary-50 text-primary-700 ring-primary-200' },
-    pending: { className: 'bg-yellow-50 text-yellow-700 ring-yellow-200' },
-    Draft: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
-    draft: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
-    rejected: { className: 'bg-red-50 text-red-600 ring-red-200' },
-    archived: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
-    Archived: { className: 'bg-gray-100 text-gray-600 ring-gray-200' },
-  };
-  return `inline-flex items-center px-2.5 py-0.5 text-xs font-semibold rounded-full ring-1 ring-inset whitespace-nowrap capitalize ${map[status]?.className ?? 'bg-gray-100 text-gray-600 ring-gray-200'}`;
-};
+import { categoryOptions, getStatusBadge, statusOptions } from './UtilsNews';
 
 export default function NewsManagement() {
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -45,7 +32,9 @@ export default function NewsManagement() {
     status: statusFilter !== 'All' ? statusFilter : undefined,
     category: categoryFilter !== 'All' ? categoryFilter : undefined,
   });
-  const { data: statsResponse } = useGetNewsStats();
+  const { data: statsResponse, isPending: isNewsStatsLoading } = useGetNewsStats();
+  const { mutateAsync: updateNews, isPending: isUpdatingNewsLoading } = useUpdateNews();
+
   const { mutateAsync: deleteNews, isPending: isDeleting } = useDeleteNews();
 
   const [showNewsDrawer, setShowNewsDrawer] = useState(false);
@@ -61,6 +50,7 @@ export default function NewsManagement() {
   const publishedCount = stats.published ?? 0;
   const pendingCount = stats.pending ?? 0;
   const featuredCount = stats.featured ?? 0;
+  
 
   const openAddArticle = () => {
     setSelectedArticle(null);
@@ -81,7 +71,7 @@ export default function NewsManagement() {
     setShowNewsDrawer(false);
     setTimeout(() => setSelectedArticle(null), 300);
   };
-  
+
   const closeDetailsDrawer = () => {
     setShowDetailsDrawer(false);
     setTimeout(() => setSelectedArticle(null), 300);
@@ -90,6 +80,15 @@ export default function NewsManagement() {
   const handleFormSubmitted = () => {
     closeNewsDrawer();
   };
+
+  const handleChangeStatus = async (article, status) => {
+    try {
+      await updateNews({ id: article._id, data: { status } });
+      toast.success('Article status updated successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update article status.');
+    }
+  }
 
   const handleDelete = async () => {
     if (!selectedArticle?._id) return;
@@ -116,7 +115,7 @@ export default function NewsManagement() {
     },
   ];
 
-  const ActionMenu = ({ article }) => (
+  const NewsAction = ({ article }) => (
     <div className="flex items-center gap-0.5">
       {newsActions(article).map((action, idx) => (
         <Tooltip key={idx} title={action.label}>
@@ -132,6 +131,76 @@ export default function NewsManagement() {
       ))}
     </div>
   );
+
+  const tableColumns = [
+    { accessorKey: 'imageUrl', header: 'Image Preview', cell: (info) => <img src={info.row?.original?.imageUrl} className="w-[100px] h-[100px] object-cover rounded-md" alt="Preview" /> },
+    {
+      accessorKey: 'title',
+      header: 'Article',
+      cell: (info) => {
+        const a = info.row?.original;
+        return (
+          <div>
+            <p className="m-0 font-semibold text-gray-900 max-w-[320px] truncate">{a?.title}</p>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <span className={pillClass('neutral')}>{a?.category}</span>
+              <p className="m-0 inline-flex items-center gap-1 text-xs text-gray-500">
+                <CalendarIcon className="h-3 w-3" />
+                {a?.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : a?.createdAt ? new Date(a.createdAt).toLocaleDateString() : '—'}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'author',
+      header: 'Author / Source',
+      cell: (info) => {
+        const a = info.row?.original;
+        const displayName = a?.author || a?.sourceName || 'Unknown';
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar size={32} className="!bg-primary-50 !text-xs !font-semibold !text-primary-700">
+              {displayName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
+            </Avatar>
+            <span className="text-[13px] text-gray-700">{displayName}</span>
+          </div>
+        );
+      },
+    },
+    { accessorKey: 'views', header: 'Views', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{(info.row?.original?.views ?? 0).toLocaleString()}</p> },
+    { accessorKey: 'likes', header: 'Likes', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.likes ?? 0}</p> },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: (info) => {
+        const v = info.row?.original;
+        return (
+          <Dropdown
+            items={statusOptions
+              .filter((option) => option.value !== v?.status)
+              .map((option) => ({
+                key: option.value,
+                label: option.label,
+                icon: option.icon,
+                onClick: () => handleChangeStatus(v, option.value),
+              }))}
+            trigger={
+              <span title="Change status" className={getStatusBadge(v?.status)}>
+                {v?.status}
+              </span>
+            }
+          />
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: (info) => <NewsAction article={info.row?.original} />,
+    },
+  ]
 
   return (
     <div className="space-y-6">
@@ -191,7 +260,10 @@ export default function NewsManagement() {
               }}
               className="min-w-44"
               aria-label="Categories"
-              options={['All', 'general', 'politics', 'education', 'community', 'youth', 'health', 'sports', 'technology', 'business', 'entertainment', 'security', 'environment', 'agriculture', 'infrastructure', 'religion', 'opinion'].map((option) => ({ value: option, label: option === 'All' ? 'All categories' : option.charAt(0).toUpperCase() + option.slice(1) }))}
+              options={categoryOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
+              }))}
             />
             <Select
               size="large"
@@ -219,60 +291,13 @@ export default function NewsManagement() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
         <SimpleTable
           data={articles}
+          columns={tableColumns}
+          pagination={pagination}
+          onPageChange={(page) => fetchRecords(page, pagination.limit)}
           keyField="_id"
           loading={isNewsLoading}
           emptyTitle="No articles found"
           emptyDescription="Try adjusting your search or filter criteria."
-          columns={[
-            { accessorKey: 'imageUrl', header: 'Image Preview', cell: (info) => <img src={info.row?.original?.imageUrl} className="w-[100px] h-[100px] object-cover rounded-md" alt="Preview" /> },
-            {
-              accessorKey: 'title',
-              header: 'Article',
-              cell: (info) => {
-                const a = info.row?.original;
-                return (
-                  <div>
-                    <p className="m-0 font-semibold text-gray-900 max-w-[320px] truncate">{a?.title}</p>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className={pillClass('neutral')}>{a?.category}</span>
-                      <p className="m-0 inline-flex items-center gap-1 text-xs text-gray-500">
-                        <CalendarIcon className="h-3 w-3" />
-                        {a?.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : a?.createdAt ? new Date(a.createdAt).toLocaleDateString() : '—'}
-                      </p>
-                    </div>
-                  </div>
-                );
-              },
-            },
-            {
-              accessorKey: 'author',
-              header: 'Author / Source',
-              cell: (info) => {
-                const a = info.row?.original;
-                const displayName = a?.author || a?.sourceName || 'Unknown';
-                return (
-                  <div className="flex items-center gap-2">
-                    <Avatar size={32} className="!bg-primary-50 !text-xs !font-semibold !text-primary-700">
-                      {displayName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
-                    </Avatar>
-                    <span className="text-[13px] text-gray-700">{displayName}</span>
-                  </div>
-                );
-              },
-            },
-            { accessorKey: 'views', header: 'Views', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{(info.row?.original?.views ?? 0).toLocaleString()}</p> },
-            { accessorKey: 'likes', header: 'Likes', cell: (info) => <p className="m-0 text-[13px] text-gray-700">{info.row?.original?.likes ?? 0}</p> },
-            {
-              accessorKey: 'status',
-              header: 'Status',
-              cell: (info) => <span className={getStatusBadge(info.row?.original?.status)}>{info.row?.original?.status}</span>
-            },
-            {
-              id: 'actions',
-              header: 'Actions',
-              cell: (info) => <ActionMenu article={info.row?.original} />,
-            },
-          ]}
         />
       </motion.div>
 

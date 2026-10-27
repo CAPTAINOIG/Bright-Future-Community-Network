@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ChevronUpDownIcon,
   ChevronUpIcon,
@@ -13,22 +13,29 @@ const SimpleTable = ({
   data = [],
   columns = [],
   loading = false,
-  pageSize = 10,
+  pageSize = 20,
+  pagination = {},
+  onPageChange,
   emptyTitle = 'No records found',
   emptyDescription = 'Try adjusting your filters or check back later.',
   keyField = '_id',
 }) => {
   const [sorting, setSorting] = useState(null);
-  const [pageIndex, setPageIndex] = useState(0);
 
-  const safePageSize = Math.max(1, Number(pageSize) || 10);
+  // Backend pagination uses 1-based page numbers.
+  const currentPage = Math.max(1, Number(pagination.page) || 1);
+  const safePageSize = Math.max(
+    1,
+    Number(pagination.limit) || Number(pageSize) || 20
+  );
+  const totalRecords = Math.max(0, Number(pagination.total) || 0);
+  const totalPages = Math.max(
+    0,
+    Number(pagination.totalPages) ||
+      Math.ceil(totalRecords / safePageSize)
+  );
 
-  // Reset pagination when the dataset changes.
-  useEffect(() => {
-    setPageIndex(0);
-  }, [data, safePageSize]);
-
-  // Sorting
+  // Sort the records currently returned by the backend.
   const sortedData = useMemo(() => {
     if (!sorting) return data;
 
@@ -58,24 +65,17 @@ const SimpleTable = ({
     });
   }, [data, sorting]);
 
-  // Pagination
-  const totalPages = Math.ceil(sortedData.length / safePageSize);
-  const currentPage = Math.min(
-    pageIndex,
-    Math.max(0, totalPages - 1)
-  );
-
-  const paginatedData = sortedData.slice(
-    currentPage * safePageSize,
-    (currentPage + 1) * safePageSize
-  );
+  // The backend already paginates the data. Do not slice it again.
+  const paginatedData = sortedData;
 
   const startResult =
-    sortedData.length === 0 ? 0 : currentPage * safePageSize + 1;
+    totalRecords === 0
+      ? 0
+      : (currentPage - 1) * safePageSize + 1;
 
   const endResult = Math.min(
-    (currentPage + 1) * safePageSize,
-    sortedData.length
+    (currentPage - 1) * safePageSize + data.length,
+    totalRecords
   );
 
   const toggleSort = (columnKey) => {
@@ -92,8 +92,6 @@ const SimpleTable = ({
 
       return null;
     });
-
-    setPageIndex(0);
   };
 
   const getColumnKey = (column) =>
@@ -127,10 +125,12 @@ const SimpleTable = ({
               className="flex items-center gap-5"
             >
               <div className="h-9 w-9 shrink-0 animate-pulse rounded-xl bg-gray-100" />
+
               <div className="flex-1 space-y-2">
                 <div className="h-3 w-1/3 animate-pulse rounded bg-gray-100" />
                 <div className="h-3 w-1/5 animate-pulse rounded bg-gray-50" />
               </div>
+
               <div className="hidden h-7 w-20 animate-pulse rounded-full bg-gray-100 sm:block" />
               <div className="hidden h-3 w-16 animate-pulse rounded bg-gray-100 md:block" />
             </div>
@@ -151,7 +151,10 @@ const SimpleTable = ({
     return (
       <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
         <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
-          <InboxIcon className="h-8 w-8 text-primary-600" strokeWidth={1.5} />
+          <InboxIcon
+            className="h-8 w-8 text-primary-600"
+            strokeWidth={1.5}
+          />
         </div>
 
         <h3 className="text-base font-semibold tracking-tight text-gray-900">
@@ -173,6 +176,7 @@ const SimpleTable = ({
           <h3 className="text-[15px] font-semibold tracking-tight text-gray-900">
             Records
           </h3>
+
           <p className="mt-0.5 text-[13px] text-gray-500">
             Manage and review your information
           </p>
@@ -180,8 +184,9 @@ const SimpleTable = ({
 
         <div className="inline-flex w-fit items-center gap-2 rounded-full bg-primary-50 px-3 py-1 ring-1 ring-inset ring-primary-100">
           <span className="h-1.5 w-1.5 rounded-full bg-primary-600" />
+
           <span className="text-xs font-semibold tabular-nums text-primary-700">
-            {sortedData.length.toLocaleString()} records
+            {totalRecords.toLocaleString()} records
           </span>
         </div>
       </div>
@@ -262,7 +267,7 @@ const SimpleTable = ({
         </table>
       </div>
 
-      {/* Footer / Pagination */}
+      {/* Footer / Server-side Pagination */}
       <div className="flex flex-col gap-4 border-t border-gray-100 bg-white px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between md:px-6">
         <p className="text-xs leading-5 text-gray-500">
           Showing{' '}
@@ -271,42 +276,44 @@ const SimpleTable = ({
           </span>{' '}
           of{' '}
           <span className="font-semibold text-gray-900">
-            {sortedData.length.toLocaleString()}
+            {totalRecords.toLocaleString()}
           </span>{' '}
           results
         </p>
 
         <div className="flex items-center justify-between gap-2 sm:justify-end">
+          {/* Previous page */}
           <button
             type="button"
-            onClick={() => setPageIndex((page) => Math.max(0, page - 1))}
-            disabled={currentPage === 0}
+            onClick={() => onPageChange?.(currentPage - 1)}
+            disabled={loading || currentPage <= 1}
             className="inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 text-xs font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ChevronLeftIcon className="h-4 w-4" />
             <span>Previous</span>
           </button>
 
+          {/* Page numbers */}
           <div className="flex items-center gap-1">
             {Array.from(
               { length: totalPages },
-              (_, index) => index
+              (_, index) => index + 1
             )
               .filter(
-                (index) =>
-                  index === 0 ||
-                  index === totalPages - 1 ||
-                  Math.abs(index - currentPage) <= 1
+                (page) =>
+                  page === 1 ||
+                  page === totalPages ||
+                  Math.abs(page - currentPage) <= 1
               )
-              .reduce((pages, index, position, visiblePages) => {
+              .reduce((pages, page, position, visiblePages) => {
                 if (
                   position > 0 &&
-                  index - visiblePages[position - 1] > 1
+                  page - visiblePages[position - 1] > 1
                 ) {
-                  pages.push('ellipsis-' + index);
+                  pages.push(`ellipsis-${page}`);
                 }
 
-                pages.push(index);
+                pages.push(page);
                 return pages;
               }, [])
               .map((page) =>
@@ -321,29 +328,29 @@ const SimpleTable = ({
                   <button
                     key={page}
                     type="button"
-                    onClick={() => setPageIndex(page)}
-                    aria-label={`Go to page ${page + 1}`}
-                    aria-current={currentPage === page ? 'page' : undefined}
+                    onClick={() => onPageChange?.(page)}
+                    disabled={loading || currentPage === page}
+                    aria-label={`Go to page ${page}`}
+                    aria-current={
+                      currentPage === page ? 'page' : undefined
+                    }
                     className={`h-9 min-w-9 rounded-full px-2 text-xs font-semibold tabular-nums transition-colors ${
                       currentPage === page
                         ? 'bg-primary-600 text-white'
                         : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
-                    {page + 1}
+                    {page}
                   </button>
                 )
               )}
           </div>
 
+          {/* Next page */}
           <button
             type="button"
-            onClick={() =>
-              setPageIndex((page) =>
-                Math.min(Math.max(0, totalPages - 1), page + 1)
-              )
-            }
-            disabled={currentPage >= totalPages - 1}
+            onClick={() => onPageChange?.(currentPage + 1)}
+            disabled={loading || currentPage >= totalPages}
             className="inline-flex h-9 items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 text-xs font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <span>Next</span>
@@ -353,6 +360,6 @@ const SimpleTable = ({
       </div>
     </div>
   );
-}
+};
 
 export default SimpleTable;
