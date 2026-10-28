@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { Search, ChevronLeft, ChevronRight, BookOpen, ArrowUpRight, X } from "lucide-react";
 import { useGetPublishedNews } from "../../api/news";
-import { categoryOptions, formatDate, getArticleText, getArticleUrl, getExcerpt, getImageUrl, getSourceName, normalizeUrl, date, getReadTime } from "../admin/News/UtilsNews";
+import { categoryOptions, formatDate, getArticleText, getArticleUrl, getExcerpt, getImageUrl, getSourceName, normalizeUrl, getReadTime } from "../admin/News/UtilsNews";
 
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 350;
 
+
 const timeAgo = (dateString) => {
   if (!dateString) return "Date unavailable";
-
+  
   const timestamp = new Date(dateString).getTime();
   if (Number.isNaN(timestamp)) return "Date unavailable";
-
+  
   const minutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60000));
 
   if (minutes < 1) return "Just now";
@@ -19,12 +20,21 @@ const timeAgo = (dateString) => {
 
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours} hr${hours === 1 ? "" : "s"} ago`;
-
+  
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
-
+  
   return formatDate(dateString);
 };
+// const date = new Date(dateString);
+
+//  if (Number.isNaN(date.getTime())) return "Date unavailable";
+
+//  return date.toLocaleDateString("en-GB", {
+//    day: "numeric",
+//    month: "short",
+//    year: "numeric",
+//  });
 
 const useDebouncedValue = (value, delay = SEARCH_DEBOUNCE_MS) => {
   const [debouncedValue, setDebouncedValue] = useState(value);

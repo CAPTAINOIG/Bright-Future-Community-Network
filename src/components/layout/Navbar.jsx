@@ -112,8 +112,12 @@ const Navbar = () => {
           </ul>
 
           <div className="flex items-center gap-2 shrink-0">
-            <Button to="/support" variant="secondary" size="sm" icon={Heart} className="hidden xl:inline-flex">Support</Button>
-            <Button onClick={() => setShowJoinDrawer(true)} variant="primary" size="sm" className="hidden lg:inline-flex">Join BFCN</Button>
+            <div className="hidden xl:block">
+              <Button to="/support" variant="secondary" size="sm" icon={Heart}>Support</Button>
+            </div>
+            <div className="hidden lg:block">
+              <Button onClick={() => setShowJoinDrawer(true)} variant="primary" size="sm">Join BFCN</Button>
+            </div>
             <button className="flex lg:hidden items-center justify-center w-11 h-11 rounded-full text-gray-900 hover:bg-gray-100 transition-colors bg-transparent border-none cursor-pointer" onClick={() => setIsOpen(!isOpen)} aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen}>
               {isOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
