@@ -30,16 +30,20 @@ export default function Login() {
   });
 
   const onSubmit = async (data) => {
+    console.log(data)
     try {
       const res = await loginAdmin(data);
-      const { user, token } = res.data;
+      const { user, token } = res.data;  
       if (user && token) {
         setAuth(user, token);
-        toast.success(res.message);
+        toast.success(res.message || 'Login successful!');
         navigate("/admin");
+      } else {
+        toast.error('Login failed: No user or token in response');
       }
     } catch (error) {
-      toast.error(error.response?.data?.message);
+      console.error('Login error:', error)
+      toast.error(error.response?.data?.message || error.message || 'Login failed. Please try again.');
     }
   };
 

@@ -53,8 +53,8 @@ axiosInstance.interceptors.response.use(
         error.response?.data?.message !== "secretOrPrivateKey must have a value") {
       const authStore = useAuthStore.getState();
       authStore.logout();
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (window.location.pathname !== '/admin/login') {
+        window.location.href = '/admin/login';
       }
     }
     return Promise.reject(error);
