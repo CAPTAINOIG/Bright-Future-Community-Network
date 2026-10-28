@@ -40,3 +40,59 @@ export const statusOptions = [
     { value: 'opinion', label: 'Opinion' },
     { value: 'other', label: 'Other' },
   ];
+
+  export const normalizeUrl = (value) => {
+  if (typeof value !== "string" || !value.trim()) return "";
+
+  const input = value.trim();
+  const markdownMatch = input.match(/\]\((https?:\/\/[^)\s]+)\)/i);
+  const plainMatch = input.match(/https?:\/\/\S+/i);
+  const candidate = (markdownMatch?.[1] || plainMatch?.[0] || input)
+    .replace(/&amp;/gi, "&")
+    .replace(/\\&/g, "&")
+    .replace(/[)\],.]+$/, "");
+
+  try {
+    const parsed = new URL(candidate);
+    return ["http:", "https:"].includes(parsed.protocol) ? parsed.href : "";
+  } catch {
+    return "";
+  }
+};
+
+export const getArticleUrl = (article) => normalizeUrl(article?.sourceUrl);
+
+export const getImageUrl = (article) =>
+  normalizeUrl(article?.imageUrl || article?.image);
+
+export const getSourceName = (article) =>
+  article?.author || article?.sourceName || "BFCN News";
+
+export const getArticleText = (article) =>
+  article?.summary?.trim() || article?.content?.trim() || "";
+
+export const getExcerpt = (article, maxLength = 170) => {
+  const text = getArticleText(article);
+  if (!text) return "Open the original story to read more.";
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength).trimEnd()}…`;
+};
+
+export const formatDate = (dateString) => {
+  if (!dateString) return "Date unavailable";
+};
+
+export const getReadTime = (article) => {
+  const words = getArticleText(article).split(/\s+/).filter(Boolean).length;
+  return `${Math.max(1, Math.ceil(words / 200))} min read`;
+};
+
+export const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
+
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
