@@ -1,9 +1,14 @@
 import axios from "axios";
 import useAuthStore from "../store/useAuthStore";
 
-// Ensure baseURL ends with /api and has no trailing slash
+const PRODUCTION_API_URL = "https://bright-future-community-network-backend-3.onrender.com/api";
+
+// Ensure baseURL ends with /api and has no trailing slash.
+// Falls back to localhost only in dev, so a missing env var on Netlify can't point users at localhost.
 const getBaseURL = () => {
-  let url = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+  let url =
+    import.meta.env.VITE_API_BASE_URL?.trim() ||
+    (import.meta.env.DEV ? "http://localhost:3000/api" : PRODUCTION_API_URL);
   // Remove trailing slash if present
   if (url.endsWith("/")) {
     url = url.slice(0, -1);
@@ -24,7 +29,8 @@ const axiosInstance = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || 50000),
+  // Long enough to survive a Render cold start (~60s)
+  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || 90000),
 });
 
 // Request interceptor to inject token dynamically

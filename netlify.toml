@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  VITE_API_BASE_URL = "https://bright-future-community-network-backend-3.onrender.com/api"
 
 [[redirects]]
   from = "/*"
