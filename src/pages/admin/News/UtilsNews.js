@@ -80,6 +80,13 @@ export const getExcerpt = (article, maxLength = 170) => {
 
 export const formatDate = (dateString) => {
   if (!dateString) return "Date unavailable";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 };
 
 export const getReadTime = (article) => {

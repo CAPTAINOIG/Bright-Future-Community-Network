@@ -22,15 +22,15 @@ import NewsDetails from './NewsDetails';
 import { categoryOptions, getStatusBadge, statusOptions } from './UtilsNews';
 
 export default function NewsManagement() {
-  const [categoryFilter, setCategoryFilter] = useState(categoryOptions[0].value);
+  const [categoryFilter, setCategoryFilter] = useState(categoryOptions[0]?.value);
   const [statusFilter, setStatusFilter] = useState(statusOptions[0].value);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: response, isPending: isNewsLoading } = useGetAllNews({
     page, limit: 20, search: searchTerm,
-    status: statusFilter !== statusOptions[0].value ? statusFilter : undefined,
-    category: categoryFilter !== categoryOptions[0].value ? categoryFilter : undefined,
+    status: statusFilter !== statusOptions[0]?.value ? statusFilter : undefined,
+    category: categoryFilter !== categoryOptions[0]?.value ? categoryFilter : undefined,
   });
   const { data: statsResponse, isPending: isNewsStatsLoading } = useGetNewsStats();
   const { mutateAsync: updateNews, isPending: isUpdatingNewsLoading } = useUpdateNews();
@@ -260,7 +260,7 @@ export default function NewsManagement() {
               }}
               className="min-w-44"
               aria-label="Categories"
-              options={categoryOptions.map((option) => ({
+              options={categoryOptions?.map((option) => ({
                 value: option.value,
                 label: option.label,
               }))}
@@ -293,7 +293,7 @@ export default function NewsManagement() {
           data={articles}
           columns={tableColumns}
           pagination={pagination}
-          onPageChange={(page) => fetchRecords(page, pagination.limit)}
+          // onPageChange={(page) => fetchRecords(page, pagination.limit)}
           keyField="_id"
           loading={isNewsLoading}
           emptyTitle="No articles found"

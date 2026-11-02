@@ -25,6 +25,8 @@ import {
   SectionLabel,
   pillClass,
 } from '../components/AdminUI';
+import { useNewsViewsIncrement } from '../../../api/news';
+import { useEffect } from 'react';
 
 const formatDate = (date, includeTime = false) => {
   if (!date) return '—';
@@ -45,10 +47,16 @@ const formatDate = (date, includeTime = false) => {
 
 const NewsDetails = ({ news, onEdit, onClose }) => {
   if (!news) return null;
-  const articleId = (news._id ?? '')
-    .toString()
-    .slice(-6)
-    .toUpperCase();
+  const newsSlug = news.slug
+  const {mutate: incrementViews, data: newsViewsIncrement, isPending: isNewsVIewsIncrementLoading } = useNewsViewsIncrement(newsSlug);
+  useEffect(() => {
+    if (newsSlug) {
+      incrementViews();
+    }
+  }, [newsSlug, incrementViews]);
+  const viewIncrement = newsViewsIncrement?.data?.views
+
+  const articleId = (news._id ?? '').toString().slice(-6).toUpperCase();
 
   const status = news.status || (news.published ? 'published' : 'pending');
 
@@ -260,7 +268,7 @@ const NewsDetails = ({ news, onEdit, onClose }) => {
           <DetailItem
             icon={Eye}
             label="Views"
-            value={news.views ?? 0}
+            value={news.views ?? viewIncrement ?? 0}
           />
 
           <DetailItem

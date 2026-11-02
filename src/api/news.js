@@ -100,6 +100,21 @@ export const useCreateNews = () => {
   });
 };
 
+export const useNewsViewsIncrement = (slug) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await axiosInstance.post(`/news/${slug}/views`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allNews"] });
+      queryClient.invalidateQueries({ queryKey: ["publishedNews"] });
+      queryClient.invalidateQueries({ queryKey: ["newsStats"] });
+    },
+  });
+};
+
 export const useGetNewsById = (id) => {
   return useQuery({
     queryKey: ["newsById", id],

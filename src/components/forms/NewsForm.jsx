@@ -4,7 +4,7 @@ import { CheckCircle2, X, FileText, Calendar, Image, User, Tag, Bookmark } from 
 import { Toaster, toast } from 'sonner';
 import { Button, FormField } from '../ui';
 import { useCreateNews, useUpdateNews } from '../../api/news';
-import { statusOptions } from '../../pages/admin/News/UtilsNews';
+import { categoryOptions, statusOptions } from '../../pages/admin/News/UtilsNews';
 
 const NewsForm = ({ article, onClose, onSubmitted }) => {
   const [submitted, setSubmitted] = useState(false);

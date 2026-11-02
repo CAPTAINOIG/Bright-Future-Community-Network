@@ -1,18 +1,40 @@
 import { useEffect, useState } from "react";
-import { Search, ChevronLeft, ChevronRight, BookOpen, ArrowUpRight, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  ArrowRight,
+  Eye,
+  X,
+  TrendingUp,
+  Clock,
+} from "lucide-react";
 import { useGetPublishedNews } from "../../api/news";
-import { categoryOptions, formatDate, getArticleText, getArticleUrl, getExcerpt, getImageUrl, getSourceName, normalizeUrl, getReadTime } from "../admin/News/UtilsNews";
+import {
+  categoryOptions,
+  formatDate,
+  getArticleText,
+  getArticleUrl,
+  getExcerpt,
+  getImageUrl,
+  getReadTime,
+  getSourceName,
+  normalizeUrl,
+} from "../admin/News/UtilsNews";
 
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 350;
 
+/* ── Utilities ─────────────────────────────────────────────── */
 
 const timeAgo = (dateString) => {
   if (!dateString) return "Date unavailable";
-  
+
   const timestamp = new Date(dateString).getTime();
   if (Number.isNaN(timestamp)) return "Date unavailable";
-  
+
   const minutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60000));
 
   if (minutes < 1) return "Just now";
@@ -20,30 +42,18 @@ const timeAgo = (dateString) => {
 
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours} hr${hours === 1 ? "" : "s"} ago`;
-  
+
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
-  
+
   return formatDate(dateString);
 };
-// const date = new Date(dateString);
-
-//  if (Number.isNaN(date.getTime())) return "Date unavailable";
-
-//  return date.toLocaleDateString("en-GB", {
-//    day: "numeric",
-//    month: "short",
-//    year: "numeric",
-//  });
 
 const useDebouncedValue = (value, delay = SEARCH_DEBOUNCE_MS) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(
-      () => setDebouncedValue(value),
-      delay
-    );
+    const timeoutId = window.setTimeout(() => setDebouncedValue(value), delay);
 
     return () => window.clearTimeout(timeoutId);
   }, [value, delay]);
@@ -57,9 +67,18 @@ const scrollToTop = () => {
   }
 };
 
-/* -------------------------------------------------------------------------- */
-/* Reusable components                                                        */
-/* -------------------------------------------------------------------------- */
+const formatShortDate = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+/* ── Reusable components ──────────────────────────────────── */
 
 const Thumb = ({
   article,
@@ -134,32 +153,24 @@ const Byline = ({ article, light = false }) => (
   </div>
 );
 
-const SourceLink = ({ article, children = "Read story", className = "" }) => {
-  const href = getArticleUrl(article);
-  if (!href) return null;
-
+const ViewCount = ({ article }) => {
+  if (article?.views == null) return null;
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={className}
-    >
-      {children}
-    </a>
+    <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+      <Eye size={13} />
+      {article.views.toLocaleString()}
+    </span>
   );
 };
 
-/* -------------------------------------------------------------------------- */
-/* Story layouts                                                              */
-/* -------------------------------------------------------------------------- */
+/* ── Story layouts ─────────────────────────────────────────── */
 
 const LeadStory = ({ article }) => (
   <article>
-    <SourceLink
-      article={article}
-      className="group relative block min-h-[420px] overflow-hidden rounded-3xl bg-primary-900 focus-visible:outline focus-visible:outline-4 focus-visible:outline-accent-300 lg:min-h-[560px]"
-      aria-label={`Read original story: ${article.title}`}
+    <Link
+      to={`/news/${article.slug}`}
+      className="group relative block min-h-[420px] overflow-hidden rounded-3xl bg-primary-900 no-underline focus-visible:outline focus-visible:outline-4 focus-visible:outline-accent-300 lg:min-h-[560px]"
+      aria-label={`Read story: ${article.title}`}
     >
       <Thumb
         article={article}
@@ -174,8 +185,13 @@ const LeadStory = ({ article }) => (
       />
 
       <div className="relative flex min-h-[420px] flex-col justify-end p-6 md:p-10 lg:min-h-[560px]">
-        <div className="mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <Tag onDark>{article.category}</Tag>
+          {article.featured && (
+            <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-sm">
+              ★ Featured
+            </span>
+          )}
         </div>
 
         <h2 className="m-0 max-w-[760px] font-serif text-[1.9rem] leading-[1.1] text-white md:text-5xl">
@@ -186,9 +202,12 @@ const LeadStory = ({ article }) => (
           {getExcerpt(article, 260)}
         </p>
 
-        <Byline article={article} light />
+        <div className="flex items-center justify-between">
+          <Byline article={article} light />
+          <ViewCount article={article} />
+        </div>
       </div>
-    </SourceLink>
+    </Link>
   </article>
 );
 
@@ -201,10 +220,10 @@ const LatestList = ({ items }) => (
     <ul className="m-0 flex list-none flex-col divide-y divide-gray-200 p-0">
       {items.map((article) => (
         <li key={article._id || article.slug || article.title}>
-          <SourceLink
-            article={article}
-            className="group flex gap-4 py-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600"
-            aria-label={`Read original story: ${article.title}`}
+          <Link
+            to={`/news/${article.slug}`}
+            className="group flex gap-4 py-5 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600"
+            aria-label={`Read story: ${article.title}`}
           >
             <div className="min-w-0 flex-1">
               <span className="text-xs font-bold capitalize text-accent-600">
@@ -215,9 +234,12 @@ const LatestList = ({ items }) => (
                 {article.title}
               </h4>
 
-              <p className="m-0 mt-2 text-xs text-gray-500">
-                {timeAgo(article.publishedAt)}
-              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <p className="m-0 text-xs text-gray-500">
+                  {timeAgo(article.publishedAt)}
+                </p>
+                <ViewCount article={article} />
+              </div>
             </div>
 
             <Thumb
@@ -226,7 +248,7 @@ const LatestList = ({ items }) => (
               className="h-20 w-24 shrink-0 rounded-xl"
               iconSize={20}
             />
-          </SourceLink>
+          </Link>
         </li>
       ))}
     </ul>
@@ -235,44 +257,49 @@ const LatestList = ({ items }) => (
 
 const StoryCard = ({ article }) => (
   <article className="min-w-0">
-    <SourceLink
-      article={article}
-      className="group flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600"
-      aria-label={`Read original story: ${article.title}`}
+    <Link
+      to={`/news/${article.slug}`}
+      className="group flex h-full flex-col no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-600"
+      aria-label={`Read story: ${article.title}`}
     >
-      <Thumb
-        article={article}
-        alt=""
-        className="aspect-[3/2] rounded-2xl"
-      />
+      <Thumb article={article} alt="" className="aspect-[3/2] rounded-2xl" />
 
       <div className="flex flex-1 flex-col pt-5">
-        <div className="mb-3">
+        <div className="mb-3 flex items-center gap-2">
           <Tag>{article.category}</Tag>
+          {article.featured && (
+            <span className="inline-flex items-center rounded-full bg-accent-50 px-2 py-0.5 text-[10px] font-bold text-accent-700">
+              ★ Featured
+            </span>
+          )}
         </div>
 
         <h3 className="m-0 font-serif text-[1.35rem] leading-tight text-gray-900 transition-colors group-hover:text-primary-700">
           {article.title}
         </h3>
 
-        <p className="mb-5 mt-3 line-clamp-3 text-[15px] leading-relaxed text-gray-600">
+        <p className="mb-4 mt-3 line-clamp-3 text-[15px] leading-relaxed text-gray-600">
           {getExcerpt(article, 190)}
         </p>
 
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
           <Byline article={article} />
-
-          <span aria-hidden="true">
-            <ArrowUpRight
-              size={16}
-              className="shrink-0 text-gray-400 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary-700"
-            />
-          </span>
+          <div className="flex items-center gap-3">
+            <ViewCount article={article} />
+            <span aria-hidden="true">
+              <ArrowRight
+                size={16}
+                className="shrink-0 text-gray-400 transition-all group-hover:translate-x-0.5 group-hover:text-primary-700"
+              />
+            </span>
+          </div>
         </div>
       </div>
-    </SourceLink>
+    </Link>
   </article>
 );
+
+/* ── Skeleton ──────────────────────────────────────────────── */
 
 const Skeleton = () => (
   <div aria-busy="true" aria-label="Loading news" className="animate-pulse">
@@ -328,9 +355,7 @@ const Message = ({ tone = "neutral", title, children, action }) => (
   </div>
 );
 
-/* -------------------------------------------------------------------------- */
-/* Pagination                                                                 */
-/* -------------------------------------------------------------------------- */
+/* ── Pagination ────────────────────────────────────────────── */
 
 const getPageNumbers = (currentPage, totalPages) => {
   const pages = new Set([
@@ -420,9 +445,9 @@ const Pagination = ({ page, pagination, onPageChange }) => {
   );
 };
 
-/* -------------------------------------------------------------------------- */
-/* Page                                                                       */
-/* -------------------------------------------------------------------------- */
+/* ═══════════════════════════════════════════════════════════ */
+/* News page                                                  */
+/* ═══════════════════════════════════════════════════════════ */
 
 const News = () => {
   const [searchInput, setSearchInput] = useState("");
@@ -466,6 +491,14 @@ const News = () => {
     scrollToTop();
   };
 
+  // Set document title
+  useEffect(() => {
+    document.title = "BFCN Newsroom — Bright Future Community Network";
+    return () => {
+      document.title = "Bright Future Community Network";
+    };
+  }, []);
+
   const today = new Date().toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
@@ -475,7 +508,7 @@ const News = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Masthead */}
+      {/* ── Masthead ── */}
       <header className="bg-primary-900">
         <div className="container-main py-14 md:py-20">
           <p className="m-0 mb-3 text-sm font-medium text-accent-300">
@@ -531,7 +564,7 @@ const News = () => {
         </div>
       </header>
 
-      {/* Sticky category navigation */}
+      {/* ── Category navigation ── */}
       <nav
         aria-label="News categories"
         className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur"
@@ -542,7 +575,7 @@ const News = () => {
               const active = category === item.value;
               return (
                 <button
-                  key={item}
+                  key={item.value}
                   type="button"
                   aria-pressed={active}
                   onClick={() => {
@@ -626,7 +659,9 @@ const News = () => {
             {grid.length > 0 && (
               <section aria-label="More stories" className="mt-16">
                 <h2 className="m-0 mb-8 border-b-2 border-primary-800 pb-3 font-serif text-2xl text-gray-900">
-                  {category === categoryOptions[0].value ? "More stories" : `More in ${category}`}
+                  {category === categoryOptions[0].value
+                    ? "More stories"
+                    : `More in ${category}`}
                 </h2>
 
                 <div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">

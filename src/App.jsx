@@ -16,6 +16,7 @@ import Programmes from './pages/Programmes/Programmes';
 import Projects from './pages/Projects/Projects';
 import Events from './pages/Events/Events';
 import News from './pages/News/News';
+import NewsArticle from './pages/News/NewsArticle';
 import Gallery from './pages/Gallery/Gallery';
 import Join from './pages/Join/Join';
 import Volunteer from './pages/Volunteer/Volunteer';
@@ -157,6 +158,7 @@ export default function App() {
             <Route path="projects" element={<Projects />} />
             <Route path="events" element={<Events />} />
             <Route path="news" element={<News />} />
+            <Route path="news/:slug" element={<NewsArticle />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="join" element={<Join />} />
             <Route path="volunteer" element={<Volunteer />} />
