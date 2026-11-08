@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../utils/AxiosInstance";
 
 export const useGetPublishedNews = (params = {}) => {
@@ -82,6 +82,7 @@ export const useGetAllNews = (params = {}) => {
         throw error;
       }
     },
+    placeholderData: keepPreviousData,
   });
 };
 

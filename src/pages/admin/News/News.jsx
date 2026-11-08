@@ -27,11 +27,12 @@ export default function NewsManagement() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: response, isPending: isNewsLoading } = useGetAllNews({
+  const { data: response, isPending: isNewsPending, isFetching: isNewsFetching } = useGetAllNews({
     page, limit: 20, search: searchTerm,
     status: statusFilter !== statusOptions[0]?.value ? statusFilter : undefined,
     category: categoryFilter !== categoryOptions[0]?.value ? categoryFilter : undefined,
   });
+  const isNewsLoading = isNewsPending || isNewsFetching;
   const { data: statsResponse, isPending: isNewsStatsLoading } = useGetNewsStats();
   const { mutateAsync: updateNews, isPending: isUpdatingNewsLoading } = useUpdateNews();
 
@@ -293,7 +294,7 @@ export default function NewsManagement() {
           data={articles}
           columns={tableColumns}
           pagination={pagination}
-          // onPageChange={(page) => fetchRecords(page, pagination.limit)}
+          onPageChange={setPage}
           keyField="_id"
           loading={isNewsLoading}
           emptyTitle="No articles found"
