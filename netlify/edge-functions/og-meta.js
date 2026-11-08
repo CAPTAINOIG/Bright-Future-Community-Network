@@ -1,107 +1,116 @@
-import { Context } from "https://edge.netlify.com";
+// Netlify Edge Function: serves article-specific Open Graph tags on /news/:slug
+// so links shared on WhatsApp, Facebook, X, Telegram, etc. show a rich preview
+// (image + title + description). The SPA can't do this itself because link
+// preview crawlers don't run JavaScript.
+//
+// Note: no imports here on purpose — `Context` from edge.netlify.com is a
+// TypeScript type only, and importing it in plain JS breaks the deploy.
 
 const API_BASE = "https://bright-future-community-network-backend-3.onrender.com/api";
 const SITE_URL = "https://bfcn.netlify.app";
 const SITE_NAME = "BFCN News";
 const FALLBACK_IMAGE = `${SITE_URL}/bfcn-logo.png`;
 
-// Social‑media / SEO crawlers that need OG meta
-const BOT_UA = /facebookexternalhit|Facebot|Twitterbot|WhatsApp|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest|Applebot|Googlebot/i;
+// Link-preview / SEO crawlers that need server-rendered meta tags
+const BOT_UA =
+  /facebookexternalhit|facebookcatalog|meta-externalagent|Facebot|Twitterbot|WhatsApp|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest|Applebot|Googlebot|bingbot|Google-InspectionTool|SkypeUriPreview|redditbot|Embedly|Iframely|Viber|vkShare|Signal|Snapchat|Mastodon|Bluesky|Cardyb/i;
 
 export default async function handler(request, context) {
   const ua = request.headers.get("user-agent") || "";
 
-  // Only intercept for bots — normal users get the SPA
-  if (!BOT_UA.test(ua)) {
-    return context.next();
-  }
+  // Real visitors get the normal SPA
+  if (!BOT_UA.test(ua)) return context.next();
 
   const url = new URL(request.url);
   const match = url.pathname.match(/^\/news\/([^/]+)\/?$/);
+  if (!match) return context.next();
 
-  if (!match) {
-    return context.next();
-  }
+  const slug = decodeURIComponent(match[1]);
+  const articleUrl = `${SITE_URL}/news/${encodeURIComponent(slug)}`;
 
-  const slug = match[1];
-
+  let article = null;
   try {
-    const apiRes = await fetch(`${API_BASE}/news/${slug}`, {
+    const apiRes = await fetch(`${API_BASE}/news/${encodeURIComponent(slug)}`, {
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(8000),
+      // Render free tier can cold-start slowly; crawlers usually wait ~10s
+      signal: AbortSignal.timeout(9000),
     });
-
-    if (!apiRes.ok) {
-      return context.next();
+    if (apiRes.ok) {
+      const json = await apiRes.json();
+      article = json?.data?.news ?? json?.data ?? null;
     }
-
-    const json = await apiRes.json();
-    const article = json?.data?.news ?? json?.data ?? null;
-
-    if (!article) {
-      return context.next();
-    }
-
-    const title = escapeHtml(article.title || "BFCN News");
-    const description = escapeHtml(
-      (article.summary || article.content || "Read this story on BFCN News").slice(0, 300)
-    );
-    const image = article.imageUrl || article.image || FALLBACK_IMAGE;
-    const articleUrl = `${SITE_URL}/news/${slug}`;
-    const publishedAt = article.publishedAt || "";
-    const author = escapeHtml(article.author || article.sourceName || "BFCN News");
-    const category = escapeHtml(article.category || "News");
-
-    const html = `<!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
-<head>
-  <meta charset="utf-8"/>
-  <title>${title} — ${SITE_NAME}</title>
-
-  <!-- Open Graph -->
-  <meta property="og:type"        content="article"/>
-  <meta property="og:site_name"   content="${SITE_NAME}"/>
-  <meta property="og:title"       content="${title}"/>
-  <meta property="og:description" content="${description}"/>
-  <meta property="og:image"       content="${image}"/>
-  <meta property="og:image:width" content="1200"/>
-  <meta property="og:image:height" content="630"/>
-  <meta property="og:url"         content="${articleUrl}"/>
-  ${publishedAt ? `<meta property="article:published_time" content="${publishedAt}"/>` : ""}
-  <meta property="article:section" content="${category}"/>
-  <meta property="article:author"  content="${author}"/>
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card"        content="summary_large_image"/>
-  <meta name="twitter:title"       content="${title}"/>
-  <meta name="twitter:description" content="${description}"/>
-  <meta name="twitter:image"       content="${image}"/>
-
-  <!-- Standard meta -->
-  <meta name="description" content="${description}"/>
-  <link rel="canonical" href="${articleUrl}"/>
-
-  <!-- Redirect real browsers that somehow land here -->
-  <meta http-equiv="refresh" content="0;url=${articleUrl}"/>
-</head>
-<body>
-  <h1>${title}</h1>
-  <p>${description}</p>
-  <p><a href="${articleUrl}">Read on ${SITE_NAME}</a></p>
-</body>
-</html>`;
-
-    return new Response(html, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=300, s-maxage=300",
-      },
-    });
-  } catch (err) {
-    // If API fetch fails, let the SPA handle it
-    return context.next();
+  } catch {
+    // fall through to a generic preview below
   }
+
+  const title = article?.title || "Bright Future Community Network";
+  const description = truncate(
+    stripHtml(article?.summary || article?.content || "Read this story on BFCN News"),
+    200
+  );
+  const image = absoluteImage(article?.imageUrl || article?.image);
+  const publishedAt = article?.publishedAt || "";
+  const author = article?.author || article?.sourceName || SITE_NAME;
+  const category = article?.category || "News";
+
+  const e = escapeHtml;
+  const tags = `
+    <title>${e(title)} — ${SITE_NAME}</title>
+    <meta name="description" content="${e(description)}"/>
+    <link rel="canonical" href="${e(articleUrl)}"/>
+    <meta property="og:type" content="${article ? "article" : "website"}"/>
+    <meta property="og:site_name" content="${SITE_NAME}"/>
+    <meta property="og:title" content="${e(title)}"/>
+    <meta property="og:description" content="${e(description)}"/>
+    <meta property="og:url" content="${e(articleUrl)}"/>
+    <meta property="og:image" content="${e(image)}"/>
+    <meta property="og:image:secure_url" content="${e(image)}"/>
+    <meta property="og:image:alt" content="${e(title)}"/>
+    ${publishedAt ? `<meta property="article:published_time" content="${e(publishedAt)}"/>` : ""}
+    <meta property="article:section" content="${e(category)}"/>
+    <meta property="article:author" content="${e(author)}"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="${e(title)}"/>
+    <meta name="twitter:description" content="${e(description)}"/>
+    <meta name="twitter:image" content="${e(image)}"/>
+  `;
+
+  // Serve the real app HTML (so in-app browsers like WhatsApp's still load the
+  // SPA) with the default meta tags swapped for the article's.
+  const res = await context.next();
+  const type = res.headers.get("content-type") || "";
+  if (!type.includes("text/html")) return res;
+
+  const page = (await res.text())
+    .replace(/<title>[\s\S]*?<\/title>/i, "")
+    .replace(/<meta\s+(?:property|name)="(?:og:[^"]*|twitter:[^"]*|description)"[^>]*>\s*/gi, "")
+    .replace(/<\/head>/i, `${tags}</head>`);
+
+  const headers = new Headers(res.headers);
+  headers.delete("content-length");
+  headers.set("content-type", "text/html; charset=utf-8");
+  headers.set("cache-control", article ? "public, max-age=600" : "no-store");
+
+  return new Response(page, { status: 200, headers });
+}
+
+// WhatsApp/Facebook require an absolute https image URL
+function absoluteImage(raw) {
+  if (!raw || typeof raw !== "string") return FALLBACK_IMAGE;
+  let src = raw.trim();
+  if (!src) return FALLBACK_IMAGE;
+  if (src.startsWith("//")) src = `https:${src}`;
+  else if (src.startsWith("/")) src = `${SITE_URL}${src}`;
+  else if (!/^https?:\/\//i.test(src)) return FALLBACK_IMAGE;
+  return src.replace(/^http:\/\//i, "https://");
+}
+
+function stripHtml(str) {
+  return String(str).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function truncate(str, max) {
+  return str.length <= max ? str : `${str.slice(0, max - 1).trimEnd()}…`;
 }
 
 function escapeHtml(str) {

@@ -1,3 +1,5 @@
+import { CheckCircle2, Clock3, XCircle } from "lucide-react";
+
 export const getStatusBadge = (status) => {
   const colors = {
     Approved: "bg-primary-50 text-primary-700 ring-primary-200",
